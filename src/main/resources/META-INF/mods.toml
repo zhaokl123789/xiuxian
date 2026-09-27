@@ -1,0 +1,15 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="xiuxian"
+version="${mod_version}"
+displayName="xiuxian"
+authors="lewis"
+description='''
+A Minecraft development project.
+'''
+
+[[mixins]]
+config="xiuxian.mixins.json"
