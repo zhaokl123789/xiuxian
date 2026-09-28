@@ -12,6 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.network.chat.Component;
 import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationData;
+import xiuxian.network.XiuxianNetwork;
 
 public class QiGatheringPillItem extends Item {
     private static final int QI_RESTORED = 20;
@@ -39,6 +40,7 @@ public class QiGatheringPillItem extends Item {
         }
         level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.6F, 1.15F);
         if (player instanceof ServerPlayer serverPlayer) {
+            XiuxianNetwork.syncCultivation(serverPlayer, data);
             serverPlayer.sendSystemMessage(Component.literal("你服下凝气丹，获得 " + QI_RESTORED + " 点修为。当前修为：" + data.qi()));
         }
         return InteractionResultHolder.sidedSuccess(stack, false);

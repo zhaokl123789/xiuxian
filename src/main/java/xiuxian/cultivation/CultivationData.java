@@ -4,8 +4,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 
 public class CultivationData implements INBTSerializable<CompoundTag> {
-    public static final int DATA_VERSION = 1;
+    public static final int DATA_VERSION = 2;
     public static final String STARTING_TECHNIQUE = "xiuxian:basic_breathing";
+    public static final int INITIAL_ATTRIBUTE_SCORE = 50;
+    public static final int MAX_ATTRIBUTE_SCORE = 100;
 
     private boolean initialized;
     private FamilyOrigin familyOrigin = FamilyOrigin.MORTAL;
@@ -14,6 +16,10 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     private CultivationRealm realm = CultivationRealm.QI_REFINING;
     private int realmLevel = 1;
     private int qi;
+    private int spiritualRoot = INITIAL_ATTRIBUTE_SCORE;
+    private int constitution = INITIAL_ATTRIBUTE_SCORE;
+    private int comprehension = INITIAL_ATTRIBUTE_SCORE;
+    private int fortune = INITIAL_ATTRIBUTE_SCORE;
     private boolean meditating;
     private boolean hasLastPosition;
     private double lastX;
@@ -47,6 +53,22 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
     public int qi() {
         return qi;
+    }
+
+    public int spiritualRoot() {
+        return spiritualRoot;
+    }
+
+    public int constitution() {
+        return constitution;
+    }
+
+    public int comprehension() {
+        return comprehension;
+    }
+
+    public int fortune() {
+        return fortune;
     }
 
     public boolean isMeditating() {
@@ -161,6 +183,10 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             tag.putString("realm", realm.id());
             tag.putInt("realmLevel", realmLevel);
             tag.putInt("qi", qi);
+            tag.putInt("spiritualRoot", spiritualRoot);
+            tag.putInt("constitution", constitution);
+            tag.putInt("comprehension", comprehension);
+            tag.putInt("fortune", fortune);
         }
         return tag;
     }
@@ -180,6 +206,15 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         realm = CultivationRealm.byId(tag.getString("realm"));
         realmLevel = Math.max(1, Math.min(9, tag.getInt("realmLevel")));
         qi = Math.max(0, tag.getInt("qi"));
+        spiritualRoot = readAttribute(tag, "spiritualRoot");
+        constitution = readAttribute(tag, "constitution");
+        comprehension = readAttribute(tag, "comprehension");
+        fortune = readAttribute(tag, "fortune");
         stopMeditating();
+    }
+
+    private static int readAttribute(CompoundTag tag, String key) {
+        int value = tag.contains(key) ? tag.getInt(key) : INITIAL_ATTRIBUTE_SCORE;
+        return Math.max(0, Math.min(MAX_ATTRIBUTE_SCORE, value));
     }
 }

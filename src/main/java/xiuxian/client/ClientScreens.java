@@ -19,4 +19,12 @@ public final class ClientScreens {
             minecraft.setScreen(null);
         }
     }
+
+    public static void updateCultivation(boolean initialized, String familyId, String pathId, String realmId,
+                                         int realmLevel, int qi, int breakthroughCost,
+                                         String techniqueId, boolean meditating,
+                                         int spiritualRoot, int constitution, int comprehension, int fortune) {
+        CultivationClientState.update(initialized, familyId, pathId, realmId, realmLevel, qi,
+                breakthroughCost, techniqueId, meditating, spiritualRoot, constitution, comprehension, fortune);
+    }
 }

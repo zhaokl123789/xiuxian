@@ -14,9 +14,10 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 import xiuxian.client.ClientScreens;
 import xiuxian.cultivation.CultivationEvents;
+import xiuxian.cultivation.CultivationData;
 
 public final class XiuxianNetwork {
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "2";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("xiuxian", "main"),
             () -> PROTOCOL_VERSION,
@@ -43,6 +44,28 @@ public final class XiuxianNetwork {
                 buffer -> new SelectIdentityPacket(buffer.readUtf(32), buffer.readUtf(32)),
                 XiuxianNetwork::handleSelectIdentity,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(nextMessageId++, CultivationSyncPacket.class,
+                (message, buffer) -> {
+                    buffer.writeBoolean(message.initialized);
+                    buffer.writeUtf(message.familyId);
+                    buffer.writeUtf(message.pathId);
+                    buffer.writeUtf(message.realmId);
+                    buffer.writeVarInt(message.realmLevel);
+                    buffer.writeVarInt(message.qi);
+                    buffer.writeVarInt(message.breakthroughCost);
+                    buffer.writeUtf(message.techniqueId);
+                    buffer.writeBoolean(message.meditating);
+                    buffer.writeVarInt(message.spiritualRoot);
+                    buffer.writeVarInt(message.constitution);
+                    buffer.writeVarInt(message.comprehension);
+                    buffer.writeVarInt(message.fortune);
+                },
+                buffer -> new CultivationSyncPacket(buffer.readBoolean(), buffer.readUtf(32), buffer.readUtf(32),
+                        buffer.readUtf(32), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(),
+                        buffer.readUtf(64), buffer.readBoolean(), buffer.readVarInt(), buffer.readVarInt(),
+                        buffer.readVarInt(), buffer.readVarInt()),
+                XiuxianNetwork::handleCultivationSync,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
 
     public static void openIdentityScreen(ServerPlayer player) {
@@ -55,6 +78,13 @@ public final class XiuxianNetwork {
 
     public static void selectIdentity(String familyId, String pathId) {
         CHANNEL.sendToServer(new SelectIdentityPacket(familyId, pathId));
+    }
+
+    public static void syncCultivation(ServerPlayer player, CultivationData data) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new CultivationSyncPacket(
+                data.isInitialized(), data.familyOrigin().id(), data.cultivationPath().id(), data.realm().id(),
+                data.realmLevel(), data.qi(), data.breakthroughCost(), data.techniqueId(), data.isMeditating(),
+                data.spiritualRoot(), data.constitution(), data.comprehension(), data.fortune()));
     }
 
     private static void handleOpenIdentityScreen(IdentityScreenPacket message,
@@ -85,6 +115,17 @@ public final class XiuxianNetwork {
         context.setPacketHandled(true);
     }
 
+    private static void handleCultivationSync(CultivationSyncPacket message,
+                                               Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+                ClientScreens.updateCultivation(message.initialized, message.familyId, message.pathId,
+                        message.realmId, message.realmLevel, message.qi, message.breakthroughCost,
+                        message.techniqueId, message.meditating, message.spiritualRoot, message.constitution,
+                        message.comprehension, message.fortune)));
+        context.setPacketHandled(true);
+    }
+
     private static final class IdentityScreenPacket {}
 
     private static final class IdentitySelectedPacket {}
@@ -96,6 +137,41 @@ public final class XiuxianNetwork {
         private SelectIdentityPacket(String familyId, String pathId) {
             this.familyId = familyId;
             this.pathId = pathId;
+        }
+    }
+
+    private static final class CultivationSyncPacket {
+        private final boolean initialized;
+        private final String familyId;
+        private final String pathId;
+        private final String realmId;
+        private final int realmLevel;
+        private final int qi;
+        private final int breakthroughCost;
+        private final String techniqueId;
+        private final boolean meditating;
+        private final int spiritualRoot;
+        private final int constitution;
+        private final int comprehension;
+        private final int fortune;
+
+        private CultivationSyncPacket(boolean initialized, String familyId, String pathId, String realmId,
+                                      int realmLevel, int qi, int breakthroughCost,
+                                      String techniqueId, boolean meditating, int spiritualRoot, int constitution,
+                                      int comprehension, int fortune) {
+            this.initialized = initialized;
+            this.familyId = familyId;
+            this.pathId = pathId;
+            this.realmId = realmId;
+            this.realmLevel = realmLevel;
+            this.qi = qi;
+            this.breakthroughCost = breakthroughCost;
+            this.techniqueId = techniqueId;
+            this.meditating = meditating;
+            this.spiritualRoot = spiritualRoot;
+            this.constitution = constitution;
+            this.comprehension = comprehension;
+            this.fortune = fortune;
         }
     }
 }

@@ -46,8 +46,22 @@ public class CultivationEvents {
         }
 
         CultivationData data = getData(player);
-        if (data != null && !data.isInitialized()) {
+        if (data == null) {
+            return;
+        }
+        XiuxianNetwork.syncCultivation(player, data);
+        if (!data.isInitialized()) {
             XiuxianNetwork.openIdentityScreen(player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            CultivationData data = getData(player);
+            if (data != null) {
+                XiuxianNetwork.syncCultivation(player, data);
+            }
         }
     }
 
@@ -67,9 +81,11 @@ public class CultivationEvents {
         }
 
         player.setNoGravity(false);
-        if (data.tickMeditation(player.getX(), player.getY(), player.getZ())
-                && data.qi() % 10 == 0) {
-            player.sendSystemMessage(Component.literal("打坐凝神，当前修为：" + data.qi()));
+        if (data.tickMeditation(player.getX(), player.getY(), player.getZ())) {
+            XiuxianNetwork.syncCultivation(player, data);
+            if (data.qi() % 10 == 0) {
+                player.sendSystemMessage(Component.literal("打坐凝神，当前修为：" + data.qi()));
+            }
         }
     }
 
@@ -105,6 +121,7 @@ public class CultivationEvents {
         data.begin(family, path);
         player.setNoGravity(false);
         player.addItem(new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
+        XiuxianNetwork.syncCultivation(player, data);
         player.sendSystemMessage(Component.literal("你以人类之身踏入修行路，出身：" + family.displayName()
                 + "，身份：" + path.displayName() + "。你已领悟入门功法：吐纳引气诀，并获得一枚凝气丹。"));
         XiuxianNetwork.closeIdentityScreen(player);
@@ -186,6 +203,7 @@ public class CultivationEvents {
             data.startMeditating(player.getX(), player.getY(), player.getZ());
             source.sendSuccess(() -> Component.literal("你开始运转吐纳引气诀。保持静止，每秒积累 1 点修为。"), false);
         }
+        XiuxianNetwork.syncCultivation(player, data);
         return 1;
     }
 
@@ -207,6 +225,7 @@ public class CultivationEvents {
             return 0;
         }
 
+        XiuxianNetwork.syncCultivation(player, data);
         source.sendSuccess(() -> Component.literal("突破成功！当前境界：" + data.realm().displayName()
                 + data.realmLevel() + "层。"), false);
         return 1;
