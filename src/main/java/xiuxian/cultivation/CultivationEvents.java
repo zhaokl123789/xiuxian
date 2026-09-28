@@ -1,24 +1,24 @@
 package xiuxian.cultivation;
 
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xiuxian.item.XiuxianItems;
+import xiuxian.network.XiuxianNetwork;
 
 public class CultivationEvents {
     @SubscribeEvent
@@ -47,7 +47,7 @@ public class CultivationEvents {
 
         CultivationData data = getData(player);
         if (data != null && !data.isInitialized()) {
-            showIdentityChoices(player);
+            XiuxianNetwork.openIdentityScreen(player);
         }
     }
 
@@ -58,7 +58,16 @@ public class CultivationEvents {
         }
 
         CultivationData data = getData(player);
-        if (data != null && data.tickMeditation(player.getX(), player.getY(), player.getZ())
+        if (data == null || !data.isInitialized()) {
+            player.setNoGravity(true);
+            if (data != null) {
+                data.stopMeditating();
+            }
+            return;
+        }
+
+        player.setNoGravity(false);
+        if (data.tickMeditation(player.getX(), player.getY(), player.getZ())
                 && data.qi() % 10 == 0) {
             player.sendSystemMessage(Component.literal("打坐凝神，当前修为：" + data.qi()));
         }
@@ -67,50 +76,39 @@ public class CultivationEvents {
     @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("xiuxian")
-                .then(Commands.literal("start")
-                        .then(Commands.argument("family", StringArgumentType.word())
-                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(FamilyOrigin.ids(), builder))
-                                .then(Commands.argument("path", StringArgumentType.word())
-                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(CultivationPath.ids(), builder))
-                                        .executes(context -> start(context.getSource(),
-                                                StringArgumentType.getString(context, "family"),
-                                                StringArgumentType.getString(context, "path"))))))
                 .then(Commands.literal("identity").executes(context -> identity(context.getSource())))
                 .then(Commands.literal("status").executes(context -> status(context.getSource())))
                 .then(Commands.literal("meditate").executes(context -> toggleMeditation(context.getSource())))
                 .then(Commands.literal("breakthrough").executes(context -> breakthrough(context.getSource())))
                 .executes(context -> {
                     context.getSource().sendSuccess(() -> Component.literal(
-                            "命令：/xiuxian identity、/xiuxian start <family> <path>、/xiuxian status、/xiuxian meditate、/xiuxian breakthrough"), false);
+                            "命令：/xiuxian identity、/xiuxian status、/xiuxian meditate、/xiuxian breakthrough"), false);
                     return 1;
                 }));
     }
 
-    private static int start(CommandSourceStack source, String familyId, String pathId) throws CommandSyntaxException {
-        ServerPlayer player = source.getPlayerOrException();
+    public static boolean selectIdentity(ServerPlayer player, String familyId, String pathId) {
         FamilyOrigin family = FamilyOrigin.byId(familyId);
         CultivationPath path = CultivationPath.byId(pathId);
         if (family == null || path == null) {
-            source.sendFailure(Component.literal("身份选项无效，请从聊天提示中选择，或使用 Tab 查看选项。"));
-            return 0;
+            return false;
         }
 
         CultivationData data = getData(player);
         if (data == null) {
-            source.sendFailure(Component.literal("无法读取修行数据。"));
-            return 0;
+            return false;
         }
         if (data.isInitialized()) {
-            source.sendFailure(Component.literal("你的修行身份已经确立，暂不支持重新选择。"));
-            return 0;
+            return false;
         }
 
         data.begin(family, path);
+        player.setNoGravity(false);
         player.addItem(new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
-        source.sendSuccess(() -> Component.literal("你以人类之身踏入修行路，出身：" + family.displayName()
-                + "，身份：" + path.displayName() + "。你已领悟入门功法：吐纳引气诀，并获得一枚凝气丹。"), false);
-        source.sendSuccess(() -> Component.literal("输入 /xiuxian meditate 开始打坐，/xiuxian status 查看修为，/xiuxian breakthrough 尝试突破。"), false);
-        return 1;
+        player.sendSystemMessage(Component.literal("你以人类之身踏入修行路，出身：" + family.displayName()
+                + "，身份：" + path.displayName() + "。你已领悟入门功法：吐纳引气诀，并获得一枚凝气丹。"));
+        XiuxianNetwork.closeIdentityScreen(player);
+        return true;
     }
 
     private static int identity(CommandSourceStack source) throws CommandSyntaxException {
@@ -124,8 +122,36 @@ public class CultivationEvents {
             source.sendFailure(Component.literal("你的修行身份已经确立，暂不支持重新选择。"));
             return 0;
         }
-        showIdentityChoices(player);
+        XiuxianNetwork.openIdentityScreen(player);
         return 1;
+    }
+
+    @SubscribeEvent
+    public void onUninitializedPlayerBreaksBlock(BlockEvent.BreakEvent event) {
+        if (!isInitialized(event.getPlayer())) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onUninitializedPlayerInteracts(PlayerInteractEvent event) {
+        if (!isInitialized(event.getEntity())) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onUninitializedPlayerAttacks(AttackEntityEvent event) {
+        if (!isInitialized(event.getEntity())) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onUninitializedPlayerTakesDamage(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Player player && !isInitialized(player)) {
+            event.setCanceled(true);
+        }
     }
 
     private static int status(CommandSourceStack source) throws CommandSyntaxException {
@@ -190,18 +216,8 @@ public class CultivationEvents {
         return player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
     }
 
-    private static void showIdentityChoices(ServerPlayer player) {
-        player.sendSystemMessage(Component.literal("初入修行界，请选择家族出身与修行身份：").withStyle(ChatFormatting.GOLD));
-        for (FamilyOrigin family : FamilyOrigin.values()) {
-            for (CultivationPath path : CultivationPath.values()) {
-                String command = "/xiuxian start " + family.id() + " " + path.id();
-                Component choice = Component.literal("[" + family.displayName() + " · " + path.displayName() + "]")
-                        .withStyle(style -> style.withColor(ChatFormatting.AQUA).withUnderlined(true)
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        Component.literal("选择此身份并获得入门功法"))));
-                player.sendSystemMessage(choice);
-            }
-        }
+    private static boolean isInitialized(Player player) {
+        CultivationData data = getData(player);
+        return data != null && data.isInitialized();
     }
 }

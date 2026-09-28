@@ -7,12 +7,14 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationEvents;
 import xiuxian.item.XiuxianItems;
+import xiuxian.network.XiuxianNetwork;
 
 @Mod("xiuxian")
 public class xiuxian {
     public xiuxian() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(CultivationCapability::register);
+        XiuxianNetwork.register();
         XiuxianItems.register(modEventBus);
         MinecraftForge.EVENT_BUS.register(new CultivationEvents());
     }
