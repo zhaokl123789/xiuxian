@@ -88,6 +88,9 @@ public class CultivationEvents {
 
         player.setNoGravity(false);
         CultivationAttributeEffects.apply(player, data);
+        if (player.isAlive() && !data.isMeditating() && !data.isStudyingTechnique()) {
+            applyPassiveRecovery(player, data);
+        }
         if ((data.isMeditating() || data.isStudyingTechnique()) && player.isPassenger()) {
             if (data.isMeditating()) {
                 endMeditation(player, data);
@@ -254,7 +257,8 @@ public class CultivationEvents {
                 }
                 CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
                 float techniqueReduction = technique == null ? 0.0F : technique.damageReduction();
-                float reduction = Math.min(0.35F, data.constitution() * 0.0025F + techniqueReduction);
+                float reduction = Math.min(0.8F, data.constitution() * 0.0025F + techniqueReduction
+                        + data.realm().damageReductionAt(data.realmLevel()));
                 event.setAmount(event.getAmount() * (1.0F - reduction));
             }
         }
@@ -342,8 +346,16 @@ public class CultivationEvents {
         }
         CultivationRealm oldRealm = data.realm();
         int oldRealmLevel = data.realmLevel();
-        if (!data.breakthrough()) {
-            source.sendFailure(Component.literal("当前修为不足以完成突破。"));
+        int breakthroughChance = data.breakthroughChance();
+        int qiBeforeAttempt = data.qi();
+        if (!data.breakthrough(player.getRandom())) {
+            if (qiBeforeAttempt > data.qi()) {
+                source.sendFailure(Component.literal("大境界冲关未成，成功率 " + breakthroughChance
+                        + "%；气海受震，损耗修为 " + (qiBeforeAttempt - data.qi()) + " 点。"));
+            } else {
+                source.sendFailure(Component.literal("当前修为不足以完成突破。"));
+            }
+            XiuxianNetwork.syncCultivation(player, data);
             return 0;
         }
 
@@ -359,6 +371,22 @@ public class CultivationEvents {
 
     private static CultivationData getData(Player player) {
         return player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+    }
+
+    private static void applyPassiveRecovery(ServerPlayer player, CultivationData data) {
+        if (player.tickCount % 200 == 0) {
+            int previousTrueQi = data.trueQi();
+            data.restoreTrueQi(data.passiveTrueQiRecoveryPerTenSeconds());
+            if (data.trueQi() != previousTrueQi) {
+                XiuxianNetwork.syncCultivation(player, data);
+            }
+        }
+
+        int healthInterval = data.passiveHealthRecoveryIntervalTicks();
+        if (healthInterval > 0 && player.tickCount % healthInterval == 0
+                && player.getHealth() < player.getMaxHealth()) {
+            player.heal(1.0F);
+        }
     }
 
     private static void endMeditation(ServerPlayer player, CultivationData data) {

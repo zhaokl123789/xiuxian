@@ -111,6 +111,7 @@ public final class CultivationTechniques {
                 "韧性近战", "术法增幅", "爆发进攻", "防御反击", "稳健攻守", "高额真炁"};
         int[] qiCaps = {0, 35, 60, 45, 100, 125, 170, 240, 200, 230, 250, 320};
         int[] recovery = {1, 2, 4, 2, 3, 5, 4, 7, 4, 5, 6, 7};
+        int[] healthRecovery = {100, 110, 85, 125, 120, 105, 130, 90, 85, 115, 120, 100};
         float[] spellPower = {1.0F, 1.05F, 1.0F, 1.0F, 1.0F, 1.08F, 1.05F, 1.25F,
                 1.20F, 1.08F, 1.10F, 1.15F};
         int[] attack = {0, 0, 1, 0, 1, 0, 2, 1, 4, 1, 2, 3};
@@ -118,6 +119,7 @@ public final class CultivationTechniques {
                 0.03D, 0.035D, 0.0D, 0.015D};
         return new CultivationTechnique("xiuxian:" + id, name, doctrineFor(id, doctrine), methodFor(id, method),
                 minimumRealm, maximumRealm, difficulty, meditation, aptitude, breakthrough, reduction, health,
+                healthRecovery[rank],
                 qiCaps[rank], recovery[rank], spellPower[rank], attack[rank], speed[rank],
                 virtues[rank], qiKinds[rank], styles[rank]);
     }

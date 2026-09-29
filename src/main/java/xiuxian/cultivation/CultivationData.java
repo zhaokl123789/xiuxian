@@ -79,6 +79,20 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return realm.trueQiMaximumAt(realmLevel) + (technique == null ? 0 : technique.trueQiBonus());
     }
 
+    public int passiveHealthRecoveryIntervalTicks() {
+        if (!initialized) return 0;
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return technique == null ? 0 : realm.passiveHealthRecoveryIntervalTicksAt(
+                realmLevel, constitution, technique.passiveHealthRecoveryPercent());
+    }
+
+    public int passiveTrueQiRecoveryPerTenSeconds() {
+        if (!initialized) return 0;
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return technique == null ? 0 : realm.passiveTrueQiRecoveryPerTenSecondsAt(
+                realmLevel, comprehension, technique.trueQiRecoveryPerSecond());
+    }
+
     public int alchemyLevel() { return alchemyLevel; }
 
     public int alchemyExperience() { return alchemyExperience; }
@@ -262,6 +276,12 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return Math.max(1, baseCost * comprehensionPercent * techniquePercent / 10_000);
     }
 
+    public int breakthroughChance() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return realm.breakthroughChanceAt(realmLevel, spiritualRoot, comprehension, fortune,
+                technique == null ? 100 : technique.breakthroughCostPercent());
+    }
+
     public void addQi(int amount) {
         if (amount > 0) {
             qi = (int) Math.min(Integer.MAX_VALUE, (long) qi + amount);
@@ -330,7 +350,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return false;
     }
 
-    public boolean breakthrough() {
+    public boolean breakthrough(RandomSource random) {
         int cost = breakthroughCost();
         if (!initialized || qi < cost || !canBreakthroughWithCurrentTechnique()) {
             return false;
@@ -338,6 +358,15 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
         CultivationRealm nextRealm = breakthroughTargetRealm();
         if (nextRealm == null) {
+            return false;
+        }
+
+        boolean majorBreakthrough = nextRealm != realm;
+        int chance = breakthroughChance();
+        if (majorBreakthrough && random.nextInt(100) + 1 > chance) {
+            int failureLossPercent = Math.min(60, 20 + realm.ordinal() * 10);
+            int lostQi = Math.max(1, cost * failureLossPercent / 100);
+            qi = Math.max(0, qi - lostQi);
             return false;
         }
 

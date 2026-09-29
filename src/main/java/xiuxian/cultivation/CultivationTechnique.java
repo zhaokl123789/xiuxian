@@ -4,7 +4,8 @@ public record CultivationTechnique(String id, String displayName, String doctrin
                                    CultivationRealm minimumRealm, CultivationRealm maximumRealm,
                                    int learningDifficulty, int meditationQiPerSecondMilli,
                                    Aptitude meditationAptitude, int breakthroughCostPercent,
-                                   float damageReduction, double healthBonus, int trueQiBonus,
+                                   float damageReduction, double healthBonus, int passiveHealthRecoveryPercent,
+                                   int trueQiBonus,
                                    int trueQiRecoveryPerSecond, float spellPowerMultiplier,
                                    int combatAttackBonus, double movementSpeedBonus,
                                    String fiveVirtue, String qiAffinity, String combatStyle) {
@@ -41,7 +42,8 @@ public record CultivationTechnique(String id, String displayName, String doctrin
         if (minimumRealm == null || maximumRealm == null || minimumRealm.ordinal() > maximumRealm.ordinal()
                 || learningDifficulty < 0 || learningDifficulty > 10
                 || meditationQiPerSecondMilli <= 0 || meditationAptitude == null || breakthroughCostPercent <= 0
-                || damageReduction < 0.0F || healthBonus < 0.0D || trueQiBonus < 0
+                || damageReduction < 0.0F || healthBonus < 0.0D
+                || passiveHealthRecoveryPercent <= 0 || passiveHealthRecoveryPercent > 200 || trueQiBonus < 0
                 || trueQiRecoveryPerSecond < 0 || spellPowerMultiplier <= 0.0F
                 || combatAttackBonus < 0 || movementSpeedBonus < 0.0D || movementSpeedBonus > 0.05D
                 || fiveVirtue.isBlank() || qiAffinity.isBlank() || combatStyle.isBlank()) {

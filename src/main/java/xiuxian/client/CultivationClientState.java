@@ -3,6 +3,8 @@ package xiuxian.client;
 import xiuxian.cultivation.CultivationPath;
 import xiuxian.cultivation.CultivationRealm;
 import xiuxian.cultivation.FamilyOrigin;
+import xiuxian.cultivation.CultivationTechnique;
+import xiuxian.cultivation.CultivationTechniques;
 
 public final class CultivationClientState {
     private static boolean initialized;
@@ -56,6 +58,24 @@ public final class CultivationClientState {
 
     public static int breakthroughCost() {
         return breakthroughCost;
+    }
+
+    public static int breakthroughChance() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return realm.breakthroughChanceAt(realmLevel, spiritualRoot, comprehension, fortune,
+                technique == null ? 100 : technique.breakthroughCostPercent());
+    }
+
+    public static int passiveHealthRecoveryIntervalTicks() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return !initialized || technique == null ? 0 : realm.passiveHealthRecoveryIntervalTicksAt(
+                realmLevel, constitution, technique.passiveHealthRecoveryPercent());
+    }
+
+    public static int passiveTrueQiRecoveryPerTenSeconds() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return !initialized || technique == null ? 0 : realm.passiveTrueQiRecoveryPerTenSecondsAt(
+                realmLevel, comprehension, technique.trueQiRecoveryPerSecond());
     }
 
     public static String techniqueId() {
