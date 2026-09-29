@@ -17,7 +17,7 @@ import xiuxian.cultivation.CultivationEvents;
 import xiuxian.cultivation.CultivationData;
 
 public final class XiuxianNetwork {
-    private static final String PROTOCOL_VERSION = "5";
+    private static final String PROTOCOL_VERSION = "6";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("xiuxian", "main"),
             () -> PROTOCOL_VERSION,
@@ -51,6 +51,10 @@ public final class XiuxianNetwork {
         CHANNEL.registerMessage(nextMessageId++, VoidWalkPacket.class,
                 (message, buffer) -> {}, buffer -> new VoidWalkPacket(),
                 XiuxianNetwork::handleVoidWalk,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(nextMessageId++, JumpEnhancementPacket.class,
+                (message, buffer) -> {}, buffer -> new JumpEnhancementPacket(),
+                XiuxianNetwork::handleJumpEnhancement,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(nextMessageId++, CultivationSyncPacket.class,
                 (message, buffer) -> {
@@ -121,6 +125,10 @@ public final class XiuxianNetwork {
         CHANNEL.sendToServer(new VoidWalkPacket());
     }
 
+    public static void requestJumpEnhancement() {
+        CHANNEL.sendToServer(new JumpEnhancementPacket());
+    }
+
     private static void handleOpenIdentityScreen(IdentityScreenPacket message,
                                                   Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
@@ -168,6 +176,16 @@ public final class XiuxianNetwork {
         context.setPacketHandled(true);
     }
 
+    private static void handleJumpEnhancement(JumpEnhancementPacket message,
+                                               Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
+            if (player != null) CultivationEvents.performJumpEnhancement(player);
+        });
+        context.setPacketHandled(true);
+    }
+
     private static void handleCultivationSync(CultivationSyncPacket message,
                                                Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
@@ -191,6 +209,8 @@ public final class XiuxianNetwork {
     private static final class ChannelInterruptPacket {}
 
     private static final class VoidWalkPacket {}
+
+    private static final class JumpEnhancementPacket {}
 
     private static final class SelectIdentityPacket {
         private final String familyId;

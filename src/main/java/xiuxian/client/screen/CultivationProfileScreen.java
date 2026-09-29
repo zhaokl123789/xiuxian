@@ -226,7 +226,7 @@ public class CultivationProfileScreen extends Screen {
     private String realmBonuses() {
         CultivationRealm realm = CultivationClientState.realm();
         int level = CultivationClientState.realmLevel();
-        return String.format(java.util.Locale.ROOT, "+%.0f生命上限 · +%.1f攻击 · 减伤 %.0f%%",
+        return String.format(java.util.Locale.ROOT, "+%.0f血 · +%.1f攻 · 减伤%.0f%%",
                 realm.healthBonusAt(level), realm.attackBonusAt(level), realm.damageReductionAt(level) * 100.0F);
     }
 
@@ -256,8 +256,18 @@ public class CultivationProfileScreen extends Screen {
 
     private void drawValueRow(GuiGraphics graphics, String label, String value, int y) {
         graphics.drawString(this.font, label, panelLeft + 20, y, 0xFFC9C3B5, false);
-        graphics.drawString(this.font, value, panelLeft + panelWidth - 20 - this.font.width(value), y,
+        int valueStart = panelLeft + 96;
+        int valueRight = panelLeft + panelWidth - 20;
+        String visibleValue = fitText(value, valueRight - valueStart);
+        graphics.drawString(this.font, visibleValue, valueRight - this.font.width(visibleValue), y,
                 0xFFE9E1CE, false);
+    }
+
+    private String fitText(String value, int maxWidth) {
+        if (this.font.width(value) <= maxWidth) return value;
+        String ellipsis = "…";
+        int textWidth = maxWidth - this.font.width(ellipsis);
+        return textWidth <= 0 ? "" : this.font.plainSubstrByWidth(value, textWidth) + ellipsis;
     }
 
     private void drawAttribute(GuiGraphics graphics, String label, int value, int y) {

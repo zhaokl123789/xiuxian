@@ -13,7 +13,7 @@ import xiuxian.network.XiuxianNetwork;
 
 public class IdentityCreationScreen extends Screen {
     private static final int PANEL_WIDTH = 420;
-    private static final int PANEL_HEIGHT = 270;
+    private static final int PANEL_HEIGHT = 300;
     private static final int GOLD = 0xFFD6B66E;
     private static final int MUTED_GOLD = 0xFF8B7344;
     private FamilyOrigin selectedFamily;
@@ -126,6 +126,15 @@ public class IdentityCreationScreen extends Screen {
                 + "    气运 " + attributeRange(bonuses.fortune());
         graphics.drawCenteredString(this.font, roots, this.width / 2, top + scaled(13), 0xFFE1D9C5);
         graphics.drawCenteredString(this.font, mind, this.width / 2, top + scaled(26), 0xFFE1D9C5);
+        String kit = selectedFamily == null || selectedPath == null
+                ? "选择出身与身份后显示"
+                : selectedFamily.startingKitSummary(selectedPath);
+        java.util.List<net.minecraft.util.FormattedCharSequence> kitLines = this.font.split(
+                Component.literal("开局资粮：" + kit), panelWidth - 36);
+        for (int i = 0; i < Math.min(2, kitLines.size()); i++) {
+            graphics.drawCenteredString(this.font, kitLines.get(i), this.width / 2,
+                    top + scaled(42 + i * 10), 0xFFC9C3B5);
+        }
     }
 
     private String attributeRange(int bonus) {

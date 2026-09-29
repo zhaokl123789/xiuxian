@@ -29,6 +29,25 @@ public enum FamilyOrigin {
         return bonuses;
     }
 
+    public boolean receivesStartingManual(CultivationPath path) {
+        return this != MORTAL || path == CultivationPath.SECT;
+    }
+
+    public String startingKitSummary(CultivationPath path) {
+        boolean sect = path == CultivationPath.SECT;
+        return switch (this) {
+            case MORTAL -> sect
+                    ? "入门功法、凝气丹、木镐与粗粮"
+                    : "无功法、木镐与粗粮；可用书、纸、墨囊自制入门功法";
+            case CULTIVATOR -> sect
+                    ? "入门功法、2枚凝气丹、2块下品灵石"
+                    : "入门功法、凝气丹、2块下品灵石与粗粮";
+            case FALLEN -> sect
+                    ? "入门功法、2枚凝气丹、祖传灵石与粗粮"
+                    : "入门功法、凝气丹、祖传灵石与粗粮";
+        };
+    }
+
     public static FamilyOrigin byId(String id) {
         return Arrays.stream(values()).filter(value -> value.id.equals(id)).findFirst().orElse(null);
     }

@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class CultivationData implements INBTSerializable<CompoundTag> {
-    public static final int DATA_VERSION = 7;
+    public static final int DATA_VERSION = 8;
     public static final String STARTING_TECHNIQUE = "xiuxian:basic_breathing";
     public static final int BASE_ATTRIBUTE_MIN = 1;
     public static final int BASE_ATTRIBUTE_MAX = 12;
@@ -45,6 +45,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     private int techniqueStudyDuration;
     private int techniqueStudyChance;
     private int techniqueStudyRoll;
+    private int lastJumpBoostTick = -1000;
 
     public boolean isInitialized() {
         return initialized;
@@ -147,6 +148,12 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public String immortalFoundation() { return immortalFoundation; }
 
     public int majorBreakthroughFailures() { return majorBreakthroughFailures; }
+
+    public boolean canUseJumpBoostAt(int tick) {
+        if (tick - lastJumpBoostTick < 16) return false;
+        lastJumpBoostTick = tick;
+        return true;
+    }
 
     public boolean isMeditating() {
         return meditating;
@@ -306,9 +313,10 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         this.initialized = true;
         this.familyOrigin = familyOrigin;
         this.cultivationPath = cultivationPath;
-        this.techniqueId = STARTING_TECHNIQUE;
+        boolean startsWithManual = familyOrigin.receivesStartingManual(cultivationPath);
+        this.techniqueId = startsWithManual ? STARTING_TECHNIQUE : "";
         learnedTechniqueIds.clear();
-        learnedTechniqueIds.add(STARTING_TECHNIQUE);
+        if (startsWithManual) learnedTechniqueIds.add(STARTING_TECHNIQUE);
         this.realm = CultivationRealm.FETAL_BREATH;
         this.realmLevel = 1;
         this.qi = 0;
@@ -416,6 +424,29 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         deserializeNBT(source.serializeNBT());
     }
 
+    public void resetForDeath() {
+        initialized = false;
+        familyOrigin = FamilyOrigin.MORTAL;
+        cultivationPath = CultivationPath.WANDERER;
+        techniqueId = STARTING_TECHNIQUE;
+        learnedTechniqueIds.clear();
+        realm = CultivationRealm.FETAL_BREATH;
+        realmLevel = 1;
+        qi = 0;
+        trueQi = 0;
+        alchemyLevel = 1;
+        alchemyExperience = 0;
+        spiritualRoot = BASE_ATTRIBUTE_MIN;
+        constitution = BASE_ATTRIBUTE_MIN;
+        comprehension = BASE_ATTRIBUTE_MIN;
+        fortune = BASE_ATTRIBUTE_MIN;
+        immortalFoundation = "";
+        majorBreakthroughFailures = 0;
+        lastJumpBoostTick = -1000;
+        stopMeditating();
+        stopTechniqueStudy();
+    }
+
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
@@ -471,12 +502,24 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         familyOrigin = savedFamily == null ? FamilyOrigin.MORTAL : savedFamily;
         CultivationPath savedPath = CultivationPath.byId(tag.getString("cultivationPath"));
         cultivationPath = savedPath == null ? CultivationPath.WANDERER : savedPath;
-        techniqueId = tag.contains("technique") ? tag.getString("technique") : STARTING_TECHNIQUE;
-        if (CultivationTechniques.byId(techniqueId) == null) {
+        techniqueId = tag.contains("technique", Tag.TAG_STRING) ? tag.getString("technique") : STARTING_TECHNIQUE;
+        if (!techniqueId.isBlank() && CultivationTechniques.byId(techniqueId) == null) {
             techniqueId = STARTING_TECHNIQUE;
         }
         learnedTechniqueIds.clear();
-        learnedTechniqueIds.add(techniqueId);
+        if (tag.contains("learnedTechniques", Tag.TAG_LIST)) {
+            ListTag learned = tag.getList("learnedTechniques", Tag.TAG_STRING);
+            for (int i = 0; i < learned.size(); i++) {
+                String id = learned.getString(i);
+                if (CultivationTechniques.byId(id) != null) learnedTechniqueIds.add(id);
+            }
+        }
+        if (learnedTechniqueIds.isEmpty() && !techniqueId.isBlank()) {
+            learnedTechniqueIds.add(techniqueId);
+        }
+        if (!learnedTechniqueIds.contains(techniqueId)) {
+            techniqueId = learnedTechniqueIds.stream().findFirst().orElse("");
+        }
         realm = dataVersion < 5
                 ? migrateLegacyRealm(tag.getString("realm"))
                 : CultivationRealm.byId(tag.getString("realm"));

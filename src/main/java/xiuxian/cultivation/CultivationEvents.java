@@ -15,9 +15,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -44,7 +45,13 @@ public class CultivationEvents {
         event.getOriginal().reviveCaps();
         event.getOriginal().getCapability(CultivationCapability.CULTIVATION).ifPresent(original ->
                 event.getEntity().getCapability(CultivationCapability.CULTIVATION)
-                        .ifPresent(copy -> copy.copyFrom(original)));
+                        .ifPresent(copy -> {
+                            copy.copyFrom(original);
+                            if (event.isWasDeath() && original.isInitialized()
+                                    && original.realm().ordinal() >= CultivationRealm.PURPLE_MANSION.ordinal()) {
+                                copy.resetForDeath();
+                            }
+                        }));
         event.getOriginal().invalidateCaps();
     }
 
@@ -70,6 +77,10 @@ public class CultivationEvents {
             CultivationData data = getData(player);
             if (data != null) {
                 XiuxianNetwork.syncCultivation(player, data);
+                if (!data.isInitialized()) {
+                    player.sendSystemMessage(Component.literal("身死道消，仙缘尽断；请重新择取出身。"));
+                    XiuxianNetwork.openIdentityScreen(player);
+                }
             }
         }
     }
@@ -82,7 +93,13 @@ public class CultivationEvents {
 
         CultivationData data = getData(player);
         if (data == null || !data.isInitialized()) {
-            player.setNoGravity(true);
+            player.setNoGravity(false);
+            if (!player.isCreative() && !player.isSpectator()
+                    && (player.getAbilities().mayfly || player.getAbilities().flying)) {
+                player.getAbilities().mayfly = false;
+                player.getAbilities().flying = false;
+                player.onUpdateAbilities();
+            }
             CultivationAttributeEffects.remove(player);
             if (data != null) {
                 data.stopMeditating();
@@ -184,14 +201,14 @@ public class CultivationEvents {
         }
 
         data.begin(family, path, player.getRandom());
-        ItemStack startingManual = new ItemStack(XiuxianItems.BASIC_BREATHING_MANUAL.get());
-        if (!player.getInventory().add(startingManual)) {
-            player.drop(startingManual, false);
-        }
+        grantStartingKit(player, family, path);
         player.setNoGravity(false);
         XiuxianNetwork.syncCultivation(player, data);
-        player.sendSystemMessage(Component.literal("你以人类之身踏入修行路，出身：" + family.displayName()
-                + "，身份：" + path.displayName() + "。你已领悟入门功法：吐纳引气诀。"));
+        String techniqueStatus = data.hasLearnedTechnique()
+                ? "你已习得入门功法《吐纳引气诀》。"
+                : "你尚无功法，需寻得纸墨自制《吐纳引气诀》。";
+        player.sendSystemMessage(Component.literal("你以人族之身踏入修行路，出身：" + family.displayName()
+                + "，身份：" + path.displayName() + "。" + techniqueStatus));
         XiuxianNetwork.closeIdentityScreen(player);
         return true;
     }
@@ -278,20 +295,60 @@ public class CultivationEvents {
         }
     }
 
-    @SubscribeEvent
-    public void onCultivatorJumps(LivingEvent.LivingJumpEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+    public static void performJumpEnhancement(ServerPlayer player) {
         CultivationData data = getData(player);
         if (data == null || !data.isInitialized()
                 || data.realm().ordinal() < CultivationRealm.QI_REFINING.ordinal()) return;
+        if (player.isPassenger() || player.isFallFlying()
+                || (!player.onGround() && player.getDeltaMovement().y <= 0.0D)
+                || !data.canUseJumpBoostAt(player.tickCount)) return;
         int cost = 4 + data.realm().ordinal() * 2;
-        if (!data.spendTrueQi(cost)) {
-            player.sendSystemMessage(Component.literal("真炁不足，无法施展腾跃之术。"));
-            return;
-        }
+        if (!data.spendTrueQi(cost)) return;
         double lift = 0.18D + data.realm().ordinal() * 0.05D;
         player.setDeltaMovement(player.getDeltaMovement().add(0.0D, lift, 0.0D));
+        player.connection.send(new ClientboundSetEntityMotionPacket(player));
         XiuxianNetwork.syncCultivation(player, data);
+    }
+
+    private static void grantStartingKit(ServerPlayer player, FamilyOrigin family, CultivationPath path) {
+        if (family.receivesStartingManual(path)) {
+            giveStartingItem(player, new ItemStack(XiuxianItems.BASIC_BREATHING_MANUAL.get()));
+        }
+
+        switch (family) {
+            case MORTAL -> {
+                giveStartingItem(player, new ItemStack(Items.WOODEN_PICKAXE));
+                giveStartingItem(player, new ItemStack(Items.BREAD, 4));
+                if (path == CultivationPath.SECT) {
+                    giveStartingItem(player, new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
+                } else {
+                    giveStartingItem(player, new ItemStack(Items.BREAD, 2));
+                }
+            }
+            case CULTIVATOR -> {
+                giveStartingItem(player, new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
+                giveStartingItem(player, new ItemStack(XiuxianItems.SPIRIT_STONE.get(), 2));
+                if (path == CultivationPath.SECT) {
+                    giveStartingItem(player, new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
+                } else {
+                    giveStartingItem(player, new ItemStack(Items.BREAD, 2));
+                }
+            }
+            case FALLEN -> {
+                giveStartingItem(player, new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
+                giveStartingItem(player, new ItemStack(XiuxianItems.SPIRIT_STONE.get()));
+                giveStartingItem(player, new ItemStack(Items.BREAD, 2));
+                if (path == CultivationPath.SECT) {
+                    giveStartingItem(player, new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
+                } else {
+                    giveStartingItem(player, new ItemStack(Items.BREAD, 2));
+                }
+            }
+        }
+    }
+
+    private static void giveStartingItem(ServerPlayer player, ItemStack stack) {
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
     }
 
     private static void applyTechniqueCombatEffect(ServerPlayer attacker, LivingEntity target,

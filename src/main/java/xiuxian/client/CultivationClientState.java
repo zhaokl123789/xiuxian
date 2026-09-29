@@ -70,14 +70,19 @@ public final class CultivationClientState {
 
     public static int passiveHealthRecoveryIntervalTicks() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        return !initialized || technique == null ? 0 : realm.passiveHealthRecoveryIntervalTicksAt(
-                realmLevel, constitution, technique.passiveHealthRecoveryPercent());
+        if (!initialized || technique == null) return 0;
+        int recoveryPercent = technique.passiveHealthRecoveryPercent();
+        if (technique.elementalAffinity().equals("木")) recoveryPercent = Math.min(200, recoveryPercent + 25);
+        return realm.passiveHealthRecoveryIntervalTicksAt(realmLevel, constitution, recoveryPercent);
     }
 
     public static int passiveTrueQiRecoveryPerTenSeconds() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        return !initialized || technique == null ? 0 : realm.passiveTrueQiRecoveryPerTenSecondsAt(
+        if (!initialized || technique == null) return 0;
+        int recovery = realm.passiveTrueQiRecoveryPerTenSecondsAt(
                 realmLevel, comprehension, technique.trueQiRecoveryPerSecond());
+        return technique.elementalAffinity().equals("水") && recovery > 0
+                ? recovery + Math.max(1, recovery / 3) : recovery;
     }
 
     public static String techniqueId() {

@@ -20,7 +20,7 @@ public enum CultivationRealm {
     private static final double[] DAMAGE_REDUCTION_BASE = {0, 0.04D, 0.35D, 0.72D, 0.84D, 0.9D};
     private static final double[] DAMAGE_REDUCTION_PER_STAGE = {0.005D, 0.01D, 0.02D, 0.015D, 0.008D, 0.003D};
     private static final int[] HEALTH_REGEN_INTERVAL = {0, 1200, 400, 100, 40, 15};
-    private static final int[] TRUE_QI_REGEN_PER_TEN_SECONDS = {0, 2, 8, 30, 120, 480};
+    private static final int[] TRUE_QI_REGEN_PER_TEN_SECONDS = {8, 20, 60, 180, 360, 720};
 
     private final String id;
     private final String displayName;
