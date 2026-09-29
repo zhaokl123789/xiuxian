@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "xiuxian:spirit_stone_ore",
+    "xiuxian:mid_spirit_stone_ore",
+    "xiuxian:high_spirit_stone_ore",
+    "xiuxian:supreme_spirit_stone_ore",
+    "xiuxian:alchemy_furnace"
+  ]
+}

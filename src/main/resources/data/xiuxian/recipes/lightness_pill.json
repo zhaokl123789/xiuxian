@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_earth",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:lightness_pill_base" }, { "item": "minecraft:feather" }],
+  "result": { "item": "xiuxian:lightness_pill" },
+  "experience": 0.5,
+  "cookingtime": 360
+}

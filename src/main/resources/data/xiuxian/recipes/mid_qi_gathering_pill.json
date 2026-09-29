@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_spirit",
+  "group": "xiuxian:qi_gathering_pill",
+  "ingredients": [{ "item": "xiuxian:mid_pill_base" }, { "item": "xiuxian:spirit_stone" }],
+  "result": { "item": "xiuxian:mid_qi_gathering_pill" },
+  "experience": 0.5,
+  "cookingtime": 900
+}

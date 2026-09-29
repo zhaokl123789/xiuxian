@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:pill_bases",
+  "ingredients": [{ "item": "minecraft:blaze_powder" }, { "item": "minecraft:chorus_fruit" }, { "item": "minecraft:glass_bottle" }],
+  "result": { "item": "xiuxian:fire_warding_pill_base" }
+}

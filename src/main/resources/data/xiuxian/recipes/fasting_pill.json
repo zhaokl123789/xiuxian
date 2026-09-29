@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:fasting_pill_base" }, { "item": "minecraft:sugar" }],
+  "result": { "item": "xiuxian:fasting_pill" },
+  "experience": 0.2,
+  "cookingtime": 600
+}

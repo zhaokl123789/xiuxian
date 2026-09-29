@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_heaven",
+  "group": "xiuxian:qi_gathering_pill",
+  "ingredients": [{ "item": "xiuxian:supreme_pill_base" }, { "item": "xiuxian:supreme_spirit_stone" }, { "item": "minecraft:ender_pearl" }],
+  "result": { "item": "xiuxian:supreme_qi_gathering_pill" },
+  "experience": 2.0,
+  "cookingtime": 1600
+}

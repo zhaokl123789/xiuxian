@@ -1,10 +1,15 @@
 package xiuxian.cultivation;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -17,8 +22,8 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import xiuxian.item.XiuxianItems;
 import xiuxian.network.XiuxianNetwork;
+import xiuxian.item.XiuxianItems;
 
 public class CultivationEvents {
     @SubscribeEvent
@@ -74,6 +79,7 @@ public class CultivationEvents {
         CultivationData data = getData(player);
         if (data == null || !data.isInitialized()) {
             player.setNoGravity(true);
+            CultivationAttributeEffects.remove(player);
             if (data != null) {
                 data.stopMeditating();
             }
@@ -81,10 +87,62 @@ public class CultivationEvents {
         }
 
         player.setNoGravity(false);
-        if (data.tickMeditation(player.getX(), player.getY(), player.getZ())) {
+        CultivationAttributeEffects.apply(player, data);
+        if ((data.isMeditating() || data.isStudyingTechnique()) && player.isPassenger()) {
+            if (data.isMeditating()) {
+                endMeditation(player, data);
+                player.sendSystemMessage(Component.literal("乘骑打断了你的入定。"));
+            }
+            if (data.isStudyingTechnique()) {
+                endTechniqueStudy(player, data, "乘骑打断了你的参悟，典籍未损。");
+            }
+            XiuxianNetwork.syncCultivation(player, data);
+        }
+        if (data.isMeditating() || data.isStudyingTechnique()) {
+            double dx = player.getX() - data.meditationAnchorX();
+            double dy = player.getY() - data.meditationAnchorY();
+            double dz = player.getZ() - data.meditationAnchorZ();
+            if (dx * dx + dy * dy + dz * dz > 1.0E-4D) {
+                interruptChannel(player);
+                player.sendSystemMessage(Component.literal("你主动移动，行功随之中断。"));
+                return;
+            }
+            if (data.isMeditating()) {
+                CultivationAttributeEffects.setMeditating(player, true);
+            }
+            player.setShiftKeyDown(true);
+            player.setSprinting(false);
+            player.setDeltaMovement(0.0D, 0.0D, 0.0D);
+
+            if (data.isMeditating() && player.tickCount % 10 == 0) {
+                showMeditationAura(player);
+            }
+            if (data.isMeditating() && player.tickCount % 80 == 0) {
+                playMeditationNote(player);
+            }
+
+            if (data.isStudyingTechnique()) {
+                boolean complete = data.tickTechniqueStudy();
+                if (player.tickCount % 10 == 0) {
+                    showTechniqueVision(player);
+                }
+                if (player.tickCount % 60 == 0) {
+                    playMeditationNote(player);
+                }
+                if (complete) {
+                    finishTechniqueStudy(player, data);
+                } else if (player.tickCount % 5 == 0) {
+                    XiuxianNetwork.syncCultivation(player, data);
+                }
+            }
+        } else {
+            CultivationAttributeEffects.setMeditating(player, false);
+        }
+
+        if (data.tickMeditation()) {
             XiuxianNetwork.syncCultivation(player, data);
             if (data.qi() % 10 == 0) {
-                player.sendSystemMessage(Component.literal("打坐凝神，当前修为：" + data.qi()));
+                player.sendSystemMessage(Component.literal("吐纳渐进，当前修为：" + data.qi()));
             }
         }
     }
@@ -118,12 +176,15 @@ public class CultivationEvents {
             return false;
         }
 
-        data.begin(family, path);
+        data.begin(family, path, player.getRandom());
+        ItemStack startingManual = new ItemStack(XiuxianItems.BASIC_BREATHING_MANUAL.get());
+        if (!player.getInventory().add(startingManual)) {
+            player.drop(startingManual, false);
+        }
         player.setNoGravity(false);
-        player.addItem(new ItemStack(XiuxianItems.QI_GATHERING_PILL.get()));
         XiuxianNetwork.syncCultivation(player, data);
         player.sendSystemMessage(Component.literal("你以人类之身踏入修行路，出身：" + family.displayName()
-                + "，身份：" + path.displayName() + "。你已领悟入门功法：吐纳引气诀，并获得一枚凝气丹。"));
+                + "，身份：" + path.displayName() + "。你已领悟入门功法：吐纳引气诀。"));
         XiuxianNetwork.closeIdentityScreen(player);
         return true;
     }
@@ -147,13 +208,17 @@ public class CultivationEvents {
     public void onUninitializedPlayerBreaksBlock(BlockEvent.BreakEvent event) {
         if (!isInitialized(event.getPlayer())) {
             event.setCanceled(true);
+        } else if (event.getPlayer() instanceof ServerPlayer player && isChanneling(player)) {
+            interruptChannel(player);
         }
     }
 
     @SubscribeEvent
     public void onUninitializedPlayerInteracts(PlayerInteractEvent event) {
-        if (!isInitialized(event.getEntity())) {
+        if (!isInitialized(event.getEntity()) && event.isCancelable()) {
             event.setCanceled(true);
+        } else if (event.getEntity() instanceof ServerPlayer player && isChanneling(player)) {
+            interruptChannel(player);
         }
     }
 
@@ -161,13 +226,37 @@ public class CultivationEvents {
     public void onUninitializedPlayerAttacks(AttackEntityEvent event) {
         if (!isInitialized(event.getEntity())) {
             event.setCanceled(true);
+        } else if (event.getEntity() instanceof ServerPlayer player && isChanneling(player)) {
+            interruptChannel(player);
         }
     }
 
     @SubscribeEvent
     public void onUninitializedPlayerTakesDamage(LivingHurtEvent event) {
-        if (event.getEntity() instanceof Player player && !isInitialized(player)) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (!isInitialized(player)) {
             event.setCanceled(true);
+            return;
+        }
+        if (!player.level().isClientSide) {
+            CultivationData data = getData(player);
+            if (data != null) {
+                if (data.isMeditating() && player instanceof ServerPlayer serverPlayer) {
+                    endMeditation(serverPlayer, data);
+                    XiuxianNetwork.syncCultivation(serverPlayer, data);
+                    serverPlayer.sendSystemMessage(Component.literal("受外力惊扰，你暂时退出了入定。"));
+                }
+                if (data.isStudyingTechnique() && player instanceof ServerPlayer serverPlayer) {
+                    endTechniqueStudy(serverPlayer, data, "受外力惊扰，你中断了参悟，典籍未损。");
+                    XiuxianNetwork.syncCultivation(serverPlayer, data);
+                }
+                CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
+                float techniqueReduction = technique == null ? 0.0F : technique.damageReduction();
+                float reduction = Math.min(0.35F, data.constitution() * 0.0025F + techniqueReduction);
+                event.setAmount(event.getAmount() * (1.0F - reduction));
+            }
         }
     }
 
@@ -181,9 +270,11 @@ public class CultivationEvents {
 
         source.sendSuccess(() -> Component.literal("种族：人类 | 出身：" + data.familyOrigin().displayName()
                 + " | 修行身份：" + data.cultivationPath().displayName()), false);
-        source.sendSuccess(() -> Component.literal("境界：" + data.realm().displayName() + data.realmLevel()
-                + "层 | 修为：" + data.qi() + "/" + data.breakthroughCost()), false);
-        source.sendSuccess(() -> Component.literal("功法：吐纳引气诀 | 状态："
+        source.sendSuccess(() -> Component.literal("境界：" + data.realm().displayName() + " "
+                + data.realm().stageLabel(data.realmLevel()) + " | 修为：" + data.qi() + "/" + data.breakthroughCost()), false);
+        source.sendSuccess(() -> Component.literal("真炁：" + data.trueQi() + "/" + data.trueQiMaximum()
+                + " | 炼丹师：" + data.alchemyLevel() + "级"), false);
+        source.sendSuccess(() -> Component.literal("功法：" + data.techniqueName() + " | 状态："
                 + (data.isMeditating() ? "打坐中" : "未打坐")), false);
         return 1;
     }
@@ -197,11 +288,27 @@ public class CultivationEvents {
         }
 
         if (data.isMeditating()) {
-            data.stopMeditating();
+            endMeditation(player, data);
             source.sendSuccess(() -> Component.literal("你结束了打坐，积累修为：" + data.qi()), false);
         } else {
-            data.startMeditating(player.getX(), player.getY(), player.getZ());
-            source.sendSuccess(() -> Component.literal("你开始运转吐纳引气诀。保持静止，每秒积累 1 点修为。"), false);
+            if (data.isStudyingTechnique()) {
+                source.sendFailure(Component.literal("你正在参悟功法，暂时无法入定吐纳。"));
+                return 0;
+            }
+            if (!data.hasLearnedTechnique()) {
+                source.sendFailure(Component.literal("你尚未习得功法，无法行功吐纳。"));
+                return 0;
+            }
+            if (!player.onGround() || player.isPassenger()) {
+                source.sendFailure(Component.literal("需先落地并离开乘坐状态，才能盘膝入定。"));
+                return 0;
+            }
+            data.startMeditating(player.getX(), player.getY(), player.getZ(), player.isShiftKeyDown());
+            CultivationAttributeEffects.setMeditating(player, true);
+            player.setShiftKeyDown(true);
+            player.setSprinting(false);
+            source.sendSuccess(() -> Component.literal("你盘膝入定，运转" + data.techniqueName()
+                    + "。气机每数息凝成一点修为，受击会中断行功。"), false);
         }
         XiuxianNetwork.syncCultivation(player, data);
         return 1;
@@ -215,19 +322,38 @@ public class CultivationEvents {
             return 0;
         }
 
-        data.stopMeditating();
+        endMeditation(player, data);
         if (data.qi() < data.breakthroughCost()) {
             source.sendFailure(Component.literal("修为不足，需要 " + data.breakthroughCost() + " 点，目前有 " + data.qi() + " 点。"));
             return 0;
         }
+        CultivationRealm targetRealm = data.breakthroughTargetRealm();
+        if (targetRealm == null) {
+            source.sendFailure(Component.literal("你已达到当前境界体系的上限。"));
+            return 0;
+        }
+        if (!data.canBreakthroughWithCurrentTechnique()) {
+            CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
+            String techniqueName = technique == null ? "当前功法" : "《" + technique.displayName() + "》";
+            String limit = technique == null ? "无可用境界" : technique.maximumRealm().displayName();
+            source.sendFailure(Component.literal(techniqueName + "最高适修至" + limit
+                    + "，需另行参悟适合" + targetRealm.displayName() + "的功法后再突破。"));
+            return 0;
+        }
+        CultivationRealm oldRealm = data.realm();
+        int oldRealmLevel = data.realmLevel();
         if (!data.breakthrough()) {
-            source.sendFailure(Component.literal("你已达到当前版本的境界上限。"));
+            source.sendFailure(Component.literal("当前修为不足以完成突破。"));
             return 0;
         }
 
+        boolean majorBreakthrough = oldRealm != data.realm();
+        CultivationAttributeEffects.applyAfterBreakthrough(player, data);
+        showBreakthroughAura(player, oldRealm, oldRealmLevel, majorBreakthrough);
         XiuxianNetwork.syncCultivation(player, data);
-        source.sendSuccess(() -> Component.literal("突破成功！当前境界：" + data.realm().displayName()
-                + data.realmLevel() + "层。"), false);
+        source.sendSuccess(() -> Component.literal((majorBreakthrough ? "大境界突破成功！" : "小境界突破成功！")
+                + "当前境界：" + data.realm().displayName()
+                + data.realm().stageLabel(data.realmLevel()) + "。"), false);
         return 1;
     }
 
@@ -235,8 +361,179 @@ public class CultivationEvents {
         return player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
     }
 
+    private static void endMeditation(ServerPlayer player, CultivationData data) {
+        if (!data.isMeditating()) {
+            CultivationAttributeEffects.setMeditating(player, false);
+            return;
+        }
+        boolean wasCrouching = data.wasCrouchingBeforeMeditation();
+        data.stopMeditating();
+        CultivationAttributeEffects.setMeditating(player, false);
+        player.setShiftKeyDown(wasCrouching);
+    }
+
+    public static void interruptChannel(ServerPlayer player) {
+        CultivationData data = getData(player);
+        if (data == null || (!data.isMeditating() && !data.isStudyingTechnique())) return;
+        if (data.isMeditating()) endMeditation(player, data);
+        if (data.isStudyingTechnique()) endTechniqueStudy(player, data, "你主动行动，中断了参悟，典籍未损。 ");
+        XiuxianNetwork.syncCultivation(player, data);
+    }
+
+    private static void finishTechniqueStudy(ServerPlayer player, CultivationData data) {
+        String id = data.studyingTechniqueId();
+        int chance = data.techniqueStudyChance();
+        int roll = data.techniqueStudyRoll();
+        boolean wasCrouching = data.wasCrouchingBeforeMeditation();
+        CultivationTechnique technique = CultivationTechniques.byId(id);
+        ItemStack manual = findTechniqueManual(player, id);
+        data.stopTechniqueStudy();
+        player.setShiftKeyDown(wasCrouching);
+
+        if (technique != null && !manual.isEmpty() && roll <= chance && data.learnTechnique(id)) {
+            manual.shrink(1);
+            CultivationAttributeEffects.apply(player, data);
+            player.sendSystemMessage(Component.literal("参悟有成！你已习得《" + technique.displayName()
+                    + "》，道意：" + technique.doctrine()));
+            player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.45F, 1.25F);
+            player.serverLevel().sendParticles(ParticleTypes.END_ROD, player.getX(), player.getY() + 1.0D,
+                    player.getZ(), 18, 0.55D, 0.7D, 0.55D, 0.02D);
+        } else if (technique != null && manual.isEmpty() && roll <= chance) {
+            player.sendSystemMessage(Component.literal("典籍已不在身边，参悟无从印证；本次未能习得功法。"));
+            player.serverLevel().sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 0.8D,
+                    player.getZ(), 10, 0.4D, 0.5D, 0.4D, 0.01D);
+        } else if (technique != null) {
+            player.sendSystemMessage(Component.literal("心有所悟，却未能贯通《" + technique.displayName()
+                    + "》。本次成功率 " + chance + "%（判定 " + roll + "），典籍仍在，可静心再试。"));
+            player.serverLevel().sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 0.8D,
+                    player.getZ(), 10, 0.4D, 0.5D, 0.4D, 0.01D);
+        }
+        XiuxianNetwork.syncCultivation(player, data);
+    }
+
+    private static void endTechniqueStudy(ServerPlayer player, CultivationData data, String message) {
+        boolean wasCrouching = data.wasCrouchingBeforeMeditation();
+        data.stopTechniqueStudy();
+        player.setShiftKeyDown(wasCrouching);
+        player.sendSystemMessage(Component.literal(message));
+    }
+
+    private static ItemStack findTechniqueManual(ServerPlayer player, String techniqueId) {
+        ItemStack offhand = player.getOffhandItem();
+        if (isTechniqueManual(offhand, techniqueId)) {
+            return offhand;
+        }
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (isTechniqueManual(stack, techniqueId)) {
+                return stack;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static boolean isTechniqueManual(ItemStack stack, String techniqueId) {
+        return !stack.isEmpty() && stack.getItem() instanceof xiuxian.item.TechniqueManualItem manual
+                && manual.techniqueId().equals(techniqueId);
+    }
+
+    private static void playMeditationNote(ServerPlayer player) {
+        float[] notes = {0.72F, 0.86F, 1.0F, 1.12F, 1.0F, 0.86F};
+        float pitch = notes[(player.tickCount / 80) % notes.length];
+        player.level().playSound(null, player.blockPosition(), SoundEvents.NOTE_BLOCK_CHIME.get(),
+                SoundSource.PLAYERS, 0.12F, pitch);
+    }
+
+    private static void showMeditationAura(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        double orbit = player.tickCount * 0.025D;
+        double[] radii = {1.25D, 2.45D};
+        int[] points = {8, 12};
+        for (int ring = 0; ring < radii.length; ring++) {
+            for (int i = 0; i < points[ring]; i++) {
+                double angle = orbit * (ring == 0 ? -1.0D : 1.0D)
+                        + Math.PI * 2.0D * i / points[ring];
+                double x = player.getX() + Math.cos(angle) * radii[ring];
+                double z = player.getZ() + Math.sin(angle) * radii[ring];
+                double y = player.getY() + (ring == 0 ? 0.18D : 0.68D)
+                        + Math.sin(angle * 2.0D + orbit) * 0.12D;
+                var particle = ring == 0 ? ParticleTypes.ENCHANT : ParticleTypes.END_ROD;
+                level.sendParticles(particle, x, y, z, 1, 0.0D, 0.025D, 0.0D, 0.008D);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            double angle = orbit * 1.6D + Math.PI * 2.0D * i / 3.0D;
+            double x = player.getX() + Math.cos(angle) * 0.38D;
+            double z = player.getZ() + Math.sin(angle) * 0.38D;
+            level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, x, player.getY() + 0.45D + i * 0.35D,
+                    z, 1, 0.0D, 0.04D, 0.0D, 0.005D);
+        }
+    }
+
+    private static void showBreakthroughAura(ServerPlayer player, CultivationRealm oldRealm,
+                                             int oldRealmLevel, boolean major) {
+        ServerLevel level = player.serverLevel();
+        if (major) {
+            CultivationRealm nextRealm = oldRealm.next();
+            ParticleOptions sceneParticle = breakthroughParticle(nextRealm == null ? oldRealm : nextRealm);
+            int ringPoints = 20 + (nextRealm == null ? 0 : nextRealm.ordinal() * 4);
+            double radius = 3.1D + (nextRealm == null ? 0 : nextRealm.ordinal() * 0.18D);
+            for (int i = 0; i < ringPoints; i++) {
+                double angle = Math.PI * 2.0D * i / ringPoints;
+                level.sendParticles(sceneParticle,
+                        player.getX() + Math.cos(angle) * radius, player.getY() + 0.12D,
+                        player.getZ() + Math.sin(angle) * radius, 1, 0.0D, 0.08D, 0.0D, 0.015D);
+            }
+            level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, player.getX(), player.getY() + 1.0D,
+                    player.getZ(), 30 + ringPoints, 1.0D, 1.0D, 1.0D, 0.06D);
+            level.sendParticles(ParticleTypes.WITCH, player.getX(), player.getY() + 1.0D,
+                    player.getZ(), 18 + ringPoints / 2, 0.8D, 0.8D, 0.8D, 0.02D);
+            player.playNotifySound(SoundEvents.LIGHTNING_BOLT_THUNDER, SoundSource.PLAYERS, 0.35F, 1.1F);
+        } else {
+            int ringPoints = 8 + oldRealmLevel * 2;
+            double radius = 1.1D + oldRealmLevel * 0.075D;
+            ParticleOptions sceneParticle = breakthroughParticle(oldRealm);
+            for (int i = 0; i < ringPoints; i++) {
+                double angle = Math.PI * 2.0D * i / ringPoints + oldRealmLevel * 0.19D;
+                level.sendParticles(i % 4 == 0 ? ParticleTypes.END_ROD : sceneParticle,
+                        player.getX() + Math.cos(angle) * radius, player.getY() + 0.12D + oldRealmLevel * 0.045D,
+                        player.getZ() + Math.sin(angle) * radius, 1, 0.0D, 0.035D, 0.0D, 0.01D);
+            }
+            player.playNotifySound(SoundEvents.NOTE_BLOCK_CHIME.get(), SoundSource.PLAYERS, 0.4F, 1.2F);
+        }
+    }
+
+    private static ParticleOptions breakthroughParticle(CultivationRealm realm) {
+        return switch (realm) {
+            case FETAL_BREATH -> ParticleTypes.ENCHANT;
+            case QI_REFINING -> ParticleTypes.END_ROD;
+            case FOUNDATION_ESTABLISHMENT -> ParticleTypes.SOUL_FIRE_FLAME;
+            case PURPLE_MANSION -> ParticleTypes.WITCH;
+            case GOLDEN_CORE -> ParticleTypes.TOTEM_OF_UNDYING;
+            case DAO_TAI -> ParticleTypes.REVERSE_PORTAL;
+        };
+    }
+
+    private static void showTechniqueVision(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        double orbit = player.tickCount * 0.045D;
+        for (int i = 0; i < 8; i++) {
+            double angle = orbit + Math.PI * 2.0D * i / 8.0D;
+            double x = player.getX() + Math.cos(angle) * 0.8D;
+            double z = player.getZ() + Math.sin(angle) * 0.8D;
+            double y = player.getY() + 0.25D + (i % 4) * 0.35D;
+            level.sendParticles(i % 2 == 0 ? ParticleTypes.ENCHANT : ParticleTypes.END_ROD,
+                    x, y, z, 1, 0.0D, 0.02D, 0.0D, 0.01D);
+        }
+    }
+
     private static boolean isInitialized(Player player) {
         CultivationData data = getData(player);
         return data != null && data.isInitialized();
+    }
+
+    private static boolean isChanneling(Player player) {
+        CultivationData data = getData(player);
+        return data != null && (data.isMeditating() || data.isStudyingTechnique());
     }
 }

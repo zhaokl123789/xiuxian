@@ -1,0 +1,1 @@
+{ "parent": "minecraft:item/generated", "textures": { "layer0": "xiuxian:item/lightness_pill_base" } }

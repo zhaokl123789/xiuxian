@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_spirit",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:water_breathing_pill_base" }, { "item": "minecraft:prismarine_crystals" }],
+  "result": { "item": "xiuxian:water_breathing_pill" },
+  "experience": 0.35,
+  "cookingtime": 480
+}

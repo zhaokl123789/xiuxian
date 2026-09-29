@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:pill_bases",
+  "ingredients": [{ "item": "minecraft:prismarine_crystals" }, { "item": "minecraft:kelp" }, { "item": "minecraft:glass_bottle" }],
+  "result": { "item": "xiuxian:water_breathing_pill_base" }
+}

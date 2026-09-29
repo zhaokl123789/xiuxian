@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:alchemy_furnace_upgrade",
+  "ingredients": [
+    { "item": "xiuxian:alchemy_furnace_earth" },
+    { "item": "minecraft:emerald_block" },
+    { "item": "minecraft:nether_star" }
+  ],
+  "result": { "item": "xiuxian:alchemy_furnace_heaven" }
+}

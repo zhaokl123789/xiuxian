@@ -3,16 +3,18 @@ package xiuxian.cultivation;
 import java.util.Arrays;
 
 public enum FamilyOrigin {
-    MORTAL("mortal", "凡俗家族"),
-    CULTIVATOR("cultivator", "修行世家"),
-    FALLEN("fallen", "没落家族");
+    MORTAL("mortal", "凡俗家族", new CultivationAttributeBonuses(-3, 1, 0, 4)),
+    CULTIVATOR("cultivator", "修行世家", new CultivationAttributeBonuses(6, -1, 3, -2)),
+    FALLEN("fallen", "没落家族", new CultivationAttributeBonuses(2, 3, 4, -5));
 
     private final String id;
     private final String displayName;
+    private final CultivationAttributeBonuses bonuses;
 
-    FamilyOrigin(String id, String displayName) {
+    FamilyOrigin(String id, String displayName, CultivationAttributeBonuses bonuses) {
         this.id = id;
         this.displayName = displayName;
+        this.bonuses = bonuses;
     }
 
     public String id() {
@@ -21,6 +23,10 @@ public enum FamilyOrigin {
 
     public String displayName() {
         return displayName;
+    }
+
+    public CultivationAttributeBonuses bonuses() {
+        return bonuses;
     }
 
     public static FamilyOrigin byId(String id) {

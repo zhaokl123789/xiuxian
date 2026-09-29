@@ -8,16 +8,25 @@ public final class CultivationClientState {
     private static boolean initialized;
     private static FamilyOrigin familyOrigin = FamilyOrigin.MORTAL;
     private static CultivationPath cultivationPath = CultivationPath.WANDERER;
-    private static CultivationRealm realm = CultivationRealm.QI_REFINING;
+    private static CultivationRealm realm = CultivationRealm.FETAL_BREATH;
     private static int realmLevel = 1;
     private static int qi;
     private static int breakthroughCost;
     private static String techniqueId = "xiuxian:basic_breathing";
     private static boolean meditating;
-    private static int spiritualRoot = 50;
-    private static int constitution = 50;
-    private static int comprehension = 50;
-    private static int fortune = 50;
+    private static int spiritualRoot = 10;
+    private static int constitution = 10;
+    private static int comprehension = 10;
+    private static int fortune = 10;
+    private static String studyingTechniqueId = "";
+    private static int techniqueStudyTicks;
+    private static int techniqueStudyDuration;
+    private static int techniqueStudyChance;
+    private static int trueQi;
+    private static int trueQiMaximum;
+    private static int alchemyLevel = 1;
+    private static int alchemyExperience;
+    private static int alchemyExperienceToNextLevel = 100;
 
     private CultivationClientState() {}
 
@@ -73,11 +82,37 @@ public final class CultivationClientState {
         return fortune;
     }
 
+    public static String studyingTechniqueId() {
+        return studyingTechniqueId;
+    }
+
+    public static int techniqueStudyTicks() {
+        return techniqueStudyTicks;
+    }
+
+    public static int techniqueStudyDuration() {
+        return techniqueStudyDuration;
+    }
+
+    public static int techniqueStudyChance() {
+        return techniqueStudyChance;
+    }
+
+    public static int trueQi() { return trueQi; }
+    public static int trueQiMaximum() { return trueQiMaximum; }
+    public static int alchemyLevel() { return alchemyLevel; }
+    public static int alchemyExperience() { return alchemyExperience; }
+    public static int alchemyExperienceToNextLevel() { return alchemyExperienceToNextLevel; }
+
     public static void update(boolean newInitialized, String familyId, String pathId, String realmId,
                               int newRealmLevel, int newQi, int newBreakthroughCost,
                               String newTechniqueId, boolean newMeditating,
                               int newSpiritualRoot, int newConstitution,
-                              int newComprehension, int newFortune) {
+                              int newComprehension, int newFortune, String newStudyingTechniqueId,
+                              int newTechniqueStudyTicks, int newTechniqueStudyDuration,
+                              int newTechniqueStudyChance, int newTrueQi, int newTrueQiMaximum,
+                              int newAlchemyLevel, int newAlchemyExperience,
+                              int newAlchemyExperienceToNextLevel) {
         initialized = newInitialized;
         familyOrigin = FamilyOrigin.byId(familyId);
         cultivationPath = CultivationPath.byId(pathId);
@@ -91,6 +126,15 @@ public final class CultivationClientState {
         constitution = clampAttribute(newConstitution);
         comprehension = clampAttribute(newComprehension);
         fortune = clampAttribute(newFortune);
+        studyingTechniqueId = newStudyingTechniqueId == null ? "" : newStudyingTechniqueId;
+        techniqueStudyTicks = Math.max(0, newTechniqueStudyTicks);
+        techniqueStudyDuration = Math.max(0, newTechniqueStudyDuration);
+        techniqueStudyChance = Math.max(0, Math.min(100, newTechniqueStudyChance));
+        trueQi = Math.max(0, newTrueQi);
+        trueQiMaximum = Math.max(0, newTrueQiMaximum);
+        alchemyLevel = Math.max(1, newAlchemyLevel);
+        alchemyExperience = Math.max(0, newAlchemyExperience);
+        alchemyExperienceToNextLevel = Math.max(1, newAlchemyExperienceToNextLevel);
     }
 
     private static int clampAttribute(int value) {

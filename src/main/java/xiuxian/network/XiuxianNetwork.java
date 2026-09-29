@@ -17,7 +17,7 @@ import xiuxian.cultivation.CultivationEvents;
 import xiuxian.cultivation.CultivationData;
 
 public final class XiuxianNetwork {
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "4";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("xiuxian", "main"),
             () -> PROTOCOL_VERSION,
@@ -44,6 +44,10 @@ public final class XiuxianNetwork {
                 buffer -> new SelectIdentityPacket(buffer.readUtf(32), buffer.readUtf(32)),
                 XiuxianNetwork::handleSelectIdentity,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(nextMessageId++, ChannelInterruptPacket.class,
+                (message, buffer) -> {}, buffer -> new ChannelInterruptPacket(),
+                XiuxianNetwork::handleChannelInterrupt,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(nextMessageId++, CultivationSyncPacket.class,
                 (message, buffer) -> {
                     buffer.writeBoolean(message.initialized);
@@ -59,11 +63,22 @@ public final class XiuxianNetwork {
                     buffer.writeVarInt(message.constitution);
                     buffer.writeVarInt(message.comprehension);
                     buffer.writeVarInt(message.fortune);
+                    buffer.writeUtf(message.studyingTechniqueId);
+                    buffer.writeVarInt(message.techniqueStudyTicks);
+                    buffer.writeVarInt(message.techniqueStudyDuration);
+                    buffer.writeVarInt(message.techniqueStudyChance);
+                    buffer.writeVarInt(message.trueQi);
+                    buffer.writeVarInt(message.trueQiMaximum);
+                    buffer.writeVarInt(message.alchemyLevel);
+                    buffer.writeVarInt(message.alchemyExperience);
+                    buffer.writeVarInt(message.alchemyExperienceToNextLevel);
                 },
                 buffer -> new CultivationSyncPacket(buffer.readBoolean(), buffer.readUtf(32), buffer.readUtf(32),
                         buffer.readUtf(32), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(),
                         buffer.readUtf(64), buffer.readBoolean(), buffer.readVarInt(), buffer.readVarInt(),
-                        buffer.readVarInt(), buffer.readVarInt()),
+                        buffer.readVarInt(), buffer.readVarInt(), buffer.readUtf(64), buffer.readVarInt(),
+                        buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(),
+                        buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt()),
                 XiuxianNetwork::handleCultivationSync,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
@@ -84,7 +99,14 @@ public final class XiuxianNetwork {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new CultivationSyncPacket(
                 data.isInitialized(), data.familyOrigin().id(), data.cultivationPath().id(), data.realm().id(),
                 data.realmLevel(), data.qi(), data.breakthroughCost(), data.techniqueId(), data.isMeditating(),
-                data.spiritualRoot(), data.constitution(), data.comprehension(), data.fortune()));
+                data.spiritualRoot(), data.constitution(), data.comprehension(), data.fortune(),
+                data.studyingTechniqueId(), data.techniqueStudyTicks(), data.techniqueStudyDuration(),
+                data.techniqueStudyChance(), data.trueQi(), data.trueQiMaximum(), data.alchemyLevel(),
+                data.alchemyExperience(), data.alchemyExperienceToNextLevel()));
+    }
+
+    public static void requestChannelInterrupt() {
+        CHANNEL.sendToServer(new ChannelInterruptPacket());
     }
 
     private static void handleOpenIdentityScreen(IdentityScreenPacket message,
@@ -115,6 +137,16 @@ public final class XiuxianNetwork {
         context.setPacketHandled(true);
     }
 
+    private static void handleChannelInterrupt(ChannelInterruptPacket message,
+                                                Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
+            if (player != null) CultivationEvents.interruptChannel(player);
+        });
+        context.setPacketHandled(true);
+    }
+
     private static void handleCultivationSync(CultivationSyncPacket message,
                                                Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
@@ -122,13 +154,19 @@ public final class XiuxianNetwork {
                 ClientScreens.updateCultivation(message.initialized, message.familyId, message.pathId,
                         message.realmId, message.realmLevel, message.qi, message.breakthroughCost,
                         message.techniqueId, message.meditating, message.spiritualRoot, message.constitution,
-                        message.comprehension, message.fortune)));
+                        message.comprehension, message.fortune, message.studyingTechniqueId,
+                        message.techniqueStudyTicks, message.techniqueStudyDuration,
+                        message.techniqueStudyChance, message.trueQi, message.trueQiMaximum,
+                        message.alchemyLevel, message.alchemyExperience,
+                        message.alchemyExperienceToNextLevel)));
         context.setPacketHandled(true);
     }
 
     private static final class IdentityScreenPacket {}
 
     private static final class IdentitySelectedPacket {}
+
+    private static final class ChannelInterruptPacket {}
 
     private static final class SelectIdentityPacket {
         private final String familyId;
@@ -154,11 +192,24 @@ public final class XiuxianNetwork {
         private final int constitution;
         private final int comprehension;
         private final int fortune;
+        private final String studyingTechniqueId;
+        private final int techniqueStudyTicks;
+        private final int techniqueStudyDuration;
+        private final int techniqueStudyChance;
+        private final int trueQi;
+        private final int trueQiMaximum;
+        private final int alchemyLevel;
+        private final int alchemyExperience;
+        private final int alchemyExperienceToNextLevel;
 
         private CultivationSyncPacket(boolean initialized, String familyId, String pathId, String realmId,
                                       int realmLevel, int qi, int breakthroughCost,
                                       String techniqueId, boolean meditating, int spiritualRoot, int constitution,
-                                      int comprehension, int fortune) {
+                                      int comprehension, int fortune, String studyingTechniqueId,
+                                      int techniqueStudyTicks, int techniqueStudyDuration,
+                                      int techniqueStudyChance, int trueQi, int trueQiMaximum,
+                                      int alchemyLevel, int alchemyExperience,
+                                      int alchemyExperienceToNextLevel) {
             this.initialized = initialized;
             this.familyId = familyId;
             this.pathId = pathId;
@@ -172,6 +223,15 @@ public final class XiuxianNetwork {
             this.constitution = constitution;
             this.comprehension = comprehension;
             this.fortune = fortune;
+            this.studyingTechniqueId = studyingTechniqueId;
+            this.techniqueStudyTicks = techniqueStudyTicks;
+            this.techniqueStudyDuration = techniqueStudyDuration;
+            this.techniqueStudyChance = techniqueStudyChance;
+            this.trueQi = trueQi;
+            this.trueQiMaximum = trueQiMaximum;
+            this.alchemyLevel = alchemyLevel;
+            this.alchemyExperience = alchemyExperience;
+            this.alchemyExperienceToNextLevel = alchemyExperienceToNextLevel;
         }
     }
 }

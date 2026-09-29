@@ -1,0 +1,10 @@
+{
+  "feature": "xiuxian:high_spirit_stone_ore",
+  "placement": [
+    { "type": "minecraft:rarity_filter", "chance": 16 },
+    { "type": "minecraft:count", "count": 2 },
+    { "type": "minecraft:in_square" },
+    { "type": "minecraft:height_range", "height": { "type": "minecraft:uniform", "min_inclusive": { "absolute": -56 }, "max_inclusive": { "absolute": -24 } } },
+    { "type": "minecraft:biome" }
+  ]
+}

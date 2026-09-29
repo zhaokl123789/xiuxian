@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_earth",
+  "group": "xiuxian:qi_gathering_pill",
+  "ingredients": [{ "item": "xiuxian:high_pill_base" }, { "item": "xiuxian:high_spirit_stone" }, { "item": "minecraft:glowstone_dust" }],
+  "result": { "item": "xiuxian:high_qi_gathering_pill" },
+  "experience": 1.0,
+  "cookingtime": 1200
+}

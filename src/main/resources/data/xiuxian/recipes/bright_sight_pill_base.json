@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:pill_bases",
+  "ingredients": [{ "item": "minecraft:golden_carrot" }, { "item": "minecraft:glowstone_dust" }, { "item": "minecraft:glass_bottle" }],
+  "result": { "item": "xiuxian:bright_sight_pill_base" }
+}

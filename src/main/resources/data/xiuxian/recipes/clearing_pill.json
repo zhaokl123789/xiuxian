@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_spirit",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:clearing_pill_base" }, { "item": "minecraft:milk_bucket" }],
+  "result": { "item": "xiuxian:clearing_pill" },
+  "experience": 0.35,
+  "cookingtime": 480
+}

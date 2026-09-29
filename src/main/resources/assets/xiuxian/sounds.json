@@ -1,0 +1,8 @@
+{
+  "meditation_ambience": {
+    "subtitle": "sound.xiuxian.meditation_ambience",
+    "sounds": [
+      { "name": "xiuxian:meditation_ambience", "stream": true }
+    ]
+  }
+}

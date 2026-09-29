@@ -2,9 +2,11 @@ package xiuxian.client.screen;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
+import xiuxian.cultivation.CultivationAttributeBonuses;
+import xiuxian.cultivation.CultivationData;
 import xiuxian.cultivation.CultivationPath;
 import xiuxian.cultivation.FamilyOrigin;
 import xiuxian.network.XiuxianNetwork;
@@ -48,7 +50,8 @@ public class IdentityCreationScreen extends Screen {
             addRenderableWidget(Button.builder(optionLabel(family.displayName(), selectedFamily == family), button -> {
                 selectedFamily = family;
                 rebuildWidgets();
-            }).bounds(familyX, optionTop + index++ * optionStep, columnWidth, optionHeight).build());
+            }).tooltip(Tooltip.create(Component.literal(family.bonuses().summary())))
+                    .bounds(familyX, optionTop + index++ * optionStep, columnWidth, optionHeight).build());
         }
 
         index = 0;
@@ -56,7 +59,8 @@ public class IdentityCreationScreen extends Screen {
             addRenderableWidget(Button.builder(optionLabel(path.displayName(), selectedPath == path), button -> {
                 selectedPath = path;
                 rebuildWidgets();
-            }).bounds(pathX, optionTop + index++ * optionStep, columnWidth, optionHeight).build());
+            }).tooltip(Tooltip.create(Component.literal(path.bonuses().summary())))
+                    .bounds(pathX, optionTop + index++ * optionStep, columnWidth, optionHeight).build());
         }
 
         Button confirm = Button.builder(Component.literal("踏入修行"), button -> {
@@ -81,16 +85,12 @@ public class IdentityCreationScreen extends Screen {
         int innerLeft = panelLeft + 16;
         int gap = 12;
         int columnWidth = (panelWidth - 32 - gap) / 2;
-        graphics.drawCenteredString(this.font, "家族出身", innerLeft + columnWidth / 2, panelTop + scaled(65), GOLD);
-        graphics.drawCenteredString(this.font, "修行身份", innerLeft + columnWidth + gap + columnWidth / 2, panelTop + scaled(65), GOLD);
+        graphics.drawCenteredString(this.font, "家族出身 · 影响资质", innerLeft + columnWidth / 2, panelTop + scaled(65), GOLD);
+        graphics.drawCenteredString(this.font, "修行身份 · 影响资质", innerLeft + columnWidth + gap + columnWidth / 2, panelTop + scaled(65), GOLD);
 
-        String introduction = "灵脉初醒，仙门隐于云海。你自凡尘而来，将择一段出身与修行之路，得吐纳引气诀和凝气丹，踏上求道之途。";
-        int textTop = panelTop + scaled(171);
-        int textWidth = panelWidth - 40;
-        int line = 0;
-        for (FormattedCharSequence lineText : this.font.split(Component.literal(introduction), textWidth)) {
-            graphics.drawCenteredString(this.font, lineText, this.width / 2, textTop + line++ * 11, 0xFFC8C3B6);
-        }
+        graphics.drawCenteredString(this.font, "五德更迭，十二炁流转。灵潮复苏，旧道统重现。", this.width / 2,
+                panelTop + scaled(169), 0xFFC8C3B6);
+        drawAttributePreview(graphics);
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }
@@ -107,6 +107,31 @@ public class IdentityCreationScreen extends Screen {
 
     private Component optionLabel(String name, boolean selected) {
         return Component.literal(selected ? "◆ " + name : name);
+    }
+
+    private void drawAttributePreview(GuiGraphics graphics) {
+        CultivationAttributeBonuses bonuses = CultivationAttributeBonuses.NEUTRAL;
+        if (selectedFamily != null) {
+            bonuses = bonuses.plus(selectedFamily.bonuses());
+        }
+        if (selectedPath != null) {
+            bonuses = bonuses.plus(selectedPath.bonuses());
+        }
+
+        int top = panelTop + scaled(190);
+        graphics.drawCenteredString(this.font, "资质基础 10-30，出身与身份加权，确认后随机", this.width / 2, top, GOLD);
+        String roots = "灵根 " + attributeRange(bonuses.spiritualRoot())
+                + "    根骨 " + attributeRange(bonuses.constitution());
+        String mind = "悟性 " + attributeRange(bonuses.comprehension())
+                + "    气运 " + attributeRange(bonuses.fortune());
+        graphics.drawCenteredString(this.font, roots, this.width / 2, top + scaled(13), 0xFFE1D9C5);
+        graphics.drawCenteredString(this.font, mind, this.width / 2, top + scaled(26), 0xFFE1D9C5);
+    }
+
+    private String attributeRange(int bonus) {
+        int minimum = Math.max(1, CultivationData.BASE_ATTRIBUTE_MIN + bonus);
+        int maximum = Math.min(CultivationData.MAX_ATTRIBUTE_SCORE, CultivationData.BASE_ATTRIBUTE_MAX + bonus);
+        return minimum + "-" + maximum;
     }
 
     private int scaled(int value) {

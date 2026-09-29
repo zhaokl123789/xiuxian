@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:alchemy",
+  "ingredients": [
+    { "item": "xiuxian:spirit_stone" },
+    { "item": "minecraft:glow_berries" },
+    { "item": "minecraft:gold_nugget" }
+  ],
+  "result": { "item": "xiuxian:qi_gathering_pill_base", "count": 1 }
+}

@@ -2,6 +2,7 @@ package xiuxian.client;
 
 import net.minecraft.client.Minecraft;
 import xiuxian.client.screen.IdentityCreationScreen;
+import xiuxian.client.screen.TechniqueBookScreen;
 
 public final class ClientScreens {
     private ClientScreens() {}
@@ -23,8 +24,18 @@ public final class ClientScreens {
     public static void updateCultivation(boolean initialized, String familyId, String pathId, String realmId,
                                          int realmLevel, int qi, int breakthroughCost,
                                          String techniqueId, boolean meditating,
-                                         int spiritualRoot, int constitution, int comprehension, int fortune) {
+                                         int spiritualRoot, int constitution, int comprehension, int fortune,
+                                         String studyingTechniqueId, int techniqueStudyTicks,
+                                         int techniqueStudyDuration, int techniqueStudyChance,
+                                         int trueQi, int trueQiMaximum, int alchemyLevel,
+                                         int alchemyExperience, int alchemyExperienceToNextLevel) {
         CultivationClientState.update(initialized, familyId, pathId, realmId, realmLevel, qi,
-                breakthroughCost, techniqueId, meditating, spiritualRoot, constitution, comprehension, fortune);
+                breakthroughCost, techniqueId, meditating, spiritualRoot, constitution, comprehension, fortune,
+                studyingTechniqueId, techniqueStudyTicks, techniqueStudyDuration, techniqueStudyChance,
+                trueQi, trueQiMaximum, alchemyLevel, alchemyExperience, alchemyExperienceToNextLevel);
+    }
+
+    public static void openTechniqueBookScreen(String techniqueId) {
+        Minecraft.getInstance().setScreen(new TechniqueBookScreen(techniqueId));
     }
 }

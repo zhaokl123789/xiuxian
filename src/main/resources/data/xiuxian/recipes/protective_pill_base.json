@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:alchemy_materials",
+  "ingredients": [
+    { "item": "minecraft:amethyst_shard" },
+    { "item": "minecraft:iron_nugget" },
+    { "item": "minecraft:honey_bottle" }
+  ],
+  "result": { "item": "xiuxian:protective_pill_base" }
+}

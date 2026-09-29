@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,lit=false": { "model": "xiuxian:block/alchemy_furnace_heaven" },
+    "facing=east,lit=false": { "model": "xiuxian:block/alchemy_furnace_heaven", "y": 90 },
+    "facing=south,lit=false": { "model": "xiuxian:block/alchemy_furnace_heaven", "y": 180 },
+    "facing=west,lit=false": { "model": "xiuxian:block/alchemy_furnace_heaven", "y": 270 },
+    "facing=north,lit=true": { "model": "xiuxian:block/alchemy_furnace_heaven_lit" },
+    "facing=east,lit=true": { "model": "xiuxian:block/alchemy_furnace_heaven_lit", "y": 90 },
+    "facing=south,lit=true": { "model": "xiuxian:block/alchemy_furnace_heaven_lit", "y": 180 },
+    "facing=west,lit=true": { "model": "xiuxian:block/alchemy_furnace_heaven_lit", "y": 270 }
+  }
+}

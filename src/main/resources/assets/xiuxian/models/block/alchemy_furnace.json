@@ -1,0 +1,8 @@
+{
+  "parent": "xiuxian:block/alchemy_furnace_shape",
+  "textures": {
+    "top": "xiuxian:block/alchemy_furnace_top",
+    "side": "xiuxian:block/alchemy_furnace_side",
+    "front": "xiuxian:block/alchemy_furnace_front"
+  }
+}

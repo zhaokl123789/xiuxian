@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:fetal_breath_manuals",
+  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:prismarine_crystals" }, { "item": "minecraft:kelp" }],
+  "result": { "item": "xiuxian:manual_water_virtue" }
+}

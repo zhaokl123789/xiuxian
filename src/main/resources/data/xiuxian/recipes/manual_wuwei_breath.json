@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:fetal_breath_manuals",
+  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:feather" }, { "item": "minecraft:oak_sapling" }],
+  "result": { "item": "xiuxian:manual_wuwei_breath" }
+}

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["III", "IFI", "III"],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "F": { "item": "minecraft:furnace" }
+  },
+  "result": { "item": "xiuxian:alchemy_furnace", "count": 1 }
+}

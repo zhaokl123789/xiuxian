@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_earth",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:protective_pill_base" }, { "item": "minecraft:iron_ingot" }],
+  "result": { "item": "xiuxian:protective_pill" },
+  "experience": 0.5,
+  "cookingtime": 360
+}

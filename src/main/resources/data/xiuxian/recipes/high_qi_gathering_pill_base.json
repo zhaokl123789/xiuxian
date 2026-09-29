@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:alchemy",
+  "ingredients": [
+    { "item": "xiuxian:high_spirit_stone" },
+    { "item": "minecraft:glow_berries" },
+    { "item": "minecraft:amethyst_shard" }
+  ],
+  "result": { "item": "xiuxian:high_pill_base", "count": 1 }
+}

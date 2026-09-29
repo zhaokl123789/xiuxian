@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_spirit",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:bright_sight_pill_base" }, { "item": "minecraft:glowstone_dust" }],
+  "result": { "item": "xiuxian:bright_sight_pill" },
+  "experience": 0.35,
+  "cookingtime": 480
+}

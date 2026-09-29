@@ -1,0 +1,8 @@
+{
+  "type": "xiuxian:alchemy_spirit",
+  "group": "xiuxian:pills",
+  "ingredients": [{ "item": "xiuxian:fire_warding_pill_base" }, { "item": "minecraft:blaze_powder" }],
+  "result": { "item": "xiuxian:fire_warding_pill" },
+  "experience": 0.35,
+  "cookingtime": 480
+}
