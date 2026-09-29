@@ -59,5 +59,7 @@
   "key.categories.xiuxian": "修行",
   "key.xiuxian.meditate": "开始 / 结束打坐",
   "key.xiuxian.breakthrough": "尝试突破",
-  "key.xiuxian.profile": "打开修行档案"
+  "key.xiuxian.profile": "打开修行档案",
+  "item.xiuxian.test_breakthrough_pill": "\u6ee1\u4fee\u4e39\uff08\u6d4b\u8bd5\uff09",
+  "key.xiuxian.void_walk": "\u592a\u865a\u6b65\uff08\u7d2b\u5e9c\u53ef\u7528\uff09"
 }

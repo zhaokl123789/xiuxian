@@ -10,15 +10,15 @@ public enum CultivationRealm {
     GOLDEN_CORE("golden_core", "金丹（真君）", 9, "层"),
     DAO_TAI("dao_tai", "道胎（仙君）", 9, "层");
 
-    private static final double[] HEALTH_BASE = {0, 35, 100, 220, 360, 700};
-    private static final double[] HEALTH_PER_STAGE = {4, 6, 8, 10, 10, 6};
-    private static final double[] ATTACK_BASE = {0, 3, 12, 35, 90, 220};
-    private static final double[] ATTACK_PER_STAGE = {0.75D, 1.5D, 3, 5, 9, 15};
-    private static final double[] ARMOR_BASE = {0, 1, 2, 5, 8, 12};
-    private static final double[] ARMOR_PER_STAGE = {0.1D, 0.15D, 0.25D, 0.35D, 0.3D, 0.25D};
+    private static final double[] HEALTH_BASE = {0, 25, 60, 300, 700, 1500};
+    private static final double[] HEALTH_PER_STAGE = {2, 8, 18, 20, 75, 140};
+    private static final double[] ATTACK_BASE = {0, 4, 50, 300, 1000, 4000};
+    private static final double[] ATTACK_PER_STAGE = {0.5D, 4, 25, 45, 120, 300};
+    private static final double[] ARMOR_BASE = {0, 1, 6, 14, 30, 50};
+    private static final double[] ARMOR_PER_STAGE = {0.1D, 0.4D, 1, 1, 4, 8};
     private static final double[] TRUE_QI_PER_STAGE = {10, 20, 40, 80, 160, 320};
-    private static final double[] DAMAGE_REDUCTION_BASE = {0, 0.04D, 0.14D, 0.36D, 0.55D, 0.74D};
-    private static final double[] DAMAGE_REDUCTION_PER_STAGE = {0.005D, 0.006D, 0.008D, 0.006D, 0.003D, 0.0005D};
+    private static final double[] DAMAGE_REDUCTION_BASE = {0, 0.04D, 0.35D, 0.72D, 0.84D, 0.9D};
+    private static final double[] DAMAGE_REDUCTION_PER_STAGE = {0.005D, 0.01D, 0.02D, 0.015D, 0.008D, 0.003D};
     private static final int[] HEALTH_REGEN_INTERVAL = {0, 1200, 400, 100, 40, 15};
     private static final int[] TRUE_QI_REGEN_PER_TEN_SECONDS = {0, 2, 8, 30, 120, 480};
 
@@ -85,7 +85,7 @@ public enum CultivationRealm {
         double reduction = DAMAGE_REDUCTION_BASE[ordinal()]
                 + completedBreakthroughs(level)
                 * DAMAGE_REDUCTION_PER_STAGE[ordinal()];
-        return (float) Math.min(0.75D, reduction);
+        return (float) Math.min(0.90D, reduction);
     }
 
     public int passiveHealthRegenerationIntervalTicks() {
@@ -121,18 +121,17 @@ public enum CultivationRealm {
     }
 
     public int breakthroughCost(int level) {
-        double realmGrowth = 30.0D * Math.pow(2.2D, ordinal());
-        double stageGrowth = Math.pow(1.18D, Math.max(0, level - 1));
-        double majorBreakthroughGrowth = level == levelCount && next() != null
-                ? 2.0D + ordinal() * 0.8D : 1.0D;
+        double realmGrowth = 60.0D * Math.pow(8.0D, ordinal());
+        double stageGrowth = Math.pow(1.48D, Math.max(0, Math.min(level, levelCount) - 1));
+        double majorBreakthroughGrowth = level == levelCount && next() != null ? 3.0D + ordinal() * 1.2D : 1.0D;
         return (int) Math.min(Integer.MAX_VALUE,
                 Math.max(1L, Math.round(realmGrowth * stageGrowth * majorBreakthroughGrowth)));
     }
 
     public int breakthroughChanceAt(int level, int spiritualRoot, int comprehension, int fortune,
-                                     int techniqueCostPercent) {
-        if (next() == null) return 0;
+                                     int techniqueCostPercent, int previousFailures) {
         if (level < levelCount) return 100;
+        if (next() == null) return 0;
         int baseChance = switch (this) {
             case FETAL_BREATH -> 90;
             case QI_REFINING -> 60;
@@ -143,10 +142,28 @@ public enum CultivationRealm {
         };
         int aptitudeBonus = (spiritualRoot + comprehension + fortune) / 20;
         int techniqueAdjustment = (100 - techniqueCostPercent) / 8;
-        return Math.max(3, Math.min(95, baseChance + aptitudeBonus + techniqueAdjustment));
+        int cleanChance = Math.max(1, Math.min(95, baseChance + aptitudeBonus + techniqueAdjustment));
+        double remainingChance = ordinal() < FOUNDATION_ESTABLISHMENT.ordinal()
+                ? Math.pow(2.0D / 3.0D, Math.max(0, previousFailures))
+                : Math.pow(0.55D, Math.max(0, previousFailures));
+        return Math.max(1, (int) Math.floor(cleanChance * remainingChance));
+    }
+
+    public int fatalBreakthroughRiskChance(int previousFailures) {
+        CultivationRealm target = next();
+        if (target == null || target.ordinal() < FOUNDATION_ESTABLISHMENT.ordinal()) return 0;
+        int baseRisk = switch (target) {
+            case FOUNDATION_ESTABLISHMENT -> 12;
+            case PURPLE_MANSION -> 22;
+            case GOLDEN_CORE -> 35;
+            case DAO_TAI -> 50;
+            default -> 0;
+        };
+        return Math.min(85, baseRisk + Math.max(0, previousFailures) * 12);
     }
 
     public CultivationRealm next() {
+        if (this == PURPLE_MANSION) return null;
         return ordinal() + 1 < values().length ? values()[ordinal() + 1] : null;
     }
 

@@ -22,6 +22,8 @@ public final class CultivationKeyMappings {
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "key.categories.xiuxian");
     private static final KeyMapping PROFILE = new KeyMapping("key.xiuxian.profile", KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, "key.categories.xiuxian");
+    private static final KeyMapping VOID_WALK = new KeyMapping("key.xiuxian.void_walk", KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, "key.categories.xiuxian");
 
     private CultivationKeyMappings() {}
 
@@ -30,6 +32,7 @@ public final class CultivationKeyMappings {
         event.register(MEDITATE);
         event.register(BREAKTHROUGH);
         event.register(PROFILE);
+        event.register(VOID_WALK);
         MinecraftForge.EVENT_BUS.addListener(CultivationKeyMappings::onKeyInput);
     }
 
@@ -60,6 +63,9 @@ public final class CultivationKeyMappings {
                 minecraft.setScreen(new CultivationProfileScreen(null));
             }
         }
+        while (VOID_WALK.consumeClick()) {
+            XiuxianNetwork.requestVoidWalk();
+        }
     }
 
     private static boolean isInterruptKey(Minecraft minecraft, InputEvent.Key event) {
@@ -76,5 +82,6 @@ public final class CultivationKeyMappings {
         while (MEDITATE.consumeClick()) {}
         while (BREAKTHROUGH.consumeClick()) {}
         while (PROFILE.consumeClick()) {}
+        while (VOID_WALK.consumeClick()) {}
     }
 }

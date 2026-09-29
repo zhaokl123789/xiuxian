@@ -28,11 +28,13 @@ public final class ClientScreens {
                                          String studyingTechniqueId, int techniqueStudyTicks,
                                          int techniqueStudyDuration, int techniqueStudyChance,
                                          int trueQi, int trueQiMaximum, int alchemyLevel,
-                                         int alchemyExperience, int alchemyExperienceToNextLevel) {
+                                         int alchemyExperience, int alchemyExperienceToNextLevel,
+                                         String immortalFoundation, int majorBreakthroughFailures) {
         CultivationClientState.update(initialized, familyId, pathId, realmId, realmLevel, qi,
                 breakthroughCost, techniqueId, meditating, spiritualRoot, constitution, comprehension, fortune,
                 studyingTechniqueId, techniqueStudyTicks, techniqueStudyDuration, techniqueStudyChance,
-                trueQi, trueQiMaximum, alchemyLevel, alchemyExperience, alchemyExperienceToNextLevel);
+                trueQi, trueQiMaximum, alchemyLevel, alchemyExperience, alchemyExperienceToNextLevel,
+                immortalFoundation, majorBreakthroughFailures);
     }
 
     public static void openTechniqueBookScreen(String techniqueId) {

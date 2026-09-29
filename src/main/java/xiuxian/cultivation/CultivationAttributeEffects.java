@@ -13,6 +13,7 @@ public final class CultivationAttributeEffects {
     private static final UUID ARMOR_MODIFIER = UUID.fromString("c0b30003-4dc8-47a4-9281-8575ef9d6003");
     private static final UUID MEDITATION_MOVEMENT = UUID.fromString("c0b30004-4dc8-47a4-9281-8575ef9d6004");
     private static final UUID TECHNIQUE_MOVEMENT = UUID.fromString("c0b30005-4dc8-47a4-9281-8575ef9d6005");
+    private static final UUID REALM_MOVEMENT = UUID.fromString("c0b30006-4dc8-47a4-9281-8575ef9d6006");
 
     private CultivationAttributeEffects() {}
 
@@ -26,6 +27,10 @@ public final class CultivationAttributeEffects {
                 data.realm().armorBonusAt(data.realmLevel()));
         update(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT, "Technique movement",
                 technique == null ? 0.0D : technique.movementSpeedBonus());
+        double realmMovement = player.isSprinting() && data.trueQi() > 0
+                ? 0.15D + data.realm().ordinal() * 0.08D : 0.0D;
+        update(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT, "Cultivation sprint",
+                realmMovement, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
 
     public static void applyAfterBreakthrough(ServerPlayer player, CultivationData data) {
@@ -42,6 +47,7 @@ public final class CultivationAttributeEffects {
         remove(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER);
         remove(player, Attributes.ARMOR, ARMOR_MODIFIER);
         remove(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT);
+        remove(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT);
         setMeditating(player, false);
     }
 
@@ -61,6 +67,11 @@ public final class CultivationAttributeEffects {
     }
 
     private static void update(ServerPlayer player, Attribute attribute, UUID id, String name, double amount) {
+        update(player, attribute, id, name, amount, AttributeModifier.Operation.ADDITION);
+    }
+
+    private static void update(ServerPlayer player, Attribute attribute, UUID id, String name,
+                               double amount, AttributeModifier.Operation operation) {
         AttributeInstance instance = player.getAttribute(attribute);
         if (instance == null) {
             return;
@@ -73,7 +84,7 @@ public final class CultivationAttributeEffects {
         if (current != null) {
             instance.removeModifier(current);
         }
-        instance.addTransientModifier(new AttributeModifier(id, name, amount, AttributeModifier.Operation.ADDITION));
+        instance.addTransientModifier(new AttributeModifier(id, name, amount, operation));
     }
 
     private static void remove(ServerPlayer player, Attribute attribute, UUID id) {

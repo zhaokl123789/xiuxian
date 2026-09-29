@@ -42,7 +42,7 @@ public class CultivationProfileScreen extends Screen {
             for (int i = 0; i < ATTRIBUTE_NAMES.length; i++) {
                 final int attributeIndex = i;
                 addRenderableWidget(Button.builder(Component.literal("?"), button -> selectedAttribute = attributeIndex)
-                .bounds(panelLeft + 53, panelTop + scaled(230 + i * 20), 18, scaled(15))
+                .bounds(panelLeft + 53, panelTop + scaled(240 + i * 20), 18, scaled(15))
                         .tooltip(Tooltip.create(Component.literal("查看" + ATTRIBUTE_NAMES[i] + "的作用")))
                         .build());
             }
@@ -55,8 +55,11 @@ public class CultivationProfileScreen extends Screen {
         CultivationRealm targetRealm = CultivationClientState.realmLevel() == currentRealm.levelCount()
                 ? currentRealm.next() : currentRealm;
         boolean atRealmCap = targetRealm == null;
+        boolean foundationBlocked = targetRealm == CultivationRealm.PURPLE_MANSION && technique != null
+                && !technique.matchesImmortalFoundation(CultivationClientState.immortalFoundation());
         boolean techniqueBlocked = !atRealmCap && (technique == null
-                || !technique.canBeLearnedAt(currentRealm) || !technique.canCultivateTo(targetRealm));
+                || !technique.canBeLearnedAt(currentRealm) || !technique.canCultivateTo(targetRealm)
+                || foundationBlocked);
         boolean majorBreakthrough = CultivationClientState.realmLevel() == CultivationClientState.realm().levelCount();
         boolean enoughQi = CultivationClientState.breakthroughCost() > 0
                 && CultivationClientState.qi() >= CultivationClientState.breakthroughCost();
@@ -73,12 +76,19 @@ public class CultivationProfileScreen extends Screen {
                 })
                 .bounds(panelLeft + 18, actionY, actionWidth, scaled(20));
         if (techniqueBlocked) {
-            String maximumRealm = technique == null ? "无有效功法" : technique.maximumRealm().displayName();
-            breakthroughBuilder.tooltip(Tooltip.create(Component.literal("当前功法最高适修至"
-                    + maximumRealm + "，参悟新功法后可继续突破。")));
+            String reason = foundationBlocked
+                    ? "当前仙基为" + CultivationClientState.immortalFoundation()
+                    + "，需修习契基或生扶仙基的功法，方可冲击紫府。"
+                    : "当前功法最高适修至" + (technique == null ? "未知境界" : technique.maximumRealm().displayName())
+                    + "，参悟新功法后可继续突破。";
+            breakthroughBuilder.tooltip(Tooltip.create(Component.literal(reason)));
         } else if (majorBreakthrough && !atRealmCap) {
+            int fatalRisk = currentRealm.fatalBreakthroughRiskChance(
+                    CultivationClientState.majorBreakthroughFailures());
+            String riskText = fatalRisk > 0 ? "；失败陨落风险 " + fatalRisk + "%" : "；失败不危及性命";
             breakthroughBuilder.tooltip(Tooltip.create(Component.literal("本次成功率 "
-                    + CultivationClientState.breakthroughChance() + "%；冲关失败会损耗部分修为。")));
+                    + CultivationClientState.breakthroughChance() + "%；失败会损耗修为并降低后续成功率"
+                    + riskText + "。")));
         }
         Button breakthrough = breakthroughBuilder.build();
         breakthrough.active = !atRealmCap && !techniqueBlocked && enoughQi;
@@ -114,8 +124,12 @@ public class CultivationProfileScreen extends Screen {
         String trueQiValue = CultivationClientState.trueQi() + "/" + CultivationClientState.trueQiMaximum()
                 + (trueQiRecovery > 0 ? " · 每10秒 +" + trueQiRecovery : "");
         drawValueRow(graphics, "真炁", trueQiValue, panelTop + scaled(84));
-        drawValueRow(graphics, "适修与炁性", technique == null ? "无有效功法"
-                : technique.realmRangeLabel() + " · " + technique.fiveVirtue(), panelTop + scaled(96));
+        String affinityValue = technique == null ? "无有效功法"
+                : CultivationClientState.immortalFoundation().isBlank()
+                ? technique.realmRangeLabel() + " · " + technique.fiveVirtue()
+                : CultivationClientState.immortalFoundation() + "仙基 · 当前" + technique.elementalAffinity() + "炁";
+        drawValueRow(graphics, CultivationClientState.immortalFoundation().isBlank() ? "适修与炁性" : "仙基与炁性",
+                affinityValue, panelTop + scaled(96));
         int healthRecoveryInterval = CultivationClientState.passiveHealthRecoveryIntervalTicks();
         String healthValue = playerHealth() + (healthRecoveryInterval > 0
                 ? " · 每" + String.format(java.util.Locale.ROOT, "%.1f", healthRecoveryInterval / 20.0D) + "秒 +1"
@@ -130,34 +144,48 @@ public class CultivationProfileScreen extends Screen {
         CultivationRealm targetRealm = CultivationClientState.realmLevel() == currentRealm.levelCount()
                 ? currentRealm.next() : currentRealm;
         boolean atRealmCap = targetRealm == null;
+        boolean foundationBlocked = targetRealm == CultivationRealm.PURPLE_MANSION && technique != null
+                && !technique.matchesImmortalFoundation(CultivationClientState.immortalFoundation());
         boolean techniqueBlocked = !atRealmCap && (technique == null
-                || !technique.canBeLearnedAt(currentRealm) || !technique.canCultivateTo(targetRealm));
+                || !technique.canBeLearnedAt(currentRealm) || !technique.canCultivateTo(targetRealm)
+                || foundationBlocked);
         boolean majorBreakthrough = CultivationClientState.realmLevel() == currentRealm.levelCount();
-        String chance = atRealmCap ? "已至体系上限" : techniqueBlocked ? "需更高阶功法"
-                : majorBreakthrough ? CultivationClientState.breakthroughChance() + "%" : "小境界必成";
+        String chance = atRealmCap ? "已至体系上限" : techniqueBlocked
+                ? (foundationBlocked ? "需功法契基" : "需更高阶功法")
+                : majorBreakthrough ? CultivationClientState.breakthroughChance() + "%"
+                + (CultivationClientState.majorBreakthroughFailures() > 0
+                ? " · 连败 " + CultivationClientState.majorBreakthroughFailures() : "") : "小境界必成";
         drawValueRow(graphics, "突破把握", chance, panelTop + scaled(188));
         drawProgressBar(graphics, panelLeft + 82, panelTop + scaled(201), panelWidth - 100,
                 CultivationClientState.qi(), CultivationClientState.breakthroughCost(), 0xFF70A98C);
         drawValueRow(graphics, "炼丹师", "等级 " + CultivationClientState.alchemyLevel() + " · 经验 "
                 + CultivationClientState.alchemyExperience() + "/"
                 + CultivationClientState.alchemyExperienceToNextLevel(), panelTop + scaled(210));
+        String movement = switch (CultivationClientState.realm()) {
+            case FETAL_BREATH -> "疾走加速 · 耗真炁";
+            case QI_REFINING -> "疾走、腾跃 · 耗真炁";
+            case FOUNDATION_ESTABLISHMENT -> "疾走、腾跃、御空 · 耗真炁";
+            case PURPLE_MANSION -> "御空身法 · V 太虚步";
+            default -> "当前境界未开放";
+        };
+        drawValueRow(graphics, "行炁身法", movement, panelTop + scaled(222));
 
-        graphics.fill(panelLeft + 18, panelTop + scaled(222), panelLeft + panelWidth - 18, panelTop + scaled(223), 0x997E6842);
-        graphics.drawString(this.font, "修行资质", panelLeft + 20, panelTop + scaled(227), GOLD, false);
-        drawAttribute(graphics, ATTRIBUTE_NAMES[0], CultivationClientState.spiritualRoot(), panelTop + scaled(241));
-        drawAttribute(graphics, ATTRIBUTE_NAMES[1], CultivationClientState.constitution(), panelTop + scaled(261));
-        drawAttribute(graphics, ATTRIBUTE_NAMES[2], CultivationClientState.comprehension(), panelTop + scaled(281));
-        drawAttribute(graphics, ATTRIBUTE_NAMES[3], CultivationClientState.fortune(), panelTop + scaled(301));
+        graphics.fill(panelLeft + 18, panelTop + scaled(234), panelLeft + panelWidth - 18, panelTop + scaled(235), 0x997E6842);
+        graphics.drawString(this.font, "修行资质", panelLeft + 20, panelTop + scaled(239), GOLD, false);
+        drawAttribute(graphics, ATTRIBUTE_NAMES[0], CultivationClientState.spiritualRoot(), panelTop + scaled(251));
+        drawAttribute(graphics, ATTRIBUTE_NAMES[1], CultivationClientState.constitution(), panelTop + scaled(271));
+        drawAttribute(graphics, ATTRIBUTE_NAMES[2], CultivationClientState.comprehension(), panelTop + scaled(291));
+        drawAttribute(graphics, ATTRIBUTE_NAMES[3], CultivationClientState.fortune(), panelTop + scaled(311));
 
         if (selectedAttribute >= 0 && selectedAttribute < ATTRIBUTE_NAMES.length) {
-            graphics.fill(panelLeft + 18, panelTop + scaled(315), panelLeft + panelWidth - 18,
-                    panelTop + scaled(316), 0x997E6842);
+            graphics.fill(panelLeft + 18, panelTop + scaled(325), panelLeft + panelWidth - 18,
+                    panelTop + scaled(326), 0x997E6842);
             graphics.drawString(this.font, ATTRIBUTE_NAMES[selectedAttribute], panelLeft + 20,
-                    panelTop + scaled(322), GOLD, false);
+                    panelTop + scaled(332), GOLD, false);
             String description = attributeDescription(selectedAttribute, technique);
             java.util.List<net.minecraft.util.FormattedCharSequence> lines = this.font.split(
                     Component.literal(description), panelWidth - 50);
-            int y = panelTop + scaled(334);
+            int y = panelTop + scaled(342);
             for (int i = 0; i < Math.min(2, lines.size()); i++) {
                 graphics.drawString(this.font, lines.get(i), panelLeft + 20, y + scaled(i * 10),
                         0xFFE2DCCB, false);

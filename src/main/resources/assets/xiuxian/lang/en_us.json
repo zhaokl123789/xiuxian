@@ -59,5 +59,7 @@
   "key.categories.xiuxian": "修行",
   "key.xiuxian.meditate": "开始 / 结束打坐",
   "key.xiuxian.breakthrough": "尝试突破",
-  "key.xiuxian.profile": "打开修行档案"
+  "key.xiuxian.profile": "打开修行档案",
+  "item.xiuxian.test_breakthrough_pill": "Test Breakthrough Pill",
+  "key.xiuxian.void_walk": "Void Step (Purple Mansion)"
 }

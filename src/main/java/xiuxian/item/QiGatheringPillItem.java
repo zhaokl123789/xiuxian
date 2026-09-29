@@ -19,10 +19,20 @@ import xiuxian.network.XiuxianNetwork;
 
 public class QiGatheringPillItem extends Item {
     private final int qiRestored;
+    private final boolean fillsCurrentBreakthrough;
 
     public QiGatheringPillItem(Properties properties, int qiRestored) {
+        this(properties, qiRestored, false);
+    }
+
+    public QiGatheringPillItem(Properties properties, boolean fillsCurrentBreakthrough) {
+        this(properties, 0, fillsCurrentBreakthrough);
+    }
+
+    private QiGatheringPillItem(Properties properties, int qiRestored, boolean fillsCurrentBreakthrough) {
         super(properties);
         this.qiRestored = qiRestored;
+        this.fillsCurrentBreakthrough = fillsCurrentBreakthrough;
     }
 
     @Override
@@ -32,6 +42,10 @@ public class QiGatheringPillItem extends Item {
             CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
             if (data == null || !data.isInitialized()) {
                 player.sendSystemMessage(Component.literal("先确立修行身份，才能炼化丹药。"));
+                return InteractionResultHolder.fail(stack);
+            }
+            if (fillsCurrentBreakthrough && data.qi() >= data.breakthroughCost()) {
+                player.sendSystemMessage(Component.literal("\u5f53\u524d\u4fee\u4e3a\u5df2\u8fbe\u5230\u7a81\u7834\u503c\uff0c\u65e0\u9700\u670d\u7528\u6b64\u4e39\u3002"));
                 return InteractionResultHolder.fail(stack);
             }
         }
@@ -61,6 +75,8 @@ public class QiGatheringPillItem extends Item {
                 return stack;
             }
 
+            int qiRestored = fillsCurrentBreakthrough
+                    ? Math.max(0, data.breakthroughCost() - data.qi()) : this.qiRestored;
             data.addQi(qiRestored);
             level.playSound(null, player.blockPosition(), SoundEvents.HONEY_DRINK, SoundSource.PLAYERS, 0.7F, 1.0F);
             if (player instanceof ServerPlayer serverPlayer) {

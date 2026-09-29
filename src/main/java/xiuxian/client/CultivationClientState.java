@@ -29,6 +29,8 @@ public final class CultivationClientState {
     private static int alchemyLevel = 1;
     private static int alchemyExperience;
     private static int alchemyExperienceToNextLevel = 100;
+    private static String immortalFoundation = "";
+    private static int majorBreakthroughFailures;
 
     private CultivationClientState() {}
 
@@ -63,7 +65,7 @@ public final class CultivationClientState {
     public static int breakthroughChance() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         return realm.breakthroughChanceAt(realmLevel, spiritualRoot, comprehension, fortune,
-                technique == null ? 100 : technique.breakthroughCostPercent());
+                technique == null ? 100 : technique.breakthroughCostPercent(), majorBreakthroughFailures);
     }
 
     public static int passiveHealthRecoveryIntervalTicks() {
@@ -123,6 +125,8 @@ public final class CultivationClientState {
     public static int alchemyLevel() { return alchemyLevel; }
     public static int alchemyExperience() { return alchemyExperience; }
     public static int alchemyExperienceToNextLevel() { return alchemyExperienceToNextLevel; }
+    public static String immortalFoundation() { return immortalFoundation; }
+    public static int majorBreakthroughFailures() { return majorBreakthroughFailures; }
 
     public static void update(boolean newInitialized, String familyId, String pathId, String realmId,
                               int newRealmLevel, int newQi, int newBreakthroughCost,
@@ -132,7 +136,8 @@ public final class CultivationClientState {
                               int newTechniqueStudyTicks, int newTechniqueStudyDuration,
                               int newTechniqueStudyChance, int newTrueQi, int newTrueQiMaximum,
                               int newAlchemyLevel, int newAlchemyExperience,
-                              int newAlchemyExperienceToNextLevel) {
+                              int newAlchemyExperienceToNextLevel, String newImmortalFoundation,
+                              int newMajorBreakthroughFailures) {
         initialized = newInitialized;
         familyOrigin = FamilyOrigin.byId(familyId);
         cultivationPath = CultivationPath.byId(pathId);
@@ -155,6 +160,8 @@ public final class CultivationClientState {
         alchemyLevel = Math.max(1, newAlchemyLevel);
         alchemyExperience = Math.max(0, newAlchemyExperience);
         alchemyExperienceToNextLevel = Math.max(1, newAlchemyExperienceToNextLevel);
+        immortalFoundation = newImmortalFoundation == null ? "" : newImmortalFoundation;
+        majorBreakthroughFailures = Math.max(0, newMajorBreakthroughFailures);
     }
 
     private static int clampAttribute(int value) {

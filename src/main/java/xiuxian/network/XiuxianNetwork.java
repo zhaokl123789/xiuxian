@@ -17,7 +17,7 @@ import xiuxian.cultivation.CultivationEvents;
 import xiuxian.cultivation.CultivationData;
 
 public final class XiuxianNetwork {
-    private static final String PROTOCOL_VERSION = "4";
+    private static final String PROTOCOL_VERSION = "5";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("xiuxian", "main"),
             () -> PROTOCOL_VERSION,
@@ -48,6 +48,10 @@ public final class XiuxianNetwork {
                 (message, buffer) -> {}, buffer -> new ChannelInterruptPacket(),
                 XiuxianNetwork::handleChannelInterrupt,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(nextMessageId++, VoidWalkPacket.class,
+                (message, buffer) -> {}, buffer -> new VoidWalkPacket(),
+                XiuxianNetwork::handleVoidWalk,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER));
         CHANNEL.registerMessage(nextMessageId++, CultivationSyncPacket.class,
                 (message, buffer) -> {
                     buffer.writeBoolean(message.initialized);
@@ -72,13 +76,16 @@ public final class XiuxianNetwork {
                     buffer.writeVarInt(message.alchemyLevel);
                     buffer.writeVarInt(message.alchemyExperience);
                     buffer.writeVarInt(message.alchemyExperienceToNextLevel);
+                    buffer.writeUtf(message.immortalFoundation);
+                    buffer.writeVarInt(message.majorBreakthroughFailures);
                 },
                 buffer -> new CultivationSyncPacket(buffer.readBoolean(), buffer.readUtf(32), buffer.readUtf(32),
                         buffer.readUtf(32), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(),
                         buffer.readUtf(64), buffer.readBoolean(), buffer.readVarInt(), buffer.readVarInt(),
                         buffer.readVarInt(), buffer.readVarInt(), buffer.readUtf(64), buffer.readVarInt(),
                         buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(),
-                        buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt()),
+                        buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readUtf(16),
+                        buffer.readVarInt()),
                 XiuxianNetwork::handleCultivationSync,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT));
     }
@@ -102,11 +109,16 @@ public final class XiuxianNetwork {
                 data.spiritualRoot(), data.constitution(), data.comprehension(), data.fortune(),
                 data.studyingTechniqueId(), data.techniqueStudyTicks(), data.techniqueStudyDuration(),
                 data.techniqueStudyChance(), data.trueQi(), data.trueQiMaximum(), data.alchemyLevel(),
-                data.alchemyExperience(), data.alchemyExperienceToNextLevel()));
+                data.alchemyExperience(), data.alchemyExperienceToNextLevel(),
+                data.immortalFoundation(), data.majorBreakthroughFailures()));
     }
 
     public static void requestChannelInterrupt() {
         CHANNEL.sendToServer(new ChannelInterruptPacket());
+    }
+
+    public static void requestVoidWalk() {
+        CHANNEL.sendToServer(new VoidWalkPacket());
     }
 
     private static void handleOpenIdentityScreen(IdentityScreenPacket message,
@@ -147,6 +159,15 @@ public final class XiuxianNetwork {
         context.setPacketHandled(true);
     }
 
+    private static void handleVoidWalk(VoidWalkPacket message, Supplier<NetworkEvent.Context> contextSupplier) {
+        NetworkEvent.Context context = contextSupplier.get();
+        context.enqueueWork(() -> {
+            ServerPlayer player = context.getSender();
+            if (player != null) CultivationEvents.performVoidWalk(player);
+        });
+        context.setPacketHandled(true);
+    }
+
     private static void handleCultivationSync(CultivationSyncPacket message,
                                                Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
@@ -158,7 +179,8 @@ public final class XiuxianNetwork {
                         message.techniqueStudyTicks, message.techniqueStudyDuration,
                         message.techniqueStudyChance, message.trueQi, message.trueQiMaximum,
                         message.alchemyLevel, message.alchemyExperience,
-                        message.alchemyExperienceToNextLevel)));
+                        message.alchemyExperienceToNextLevel, message.immortalFoundation,
+                        message.majorBreakthroughFailures)));
         context.setPacketHandled(true);
     }
 
@@ -167,6 +189,8 @@ public final class XiuxianNetwork {
     private static final class IdentitySelectedPacket {}
 
     private static final class ChannelInterruptPacket {}
+
+    private static final class VoidWalkPacket {}
 
     private static final class SelectIdentityPacket {
         private final String familyId;
@@ -201,6 +225,8 @@ public final class XiuxianNetwork {
         private final int alchemyLevel;
         private final int alchemyExperience;
         private final int alchemyExperienceToNextLevel;
+        private final String immortalFoundation;
+        private final int majorBreakthroughFailures;
 
         private CultivationSyncPacket(boolean initialized, String familyId, String pathId, String realmId,
                                       int realmLevel, int qi, int breakthroughCost,
@@ -209,7 +235,8 @@ public final class XiuxianNetwork {
                                       int techniqueStudyTicks, int techniqueStudyDuration,
                                       int techniqueStudyChance, int trueQi, int trueQiMaximum,
                                       int alchemyLevel, int alchemyExperience,
-                                      int alchemyExperienceToNextLevel) {
+                                      int alchemyExperienceToNextLevel,
+                                      String immortalFoundation, int majorBreakthroughFailures) {
             this.initialized = initialized;
             this.familyId = familyId;
             this.pathId = pathId;
@@ -232,6 +259,8 @@ public final class XiuxianNetwork {
             this.alchemyLevel = alchemyLevel;
             this.alchemyExperience = alchemyExperience;
             this.alchemyExperienceToNextLevel = alchemyExperienceToNextLevel;
+            this.immortalFoundation = immortalFoundation;
+            this.majorBreakthroughFailures = majorBreakthroughFailures;
         }
     }
 }

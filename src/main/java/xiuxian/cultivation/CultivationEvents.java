@@ -3,6 +3,7 @@ package xiuxian.cultivation;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.BlockPos;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -11,9 +12,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -87,7 +91,7 @@ public class CultivationEvents {
         }
 
         player.setNoGravity(false);
-        CultivationAttributeEffects.apply(player, data);
+        tickRealmMovement(player, data);
         if (player.isAlive() && !data.isMeditating() && !data.isStudyingTechnique()) {
             applyPassiveRecovery(player, data);
         }
@@ -105,15 +109,15 @@ public class CultivationEvents {
             double dx = player.getX() - data.meditationAnchorX();
             double dy = player.getY() - data.meditationAnchorY();
             double dz = player.getZ() - data.meditationAnchorZ();
-            if (dx * dx + dy * dy + dz * dz > 1.0E-4D) {
+            if (dx * dx + dy * dy + dz * dz > 0.0625D) {
                 interruptChannel(player);
                 player.sendSystemMessage(Component.literal("你主动移动，行功随之中断。"));
                 return;
             }
             if (data.isMeditating()) {
                 CultivationAttributeEffects.setMeditating(player, true);
+                player.setShiftKeyDown(true);
             }
-            player.setShiftKeyDown(true);
             player.setSprinting(false);
             player.setDeltaMovement(0.0D, 0.0D, 0.0D);
 
@@ -220,8 +224,11 @@ public class CultivationEvents {
     public void onUninitializedPlayerInteracts(PlayerInteractEvent event) {
         if (!isInitialized(event.getEntity()) && event.isCancelable()) {
             event.setCanceled(true);
-        } else if (event.getEntity() instanceof ServerPlayer player && isChanneling(player)) {
-            interruptChannel(player);
+        } else if (event.getEntity() instanceof ServerPlayer player) {
+            CultivationData data = getData(player);
+            if (data != null && data.isMeditating()) {
+                interruptChannel(player);
+            }
         }
     }
 
@@ -236,9 +243,13 @@ public class CultivationEvents {
 
     @SubscribeEvent
     public void onUninitializedPlayerTakesDamage(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
+        if (!event.getEntity().level().isClientSide) {
+            if (event.getSource().getEntity() instanceof ServerPlayer attacker
+                    && event.getEntity() != attacker) {
+                applyTechniqueCombatEffect(attacker, event.getEntity(), event);
+            }
         }
+        if (!(event.getEntity() instanceof Player player)) return;
         if (!isInitialized(player)) {
             event.setCanceled(true);
             return;
@@ -257,10 +268,47 @@ public class CultivationEvents {
                 }
                 CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
                 float techniqueReduction = technique == null ? 0.0F : technique.damageReduction();
-                float reduction = Math.min(0.8F, data.constitution() * 0.0025F + techniqueReduction
+                if (technique != null && technique.elementalAffinity().equals("土")) {
+                    techniqueReduction += 0.10F;
+                }
+                float reduction = Math.min(0.9F, data.constitution() * 0.0025F + techniqueReduction
                         + data.realm().damageReductionAt(data.realmLevel()));
                 event.setAmount(event.getAmount() * (1.0F - reduction));
             }
+        }
+    }
+
+    @SubscribeEvent
+    public void onCultivatorJumps(LivingEvent.LivingJumpEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        CultivationData data = getData(player);
+        if (data == null || !data.isInitialized()
+                || data.realm().ordinal() < CultivationRealm.QI_REFINING.ordinal()) return;
+        int cost = 4 + data.realm().ordinal() * 2;
+        if (!data.spendTrueQi(cost)) {
+            player.sendSystemMessage(Component.literal("真炁不足，无法施展腾跃之术。"));
+            return;
+        }
+        double lift = 0.18D + data.realm().ordinal() * 0.05D;
+        player.setDeltaMovement(player.getDeltaMovement().add(0.0D, lift, 0.0D));
+        XiuxianNetwork.syncCultivation(player, data);
+    }
+
+    private static void applyTechniqueCombatEffect(ServerPlayer attacker, LivingEntity target,
+                                                   LivingHurtEvent event) {
+        CultivationData data = getData(attacker);
+        if (data == null || !data.isInitialized()) return;
+        CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
+        if (technique == null) return;
+        if (technique.elementalAffinity().equals("火")) {
+            if (target.getRemainingFireTicks() > 20 || !data.spendTrueQi(12)) return;
+            target.setSecondsOnFire(4 + data.realm().ordinal() * 2);
+            event.setAmount(event.getAmount() * 1.25F);
+            attacker.level().playSound(null, target.blockPosition(), SoundEvents.FIRECHARGE_USE,
+                    SoundSource.PLAYERS, 0.45F, 1.15F);
+            XiuxianNetwork.syncCultivation(attacker, data);
+        } else if (technique.elementalAffinity().equals("金")) {
+            event.setAmount(event.getAmount() * 1.15F);
         }
     }
 
@@ -337,6 +385,17 @@ public class CultivationEvents {
             return 0;
         }
         if (!data.canBreakthroughWithCurrentTechnique()) {
+            if (targetRealm == CultivationRealm.PURPLE_MANSION) {
+                CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
+                if (technique != null && technique.matchesImmortalFoundation(data.immortalFoundation())) {
+                    source.sendFailure(Component.literal("当前功法最高适修至"
+                            + technique.maximumRealm().displayName() + "；还需参悟可修至紫府的功法。"));
+                } else {
+                    source.sendFailure(Component.literal("冲击紫府须与仙基相合或由其生扶。当前仙基为"
+                            + data.immortalFoundation() + "，请参悟契基功法后再行冲关。"));
+                }
+                return 0;
+            }
             CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
             String techniqueName = technique == null ? "当前功法" : "《" + technique.displayName() + "》";
             String limit = technique == null ? "无可用境界" : technique.maximumRealm().displayName();
@@ -347,15 +406,31 @@ public class CultivationEvents {
         CultivationRealm oldRealm = data.realm();
         int oldRealmLevel = data.realmLevel();
         int breakthroughChance = data.breakthroughChance();
-        int qiBeforeAttempt = data.qi();
-        if (!data.breakthrough(player.getRandom())) {
-            if (qiBeforeAttempt > data.qi()) {
+        CultivationData.BreakthroughResult result = data.breakthrough(player.getRandom());
+        if (!result.success()) {
+            if (result.lostQi() > 0) {
+                String fatalRisk = result.fatalRiskChance() > 0
+                        ? "本次陨落风险 " + result.fatalRiskChance() + "%；" : "";
                 source.sendFailure(Component.literal("大境界冲关未成，成功率 " + breakthroughChance
-                        + "%；气海受震，损耗修为 " + (qiBeforeAttempt - data.qi()) + " 点。"));
+                        + "%；" + fatalRisk + "气海受震，损耗修为 " + result.lostQi() + " 点。累计失败 "
+                        + result.failures() + " 次，后续冲关更艰难。"));
+                if (result.fatalRiskChance() > 0) {
+                    if (result.fatal()) {
+                        player.sendSystemMessage(Component.literal("冲关反噬直击神魂，你道基崩毁，身死道消！"));
+                    } else {
+                        float backlash = (float) Math.max(1.0D, player.getMaxHealth()
+                                * (0.28D + oldRealm.ordinal() * 0.08D));
+                        player.hurt(player.damageSources().magic(), backlash);
+                        player.sendSystemMessage(Component.literal("冲关反噬震伤道基，承受 "
+                                + Math.round(backlash) + " 点气血损伤；本次陨落风险 "
+                                + result.fatalRiskChance() + "%。"));
+                    }
+                }
             } else {
                 source.sendFailure(Component.literal("当前修为不足以完成突破。"));
             }
             XiuxianNetwork.syncCultivation(player, data);
+            if (result.fatal()) player.kill();
             return 0;
         }
 
@@ -365,12 +440,111 @@ public class CultivationEvents {
         XiuxianNetwork.syncCultivation(player, data);
         source.sendSuccess(() -> Component.literal((majorBreakthrough ? "大境界突破成功！" : "小境界突破成功！")
                 + "当前境界：" + data.realm().displayName()
-                + data.realm().stageLabel(data.realmLevel()) + "。"), false);
+                + data.realm().stageLabel(data.realmLevel())
+                + (data.realm() == CultivationRealm.FOUNDATION_ESTABLISHMENT
+                ? "；仙基初成，属" + data.immortalFoundation() + "。" : "。")), false);
         return 1;
     }
 
     private static CultivationData getData(Player player) {
         return player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+    }
+
+    private static void tickRealmMovement(ServerPlayer player, CultivationData data) {
+        boolean abilitiesChanged = false;
+        int trueQiBefore = data.trueQi();
+        var abilities = player.getAbilities();
+        boolean canFly = data.realm().ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal();
+        if (!player.isCreative() && !player.isSpectator() && canFly && !abilities.mayfly) {
+            abilities.mayfly = true;
+            abilitiesChanged = true;
+        }
+
+        if (!player.isCreative() && !player.isSpectator() && abilities.flying
+                && player.tickCount % 20 == 0) {
+            int flightCost = 8 + Math.max(0,
+                    data.realm().ordinal() - CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal()) * 5;
+            if (!data.spendTrueQi(flightCost)) {
+                abilities.flying = false;
+                abilitiesChanged = true;
+                player.sendSystemMessage(Component.literal("真炁枯竭，遁空之势散去。"));
+            }
+        }
+
+        if (player.isSprinting() && player.tickCount % 20 == 0) {
+            int sprintCost = 1 + data.realm().ordinal();
+            data.spendTrueQi(sprintCost);
+        }
+        if (abilitiesChanged) player.onUpdateAbilities();
+        if (data.trueQi() != trueQiBefore) XiuxianNetwork.syncCultivation(player, data);
+        CultivationAttributeEffects.apply(player, data);
+    }
+
+    public static void performVoidWalk(ServerPlayer player) {
+        CultivationData data = getData(player);
+        if (data == null || !data.isInitialized() || data.realm() != CultivationRealm.PURPLE_MANSION) {
+            player.sendSystemMessage(Component.literal("唯有紫府真人，方可踏入太虚。"));
+            return;
+        }
+        if (data.isMeditating() || data.isStudyingTechnique() || player.isPassenger()) {
+            player.sendSystemMessage(Component.literal("当前心神未定，不能行太虚步。"));
+            return;
+        }
+
+        var level = player.serverLevel();
+        var look = player.getLookAngle();
+        double horizontalLength = Math.sqrt(look.x * look.x + look.z * look.z);
+        if (horizontalLength < 1.0E-4D) {
+            player.sendSystemMessage(Component.literal("先定下行路方向，方可施展太虚步。"));
+            return;
+        }
+        double directionX = look.x / horizontalLength;
+        double directionZ = look.z / horizontalLength;
+        int destinationX = 0;
+        int destinationY = 0;
+        int destinationZ = 0;
+        boolean found = false;
+        for (int distance : new int[]{10_000, 5_000, 2_500, 1_000, 512, 256, 128, 64}) {
+            int x = (int) Math.floor(player.getX() + directionX * distance);
+            int z = (int) Math.floor(player.getZ() + directionZ * distance);
+            if (!level.getWorldBorder().isWithinBounds(new BlockPos(x, player.blockPosition().getY(), z))) continue;
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            if (y <= level.getMinBuildHeight() || y + 2 >= level.getMaxBuildHeight()) continue;
+            BlockPos feet = new BlockPos(x, y, z);
+            if (!level.getBlockState(feet.below()).blocksMotion()
+                    || !level.getFluidState(feet).isEmpty()
+                    || !level.getBlockState(feet).getCollisionShape(level, feet).isEmpty()
+                    || !level.getBlockState(feet.above()).getCollisionShape(level, feet.above()).isEmpty()) continue;
+            double dx = x + 0.5D - player.getX();
+            double dy = y - player.getY();
+            double dz = z + 0.5D - player.getZ();
+            if (!level.noCollision(player, player.getBoundingBox().move(dx, dy, dz))) continue;
+            destinationX = x;
+            destinationY = y;
+            destinationZ = z;
+            found = true;
+            break;
+        }
+        if (!found) {
+            player.sendSystemMessage(Component.literal("前方无可落足之处，太虚步未能成行。"));
+            return;
+        }
+        int cost = 180;
+        if (!data.spendTrueQi(cost)) {
+            player.sendSystemMessage(Component.literal("太虚步需要 180 点真炁，当前真炁不足。"));
+            return;
+        }
+        double oldX = player.getX();
+        double oldY = player.getY();
+        double oldZ = player.getZ();
+        player.teleportTo(destinationX + 0.5D, destinationY, destinationZ + 0.5D);
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL, oldX, oldY + 0.8D, oldZ,
+                36, 0.7D, 0.8D, 0.7D, 0.08D);
+        level.sendParticles(ParticleTypes.REVERSE_PORTAL, player.getX(), player.getY() + 0.8D,
+                player.getZ(), 36, 0.7D, 0.8D, 0.7D, 0.08D);
+        player.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.8F, 0.8F);
+        player.sendSystemMessage(Component.literal("一步踏入太虚，缩地而行。"));
+        XiuxianNetwork.syncCultivation(player, data);
     }
 
     private static void applyPassiveRecovery(ServerPlayer player, CultivationData data) {

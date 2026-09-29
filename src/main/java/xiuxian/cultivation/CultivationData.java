@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class CultivationData implements INBTSerializable<CompoundTag> {
-    public static final int DATA_VERSION = 6;
+    public static final int DATA_VERSION = 7;
     public static final String STARTING_TECHNIQUE = "xiuxian:basic_breathing";
     public static final int BASE_ATTRIBUTE_MIN = 1;
     public static final int BASE_ATTRIBUTE_MAX = 12;
@@ -31,6 +31,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     private int constitution = BASE_ATTRIBUTE_MIN;
     private int comprehension = BASE_ATTRIBUTE_MIN;
     private int fortune = BASE_ATTRIBUTE_MIN;
+    private String immortalFoundation = "";
+    private int majorBreakthroughFailures;
     private boolean meditating;
     private double meditationAnchorX;
     private double meditationAnchorY;
@@ -82,15 +84,20 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public int passiveHealthRecoveryIntervalTicks() {
         if (!initialized) return 0;
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        return technique == null ? 0 : realm.passiveHealthRecoveryIntervalTicksAt(
-                realmLevel, constitution, technique.passiveHealthRecoveryPercent());
+        if (technique == null) return 0;
+        int recoveryPercent = technique.passiveHealthRecoveryPercent();
+        if (technique.elementalAffinity().equals("木")) recoveryPercent = Math.min(200, recoveryPercent + 25);
+        return realm.passiveHealthRecoveryIntervalTicksAt(realmLevel, constitution, recoveryPercent);
     }
 
     public int passiveTrueQiRecoveryPerTenSeconds() {
         if (!initialized) return 0;
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        return technique == null ? 0 : realm.passiveTrueQiRecoveryPerTenSecondsAt(
+        if (technique == null) return 0;
+        int recovery = realm.passiveTrueQiRecoveryPerTenSecondsAt(
                 realmLevel, comprehension, technique.trueQiRecoveryPerSecond());
+        return technique.elementalAffinity().equals("水") && recovery > 0
+                ? recovery + Math.max(1, recovery / 3) : recovery;
     }
 
     public int alchemyLevel() { return alchemyLevel; }
@@ -136,6 +143,10 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public int fortune() {
         return fortune;
     }
+
+    public String immortalFoundation() { return immortalFoundation; }
+
+    public int majorBreakthroughFailures() { return majorBreakthroughFailures; }
 
     public boolean isMeditating() {
         return meditating;
@@ -198,8 +209,10 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public boolean canBreakthroughWithCurrentTechnique() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         CultivationRealm targetRealm = breakthroughTargetRealm();
-        return technique != null && technique.canBeLearnedAt(realm)
-                && technique.canCultivateTo(targetRealm);
+        if (technique == null || targetRealm == null || !technique.canBeLearnedAt(realm)
+                || !technique.canCultivateTo(targetRealm)) return false;
+        return targetRealm != CultivationRealm.PURPLE_MANSION
+                || technique.matchesImmortalFoundation(immortalFoundation);
     }
 
     public int learningChance(CultivationTechnique technique) {
@@ -273,13 +286,14 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         int comprehensionPercent = Math.max(75, 105 - comprehension / 2);
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         int techniquePercent = technique == null ? 100 : technique.breakthroughCostPercent();
-        return Math.max(1, baseCost * comprehensionPercent * techniquePercent / 10_000);
+        long adjustedCost = (long) baseCost * comprehensionPercent * techniquePercent / 10_000L;
+        return (int) Math.max(1L, Math.min(Integer.MAX_VALUE, adjustedCost));
     }
 
     public int breakthroughChance() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         return realm.breakthroughChanceAt(realmLevel, spiritualRoot, comprehension, fortune,
-                technique == null ? 100 : technique.breakthroughCostPercent());
+                technique == null ? 100 : technique.breakthroughCostPercent(), majorBreakthroughFailures);
     }
 
     public void addQi(int amount) {
@@ -299,6 +313,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         this.realmLevel = 1;
         this.qi = 0;
         this.trueQi = realm.trueQiMaximumAt(realmLevel);
+        this.immortalFoundation = "";
+        this.majorBreakthroughFailures = 0;
         this.alchemyLevel = 1;
         this.alchemyExperience = 0;
         CultivationAttributeBonuses bonuses = familyOrigin.bonuses().plus(cultivationPath.bonuses());
@@ -350,37 +366,51 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return false;
     }
 
-    public boolean breakthrough(RandomSource random) {
+    public BreakthroughResult breakthrough(RandomSource random) {
         int cost = breakthroughCost();
         if (!initialized || qi < cost || !canBreakthroughWithCurrentTechnique()) {
-            return false;
+            return new BreakthroughResult(false, false, breakthroughChance(), 0,
+                    majorBreakthroughFailures, 0, false);
         }
 
         CultivationRealm nextRealm = breakthroughTargetRealm();
         if (nextRealm == null) {
-            return false;
+            return new BreakthroughResult(false, false, 0, 0, majorBreakthroughFailures, 0, false);
         }
 
         boolean majorBreakthrough = nextRealm != realm;
         int chance = breakthroughChance();
         if (majorBreakthrough && random.nextInt(100) + 1 > chance) {
             int failureLossPercent = Math.min(60, 20 + realm.ordinal() * 10);
-            int lostQi = Math.max(1, cost * failureLossPercent / 100);
+            int lostQi = Math.max(1, (int) ((long) cost * failureLossPercent / 100L));
             qi = Math.max(0, qi - lostQi);
-            return false;
+            int fatalRisk = realm.fatalBreakthroughRiskChance(majorBreakthroughFailures);
+            boolean fatal = fatalRisk > 0 && random.nextInt(100) < fatalRisk;
+            majorBreakthroughFailures++;
+            return new BreakthroughResult(false, true, chance, lostQi,
+                    majorBreakthroughFailures, fatalRisk, fatal);
         }
 
+        CultivationRealm oldRealm = realm;
+        String foundationBeingFormed = CultivationTechniques.byId(techniqueId).elementalAffinity();
         qi -= cost;
         if (realmLevel == realm.levelCount()) {
             realm = nextRealm;
             realmLevel = 1;
+            if (realm == CultivationRealm.FOUNDATION_ESTABLISHMENT) {
+                immortalFoundation = foundationBeingFormed;
+            }
         } else {
             realmLevel++;
         }
+        if (oldRealm != realm) majorBreakthroughFailures = 0;
         clampTrueQi();
         restoreTrueQi(trueQiMaximum() / 2);
-        return true;
+        return new BreakthroughResult(true, majorBreakthrough, chance, 0, 0, 0, false);
     }
+
+    public record BreakthroughResult(boolean success, boolean major, int chance, int lostQi,
+                                     int failures, int fatalRiskChance, boolean fatal) {}
 
     public void copyFrom(CultivationData source) {
         deserializeNBT(source.serializeNBT());
@@ -411,6 +441,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             tag.putInt("constitution", constitution);
             tag.putInt("comprehension", comprehension);
             tag.putInt("fortune", fortune);
+            tag.putString("immortalFoundation", immortalFoundation);
+            tag.putInt("majorBreakthroughFailures", majorBreakthroughFailures);
             if (isStudyingTechnique()) {
                 tag.putString("studyingTechnique", studyingTechniqueId);
                 tag.putInt("techniqueStudyTicks", techniqueStudyTicks);
@@ -459,6 +491,12 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         constitution = readAttribute(tag, "constitution", dataVersion, legacyBonuses.constitution());
         comprehension = readAttribute(tag, "comprehension", dataVersion, legacyBonuses.comprehension());
         fortune = readAttribute(tag, "fortune", dataVersion, legacyBonuses.fortune());
+        immortalFoundation = tag.getString("immortalFoundation");
+        majorBreakthroughFailures = Math.max(0, tag.getInt("majorBreakthroughFailures"));
+        if (immortalFoundation.isBlank() && realm.ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal()) {
+            CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+            immortalFoundation = technique == null ? "" : technique.elementalAffinity();
+        }
         clampTrueQi();
         stopMeditating();
         stopTechniqueStudy();

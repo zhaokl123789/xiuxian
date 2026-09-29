@@ -24,6 +24,8 @@ public final class XiuxianItems {
             () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), 120));
     public static final RegistryObject<Item> SUPREME_QI_GATHERING_PILL = ITEMS.register("supreme_qi_gathering_pill",
             () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), 280));
+    public static final RegistryObject<Item> TEST_BREAKTHROUGH_PILL = ITEMS.register("test_breakthrough_pill",
+            () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), true));
     public static final RegistryObject<Item> QI_GATHERING_PILL_BASE = ITEMS.register("qi_gathering_pill_base",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> MID_PILL_BASE = ITEMS.register("mid_pill_base",
@@ -119,6 +121,7 @@ public final class XiuxianItems {
             event.accept(MID_QI_GATHERING_PILL);
             event.accept(HIGH_QI_GATHERING_PILL);
             event.accept(SUPREME_QI_GATHERING_PILL);
+            event.accept(TEST_BREAKTHROUGH_PILL);
             event.accept(QI_GATHERING_PILL_BASE);
             event.accept(MID_PILL_BASE);
             event.accept(HIGH_PILL_BASE);
