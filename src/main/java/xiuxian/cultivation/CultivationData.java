@@ -104,6 +104,12 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return realm.passiveHealthRecoveryIntervalTicksAt(realmLevel, constitution, recoveryPercent);
     }
 
+    public int meditationQiPerSecondMilli() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return technique == null ? 0 : technique.effectiveMeditationQiPerSecondMilli(
+                spiritualRoot, constitution, comprehension, fortune, realm, realmLevel);
+    }
+
     public int healthRecoveryTrueQiCost() {
         int baseCost = 6 + realm.ordinal() * 4 + Math.max(0, realmLevel - 1) / 3;
         int constitutionDiscount = Math.min(40, constitution / 3);
@@ -409,7 +415,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public int breakthroughChance() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         return realm.breakthroughChanceAt(realmLevel, spiritualRoot, comprehension, fortune,
-                technique == null ? 100 : technique.breakthroughCostPercent(), majorBreakthroughFailures);
+                technique == null ? 100 : technique.breakthroughCostPercent(),
+                technique == null ? 0 : technique.breakthroughChanceBonus(), majorBreakthroughFailures);
     }
 
     public void addQi(int amount) {
@@ -473,8 +480,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             if (technique == null) {
                 return false;
             }
-            meditationQiRemainder += technique.effectiveMeditationQiPerSecondMilli(
-                    spiritualRoot, constitution, comprehension, fortune);
+            meditationQiRemainder += meditationQiPerSecondMilli();
             int qiGain = meditationQiRemainder / 1000;
             meditationQiRemainder %= 1000;
             addQi(qiGain);
@@ -534,6 +540,31 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public void copyFrom(CultivationData source) {
         deserializeNBT(source.serializeNBT());
         lastObservedFoodLevel = -1;
+    }
+
+    /** Applies a creative-only test pill without exposing a normal recipe path. */
+    public boolean grantDirectRealm(CultivationRealm target, RandomSource random) {
+        if (!initialized || target == null) return false;
+        java.util.List<CultivationTechnique> eligible = CultivationTechniques.all().stream()
+                .filter(technique -> technique.minimumRealm().ordinal() <= target.ordinal())
+                .filter(technique -> technique.canCultivateTo(target))
+                .toList();
+        if (eligible.isEmpty()) return false;
+        CultivationTechnique selected = eligible.get(random.nextInt(eligible.size()));
+        realm = target;
+        realmLevel = 1;
+        qi = 0;
+        trueQi = realm.trueQiMaximumAt(realmLevel);
+        techniqueId = selected.id();
+        learnedTechniqueIds.clear();
+        learnedTechniqueIds.add(selected.id());
+        immortalFoundation = target.ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal()
+                ? selected.elementalAffinity() : "";
+        majorBreakthroughFailures = 0;
+        stopMeditating();
+        stopTechniqueStudy();
+        clampTrueQi();
+        return true;
     }
 
     public void resetForDeath() {

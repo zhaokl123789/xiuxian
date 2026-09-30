@@ -117,9 +117,11 @@ public class CultivationProfileScreen extends Screen {
         drawValueRow(graphics, "境界", CultivationClientState.realm().displayName() + " · "
                 + CultivationClientState.realm().stageLabel(CultivationClientState.realmLevel()), panelTop + scaled(52));
         CultivationTechnique technique = CultivationTechniques.byId(CultivationClientState.techniqueId());
+        double meditationRate = CultivationClientState.meditationQiPerSecondMilli() / 1000.0D;
         String techniqueValue = technique == null ? "未识功法"
-                : technique.displayName() + " · " + technique.combatStyle();
-        drawValueRow(graphics, "功法战式", techniqueValue, panelTop + scaled(68));
+                : String.format(java.util.Locale.ROOT, "%.3f/秒 · %s · %s",
+                meditationRate, technique.displayName(), technique.combatStyle());
+        drawValueRow(graphics, "功法吐纳", techniqueValue, panelTop + scaled(68));
         int trueQiRecovery = CultivationClientState.passiveTrueQiRecoveryPerTenSeconds();
         String trueQiValue = CultivationClientState.trueQi() + "/" + CultivationClientState.trueQiMaximum()
                 + (trueQiRecovery > 0 ? " · 每10秒 +" + trueQiRecovery : "");
@@ -233,7 +235,7 @@ public class CultivationProfileScreen extends Screen {
 
     private String attributeDescription(int index, CultivationTechnique technique) {
         String detail = switch (index) {
-            case 0 -> "契合当前功法时显著提升吐纳效率：50% + 契合资质×5 + 气运/3，上限 250%。";
+            case 0 -> "契合当前功法时提升吐纳效率；每进一小层基础吐纳 +22%，每升一大境界额外 +100%。";
             case 1 -> "每点根骨降低 0.4% 受伤并降低真炁疗伤消耗；根骨契合时提升吐纳。";
             case 2 -> "每点悟性降低 1% 突破需求；参悟成功率每 3 点提高 1%。";
             case 3 -> "每点气运增加 5 毫点吐纳；每 3 点额外提高契合系数 1%；参悟成功率每 10 点提高 1%。";

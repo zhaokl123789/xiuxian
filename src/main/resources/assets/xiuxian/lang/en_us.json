@@ -61,5 +61,11 @@
   "key.xiuxian.breakthrough": "尝试突破",
   "key.xiuxian.profile": "打开修行档案",
   "item.xiuxian.test_breakthrough_pill": "满修丹（测试）",
-  "key.xiuxian.void_walk": "太虚行旅／返世（紫府）"
+  "key.xiuxian.void_walk": "太虚行旅／返世（紫府）",
+  "item.xiuxian.test_fetal_breath_pill": "测试：胎息升境丹",
+  "item.xiuxian.test_qi_refining_pill": "测试：炼气升境丹",
+  "item.xiuxian.test_foundation_pill": "测试：筑基升境丹",
+  "item.xiuxian.test_purple_mansion_pill": "测试：紫府升境丹",
+  "item.xiuxian.test_golden_core_pill": "测试：金丹升境丹",
+  "item.xiuxian.test_dao_tai_pill": "测试：道胎升境丹"
 }

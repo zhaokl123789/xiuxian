@@ -1,6 +1,7 @@
 package xiuxian.cultivation;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,37 @@ public final class CultivationTechniques {
 
     public static List<CultivationTechnique> all() {
         return ALL;
+    }
+
+    /** Returns manuals that fit the cultivator's current realm and aptitude. */
+    public static List<CultivationTechnique> recommendations(CultivationData data, int limit) {
+        if (data == null || !data.isInitialized() || limit <= 0) {
+            return List.of();
+        }
+        int spiritualRoot = data.spiritualRoot();
+        int constitution = data.constitution();
+        int comprehension = data.comprehension();
+        int fortune = data.fortune();
+        CultivationRealm realm = data.realm();
+        return ALL.stream()
+                .filter(technique -> technique.canBeLearnedAt(realm))
+                .filter(technique -> !data.hasLearnedTechnique(technique.id()))
+                .sorted(Comparator.comparingInt((CultivationTechnique technique) ->
+                        recommendationScore(technique, realm, spiritualRoot, constitution,
+                                comprehension, fortune)).reversed())
+                .limit(limit)
+                .toList();
+    }
+
+    private static int recommendationScore(CultivationTechnique technique, CultivationRealm realm,
+                                           int spiritualRoot, int constitution, int comprehension,
+                                           int fortune) {
+        int aptitude = technique.meditationAptitude().value(spiritualRoot, constitution, comprehension, fortune);
+        int fit = technique.aptitudeMatchPercent(spiritualRoot, constitution, comprehension, fortune);
+        int future = Math.max(0, technique.maximumRealm().ordinal() - realm.ordinal()) * 18;
+        int difficulty = technique.learningDifficulty() * 7;
+        return fit + aptitude * 2 + future + technique.trueQiRecoveryPerSecond() * 3
+                + technique.trueQiBonus() / 10 - difficulty;
     }
 
     private static CultivationTechnique technique(String id, String name, String doctrine, String method,

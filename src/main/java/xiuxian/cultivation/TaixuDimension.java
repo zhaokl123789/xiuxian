@@ -3,6 +3,8 @@ package xiuxian.cultivation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -24,6 +26,7 @@ public final class TaixuDimension {
     public static final double WORLD_SCALE = 8.0D;
     public static final float FLYING_SPEED = 0.12F;
     private static final int ENTRY_COST = 40;
+    private static final String TRIP_SNAPSHOT = "xiuxian_taixu_cultivation";
 
     private TaixuDimension() {}
 
@@ -55,14 +58,20 @@ public final class TaixuDimension {
             player.sendSystemMessage(Component.literal("太虚界层尚未载入，请重进世界后再试。"));
             return;
         }
-        if (!data.spendTrueQi(ENTRY_COST)) {
-            player.sendSystemMessage(Component.literal("入太虚需 40 点真炁，当前真炁不足。"));
+        int travelReserve = Math.max(80, Math.min(600, data.trueQiMaximum() / 40));
+        int entryRequirement = ENTRY_COST + travelReserve;
+        if (data.trueQi() < entryRequirement) {
+            player.sendSystemMessage(Component.literal("入太虚需 40 点真炁，并至少留存 "
+                    + travelReserve + " 点行旅余炁；当前真炁不足。"));
             return;
         }
+        data.spendTrueQi(ENTRY_COST);
 
         data.setTaixuAnchor(player.level().dimension().location().toString(), player.getX(), player.getY(),
                 player.getZ(), player.getYRot(), player.getXRot(), player.getAbilities().getFlyingSpeed(),
                 player.getAbilities().mayfly, player.getAbilities().flying);
+        saveTripSnapshot(player, data);
+        CompoundTag tripSnapshot = data.serializeNBT();
         double taixuX = player.getX() / WORLD_SCALE;
         double taixuZ = player.getZ() / WORLD_SCALE;
         Entity transferred = player.changeDimension(taixu, new ITeleporter() {
@@ -76,8 +85,23 @@ public final class TaixuDimension {
         if (!(transferred instanceof ServerPlayer traveler)) {
             data.restoreTrueQi(ENTRY_COST);
             data.clearTaixuAnchor();
+            clearTripSnapshot(player);
             XiuxianNetwork.syncCultivation(player, data);
             player.sendSystemMessage(Component.literal("太虚界门未能稳固，你仍留在现世。"));
+            return;
+        }
+
+        CultivationData travelerData = recoverTripData(traveler, null, tripSnapshot);
+        if (travelerData == null || !travelerData.isInitialized()) {
+            // Dimension transfer may attach the new capability one tick later.
+            // Keep the player in Taixu while the persistent snapshot is retried.
+            traveler.getPersistentData().put(TRIP_SNAPSHOT, tripSnapshot.copy());
+            traveler.getAbilities().mayfly = true;
+            traveler.getAbilities().flying = true;
+            traveler.getAbilities().setFlyingSpeed(FLYING_SPEED);
+            traveler.onUpdateAbilities();
+            buildArrivalPlatform(traveler.serverLevel(), BlockPos.containing(taixuX, 120.0D, taixuZ));
+            traveler.sendSystemMessage(Component.literal("修行档案正在恢复，太虚行路已安全中止。"));
             return;
         }
 
@@ -85,17 +109,28 @@ public final class TaixuDimension {
         traveler.getAbilities().flying = true;
         traveler.getAbilities().setFlyingSpeed(FLYING_SPEED);
         traveler.onUpdateAbilities();
+        CultivationAttributeEffects.applyAndPreserveHealth(traveler, travelerData);
         buildArrivalPlatform(traveler.serverLevel(), BlockPos.containing(taixuX, 120.0D, taixuZ));
         traveler.serverLevel().sendParticles(net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL,
                 traveler.getX(), traveler.getY(), traveler.getZ(), 48, 1.0D, 0.8D, 1.0D, 0.02D);
         traveler.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7F, 0.8F);
         traveler.sendSystemMessage(Component.literal("你踏入太虚。此间一里，现世八里；真炁将尽时会送你返世。"));
-        XiuxianNetwork.syncCultivation(traveler, data);
+        XiuxianNetwork.syncCultivation(traveler, travelerData);
     }
 
     public static void returnToWorld(ServerPlayer player, CultivationData data) {
+        returnToWorld(player, data, null);
+    }
+
+    private static void returnToWorld(ServerPlayer player, CultivationData data, CompoundTag fallbackSnapshot) {
         if (!isTaixu(player.level())) {
             return;
+        }
+        data = recoverTripData(player, data, fallbackSnapshot);
+        CompoundTag tripSnapshot = data != null && data.isInitialized()
+                ? data.serializeNBT() : fallbackSnapshot;
+        if (tripSnapshot != null && tripSnapshot.getBoolean("initialized")) {
+            player.getPersistentData().put(TRIP_SNAPSHOT, tripSnapshot.copy());
         }
         boolean hasAnchor = data != null && data.hasTaixuAnchor();
         ServerLevel overworld = player.server.overworld();
@@ -166,15 +201,20 @@ public final class TaixuDimension {
             return;
         }
 
-        if (data != null) {
-            data.clearTaixuAnchor();
-            XiuxianNetwork.syncCultivation(traveler, data);
+        CultivationData returnedData = recoverTripData(traveler, null, tripSnapshot);
+        if (returnedData != null && returnedData.isInitialized()) {
+            returnedData.clearTaixuAnchor();
+            XiuxianNetwork.syncCultivation(traveler, returnedData);
+            clearTripSnapshot(traveler);
         }
         traveler.getAbilities().mayfly = restoreMayfly;
         traveler.getAbilities().flying = restoreMayfly && restoreFlying;
         traveler.getAbilities().setFlyingSpeed(flyingSpeed);
         traveler.setNoGravity(false);
         traveler.onUpdateAbilities();
+        if (returnedData != null && returnedData.isInitialized()) {
+            CultivationAttributeEffects.applyAndPreserveHealth(traveler, returnedData);
+        }
         traveler.serverLevel().sendParticles(net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL,
                 traveler.getX(), traveler.getY(), traveler.getZ(), 48, 1.0D, 0.8D, 1.0D, 0.02D);
         traveler.playNotifySound(SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7F, 1.0F);
@@ -182,6 +222,81 @@ public final class TaixuDimension {
                 ? "返世锚点或原落点不可用，你已被引回主世界出生地。"
                 : usedAnchorFallback ? "落点不稳，你循返世锚点回到来处。"
                 : "你沿太虚行过一程，已抵现世新的落点。"));
+    }
+
+    public static CultivationData recoverTripData(ServerPlayer player) {
+        return recoverTripData(player, null, null);
+    }
+
+    private static CultivationData recoverTripData(ServerPlayer player, CultivationData current,
+                                                    CompoundTag fallbackSnapshot) {
+        CultivationData data = current;
+        if (data == null) {
+            data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+        }
+        if (data == null) {
+            player.reviveCaps();
+            data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+        }
+        CompoundTag snapshot = fallbackSnapshot;
+        if (snapshot == null || !snapshot.getBoolean("initialized")) {
+            CompoundTag persistentData = player.getPersistentData();
+            if (persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)) {
+                snapshot = persistentData.getCompound(TRIP_SNAPSHOT);
+            }
+        }
+        if (data != null && snapshot != null && snapshot.getBoolean("initialized")
+                && (fallbackSnapshot != null || !data.isInitialized())) {
+            data.deserializeNBT(snapshot.copy());
+        }
+        return data;
+    }
+
+    public static void saveTripSnapshot(ServerPlayer player, CultivationData data) {
+        if (data.isInitialized()) {
+            player.getPersistentData().put(TRIP_SNAPSHOT, data.serializeNBT());
+        }
+    }
+
+    public static boolean hasValidTripSnapshot(ServerPlayer player) {
+        return player.getPersistentData().contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
+                && player.getPersistentData().getCompound(TRIP_SNAPSHOT).getBoolean("initialized");
+    }
+
+    public static void clearTripSnapshot(ServerPlayer player) {
+        player.getPersistentData().remove(TRIP_SNAPSHOT);
+    }
+
+    public static void onDimensionChanged(ServerPlayer player) {
+        boolean hasTripSnapshot = player.getPersistentData().contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND);
+        if (!isTaixu(player.level()) && !hasTripSnapshot) return;
+
+        CompoundTag snapshot = hasTripSnapshot
+                ? player.getPersistentData().getCompound(TRIP_SNAPSHOT).copy() : null;
+        CultivationData data = recoverTripData(player, null, snapshot);
+        if (data == null || !data.isInitialized()) return;
+        if (isTaixu(player.level())) {
+            player.getAbilities().mayfly = true;
+            player.getAbilities().flying = true;
+            player.getAbilities().setFlyingSpeed(FLYING_SPEED);
+            player.onUpdateAbilities();
+            CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+            saveTripSnapshot(player, data);
+        }
+        XiuxianNetwork.syncCultivation(player, data);
+    }
+
+    public static void ensureTaixuState(ServerPlayer player, CultivationData data) {
+        if (!isTaixu(player.level()) || data == null || !data.isInitialized()) return;
+        if (!player.getAbilities().mayfly || !player.getAbilities().flying
+                || Math.abs(player.getAbilities().getFlyingSpeed() - FLYING_SPEED) > 0.0001F) {
+            player.getAbilities().mayfly = true;
+            player.getAbilities().flying = true;
+            player.getAbilities().setFlyingSpeed(FLYING_SPEED);
+            player.onUpdateAbilities();
+        }
+        player.setNoGravity(false);
+        CultivationAttributeEffects.applyAndPreserveHealth(player, data);
     }
 
     private static void buildArrivalPlatform(ServerLevel level, BlockPos center) {

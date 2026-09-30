@@ -121,15 +121,25 @@ public enum CultivationRealm {
     }
 
     public int breakthroughCost(int level) {
-        double realmGrowth = 60.0D * Math.pow(8.0D, ordinal());
-        double stageGrowth = Math.pow(1.48D, Math.max(0, Math.min(level, levelCount) - 1));
-        double majorBreakthroughGrowth = level == levelCount && next() != null ? 3.0D + ordinal() * 1.2D : 1.0D;
+        // The ninth layer is a clear bottleneck, but the next realm continues
+        // from it instead of dropping back to a tiny fresh cost.
+        double realmGrowth = 90.0D * Math.pow(12.0D, ordinal());
+        double stageGrowth = Math.pow(1.18D, Math.max(0, Math.min(level, levelCount) - 1));
+        double majorBreakthroughGrowth = level == levelCount && next() != null
+                ? 1.70D + ordinal() * 0.10D : 1.0D;
         return (int) Math.min(Integer.MAX_VALUE,
                 Math.max(1L, Math.round(realmGrowth * stageGrowth * majorBreakthroughGrowth)));
     }
 
     public int breakthroughChanceAt(int level, int spiritualRoot, int comprehension, int fortune,
                                      int techniqueCostPercent, int previousFailures) {
+        return breakthroughChanceAt(level, spiritualRoot, comprehension, fortune,
+                techniqueCostPercent, 0, previousFailures);
+    }
+
+    public int breakthroughChanceAt(int level, int spiritualRoot, int comprehension, int fortune,
+                                     int techniqueCostPercent, int techniqueBreakthroughBonus,
+                                     int previousFailures) {
         if (level < levelCount) return 100;
         if (next() == null) return 0;
         int baseChance = switch (this) {
@@ -142,7 +152,8 @@ public enum CultivationRealm {
         };
         int aptitudeBonus = (spiritualRoot * 2 + comprehension + fortune) / 8;
         int techniqueAdjustment = (100 - techniqueCostPercent) / 8;
-        int cleanChance = Math.max(1, Math.min(95, baseChance + aptitudeBonus + techniqueAdjustment));
+        int cleanChance = Math.max(1, Math.min(95,
+                baseChance + aptitudeBonus + techniqueAdjustment + techniqueBreakthroughBonus));
         double remainingChance = ordinal() < FOUNDATION_ESTABLISHMENT.ordinal()
                 ? Math.pow(2.0D / 3.0D, Math.max(0, previousFailures))
                 : Math.pow(0.55D, Math.max(0, previousFailures));

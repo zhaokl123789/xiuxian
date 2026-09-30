@@ -11,6 +11,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import xiuxian.block.XiuxianBlocks;
 import xiuxian.cultivation.CultivationTechniques;
+import xiuxian.cultivation.CultivationRealm;
 import java.util.List;
 
 public final class XiuxianItems {
@@ -26,6 +27,18 @@ public final class XiuxianItems {
             () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), 280));
     public static final RegistryObject<Item> TEST_BREAKTHROUGH_PILL = ITEMS.register("test_breakthrough_pill",
             () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), true));
+    public static final RegistryObject<Item> TEST_FETAL_BREATH_PILL = ITEMS.register("test_fetal_breath_pill",
+            () -> new RealmAscensionPillItem(CultivationRealm.FETAL_BREATH));
+    public static final RegistryObject<Item> TEST_QI_REFINING_PILL = ITEMS.register("test_qi_refining_pill",
+            () -> new RealmAscensionPillItem(CultivationRealm.QI_REFINING));
+    public static final RegistryObject<Item> TEST_FOUNDATION_PILL = ITEMS.register("test_foundation_pill",
+            () -> new RealmAscensionPillItem(CultivationRealm.FOUNDATION_ESTABLISHMENT));
+    public static final RegistryObject<Item> TEST_PURPLE_MANSION_PILL = ITEMS.register("test_purple_mansion_pill",
+            () -> new RealmAscensionPillItem(CultivationRealm.PURPLE_MANSION));
+    public static final RegistryObject<Item> TEST_GOLDEN_CORE_PILL = ITEMS.register("test_golden_core_pill",
+            () -> new RealmAscensionPillItem(CultivationRealm.GOLDEN_CORE));
+    public static final RegistryObject<Item> TEST_DAO_TAI_PILL = ITEMS.register("test_dao_tai_pill",
+            () -> new RealmAscensionPillItem(CultivationRealm.DAO_TAI));
     public static final RegistryObject<Item> QI_GATHERING_PILL_BASE = ITEMS.register("qi_gathering_pill_base",
             () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> MID_PILL_BASE = ITEMS.register("mid_pill_base",
@@ -122,6 +135,12 @@ public final class XiuxianItems {
             event.accept(HIGH_QI_GATHERING_PILL);
             event.accept(SUPREME_QI_GATHERING_PILL);
             event.accept(TEST_BREAKTHROUGH_PILL);
+            event.accept(TEST_FETAL_BREATH_PILL);
+            event.accept(TEST_QI_REFINING_PILL);
+            event.accept(TEST_FOUNDATION_PILL);
+            event.accept(TEST_PURPLE_MANSION_PILL);
+            event.accept(TEST_GOLDEN_CORE_PILL);
+            event.accept(TEST_DAO_TAI_PILL);
             event.accept(QI_GATHERING_PILL_BASE);
             event.accept(MID_PILL_BASE);
             event.accept(HIGH_PILL_BASE);

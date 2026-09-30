@@ -57,7 +57,18 @@ public class CultivationEvents {
                                     && original.realm().ordinal() >= CultivationRealm.PURPLE_MANSION.ordinal()) {
                                 copy.resetForDeath();
                             }
+                            if (event.getEntity() instanceof ServerPlayer player && copy.isInitialized()) {
+                                CultivationAttributeEffects.applyAndPreserveHealth(player, copy);
+                            }
                         }));
+        if (event.isWasDeath()) {
+            if (event.getOriginal() instanceof ServerPlayer originalPlayer) {
+                TaixuDimension.clearTripSnapshot(originalPlayer);
+            }
+            if (event.getEntity() instanceof ServerPlayer respawnedPlayer) {
+                TaixuDimension.clearTripSnapshot(respawnedPlayer);
+            }
+        }
         event.getOriginal().invalidateCaps();
     }
 
@@ -67,9 +78,13 @@ public class CultivationEvents {
             return;
         }
 
-        CultivationData data = getData(player);
+        CultivationData data = TaixuDimension.isTaixu(player.level())
+                ? TaixuDimension.recoverTripData(player) : getData(player);
         if (data == null) {
             return;
+        }
+        if (data.isInitialized()) {
+            CultivationAttributeEffects.applyAndPreserveHealth(player, data);
         }
         XiuxianNetwork.syncCultivation(player, data);
         if (!data.isInitialized()) {
@@ -82,6 +97,9 @@ public class CultivationEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             CultivationData data = getData(player);
             if (data != null) {
+                if (data.isInitialized()) {
+                    CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+                }
                 XiuxianNetwork.syncCultivation(player, data);
                 if (!data.isInitialized()) {
                     player.sendSystemMessage(Component.literal("身死道消，仙缘尽断；请重新择取出身。"));
@@ -97,9 +115,16 @@ public class CultivationEvents {
             return;
         }
 
-        CultivationData data = getData(player);
+        CultivationData data = TaixuDimension.isTaixu(player.level())
+                ? TaixuDimension.recoverTripData(player) : getData(player);
         if (data == null || !data.isInitialized()) {
             if (TaixuDimension.isTaixu(player.level())) {
+                // A newly transferred ServerPlayer can expose its capability one
+                // tick after the dimension event. A valid snapshot means the
+                // trip is still recoverable, so never eject it during that gap.
+                if (TaixuDimension.hasValidTripSnapshot(player)) {
+                    return;
+                }
                 TaixuDimension.returnToWorld(player, data);
             }
             player.setNoGravity(false);
@@ -114,6 +139,10 @@ public class CultivationEvents {
                 data.stopMeditating();
             }
             return;
+        }
+
+        if (TaixuDimension.isTaixu(player.level())) {
+            TaixuDimension.ensureTaixuState(player, data);
         }
 
         player.setNoGravity(false);
@@ -179,6 +208,9 @@ public class CultivationEvents {
                 player.sendSystemMessage(Component.literal("吐纳渐进，当前修为：" + data.qi()));
             }
         }
+        if (TaixuDimension.isTaixu(player.level())) {
+            TaixuDimension.saveTripSnapshot(player, data);
+        }
     }
 
     @SubscribeEvent
@@ -186,6 +218,7 @@ public class CultivationEvents {
         event.getDispatcher().register(Commands.literal("xiuxian")
                 .then(Commands.literal("identity").executes(context -> identity(context.getSource())))
                 .then(Commands.literal("status").executes(context -> status(context.getSource())))
+                .then(Commands.literal("techniques").executes(context -> techniques(context.getSource())))
                 .then(Commands.literal("meditate").executes(context -> toggleMeditation(context.getSource())))
                 .then(Commands.literal("breakthrough").executes(context -> breakthrough(context.getSource())))
                 .then(Commands.literal("return").executes(context -> returnFromTaixu(context.getSource())))
@@ -306,6 +339,14 @@ public class CultivationEvents {
         }
     }
 
+    @SubscribeEvent
+    public void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player
+                && (event.getFrom().equals(TAIXU_LEVEL) || TaixuDimension.isTaixu(player.level()))) {
+            TaixuDimension.onDimensionChanged(player);
+        }
+    }
+
     private static int returnFromTaixu(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         if (!TaixuDimension.isTaixu(player.level())) {
@@ -320,7 +361,9 @@ public class CultivationEvents {
     public void onPassiveNaturalHealing(LivingHealEvent event) {
         if (!(event.getEntity() instanceof Player player) || event.getAmount() != 1.0F
                 || player.hasEffect(net.minecraft.world.effect.MobEffects.REGENERATION)) return;
-        CultivationData data = getData(player);
+        CultivationData data = player instanceof ServerPlayer serverPlayer
+                && TaixuDimension.isTaixu(player.level())
+                ? TaixuDimension.recoverTripData(serverPlayer) : getData(player);
         if (data != null && data.isInitialized() && !data.isTrueQiHealthRecovery()) {
             event.setCanceled(true);
         }
@@ -339,7 +382,8 @@ public class CultivationEvents {
     }
 
     public static void performJumpEnhancement(ServerPlayer player) {
-        CultivationData data = getData(player);
+        CultivationData data = TaixuDimension.isTaixu(player.level())
+                ? TaixuDimension.recoverTripData(player) : getData(player);
         if (data == null || !data.isInitialized()
                 || data.realm().ordinal() < CultivationRealm.QI_REFINING.ordinal()) return;
         if (player.isPassenger() || player.isFallFlying()) return;
@@ -425,6 +469,34 @@ public class CultivationEvents {
                 + " | 炼丹师：" + data.alchemyLevel() + "级"), false);
         source.sendSuccess(() -> Component.literal("功法：" + data.techniqueName() + " | 状态："
                 + (data.isMeditating() ? "打坐中" : "未打坐")), false);
+        return 1;
+    }
+
+    private static int techniques(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        CultivationData data = getData(player);
+        if (data == null || !data.isInitialized()) {
+            source.sendFailure(Component.literal("\u5c1a\u672a\u9009\u62e9\u4fee\u884c\u8eab\u4efd\uff0c\u65e0\u6cd5\u8bc4\u4f30\u529f\u6cd5\u5951\u5408\u3002"));
+            return 0;
+        }
+        java.util.List<CultivationTechnique> recommendations = CultivationTechniques.recommendations(data, 3);
+        if (recommendations.isEmpty()) {
+            source.sendSuccess(() -> Component.literal("\u5f53\u524d\u5883\u754c\u6ca1\u6709\u53ef\u76f4\u63a5\u53c2\u609f\u7684\u65b0\u529f\u6cd5\uff0c\u8bf7\u5bfb\u627e\u66f4\u9ad8\u9636\u4f20\u627f\u3002"), false);
+            return 1;
+        }
+        source.sendSuccess(() -> Component.literal("\u6309\u5f53\u524d\u7075\u6839\u3001\u6839\u9aa8\u3001\u609f\u6027\u4e0e\u6c14\u8fd0\uff0c\u8f83\u9002\u5408\u4f60\u7684\u529f\u6cd5\uff1a"), false);
+        for (int i = 0; i < recommendations.size(); i++) {
+            CultivationTechnique technique = recommendations.get(i);
+            int rank = i + 1;
+            int aptitude = technique.meditationAptitude().value(data.spiritualRoot(), data.constitution(),
+                    data.comprehension(), data.fortune());
+            source.sendSuccess(() -> Component.literal(rank + ". \u300a" + technique.displayName() + "\u300b"
+                    + " \u00b7 \u9002\u4fee " + technique.realmRangeLabel()
+                    + " \u00b7 \u96be\u5ea6 " + technique.learningDifficultyLabel()
+                    + " \u00b7 " + technique.meditationAptitude().displayName() + " " + aptitude
+                    + " \u00b7 " + technique.combatStyle()), false);
+        }
+        source.sendSuccess(() -> Component.literal("\u83b7\u5f97\u5bf9\u5e94\u529f\u6cd5\u4e66\u540e\uff0c\u53f3\u952e\u5c55\u5f00\u9605\u8bfb\uff1b\u8e72\u4e0b\u53f3\u952e\u5f00\u59cb\u53c2\u609f\u3002"), false);
         return 1;
     }
 
@@ -573,9 +645,10 @@ public class CultivationEvents {
                     return;
                 }
                 XiuxianNetwork.syncTrueQi(player, data.trueQi());
+                TaixuDimension.saveTripSnapshot(player, data);
             }
             if (abilitiesChanged) player.onUpdateAbilities();
-            CultivationAttributeEffects.apply(player, data);
+            CultivationAttributeEffects.applyAndPreserveHealth(player, data);
             return;
         } else if (data.hasTaixuAnchor()) {
             abilities.setFlyingSpeed(data.taixuOriginFlyingSpeed());
@@ -744,7 +817,7 @@ public class CultivationEvents {
 
         if (technique != null && !manual.isEmpty() && roll <= chance && data.learnTechnique(id)) {
             manual.shrink(1);
-            CultivationAttributeEffects.apply(player, data);
+            CultivationAttributeEffects.applyAndPreserveHealth(player, data);
             player.sendSystemMessage(Component.literal("参悟有成！你已习得《" + technique.displayName()
                     + "》，道意：" + technique.doctrine()));
             player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.45F, 1.25F);

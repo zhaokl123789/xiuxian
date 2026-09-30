@@ -65,7 +65,8 @@ public final class CultivationClientState {
     public static int breakthroughChance() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         return realm.breakthroughChanceAt(realmLevel, spiritualRoot, comprehension, fortune,
-                technique == null ? 100 : technique.breakthroughCostPercent(), majorBreakthroughFailures);
+                technique == null ? 100 : technique.breakthroughCostPercent(),
+                technique == null ? 0 : technique.breakthroughChanceBonus(), majorBreakthroughFailures);
     }
 
     public static int passiveHealthRecoveryIntervalTicks() {
@@ -85,6 +86,12 @@ public final class CultivationClientState {
                 realmLevel, comprehension, technique.trueQiRecoveryPerSecond());
         return technique.elementalAffinity().equals("水") && recovery > 0
                 ? recovery + Math.max(1, recovery / 3) : recovery;
+    }
+
+    public static int meditationQiPerSecondMilli() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return !initialized || technique == null ? 0 : technique.effectiveMeditationQiPerSecondMilli(
+                spiritualRoot, constitution, comprehension, fortune, realm, realmLevel);
     }
 
     public static String techniqueId() {

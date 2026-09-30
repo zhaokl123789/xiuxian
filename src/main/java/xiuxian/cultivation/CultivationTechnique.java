@@ -73,10 +73,27 @@ public record CultivationTechnique(String id, String displayName, String doctrin
         return Math.min(250, 50 + aptitude * 5 + fortune / 3);
     }
 
+    /**
+     * Inherited manuals carry a real advantage at a major bottleneck.  The
+     * cost discount remains useful for ordinary training, while this separate
+     * score makes a sect lineage meaningfully better at crossing a realm wall.
+     */
+    public int breakthroughChanceBonus() {
+        int inheritance = Math.max(0, maximumRealm.ordinal()) * 4;
+        int refinement = Math.max(0, 100 - breakthroughCostPercent()) / 2;
+        int breadth = Math.max(0, maximumRealm.ordinal() - minimumRealm.ordinal()) * 2;
+        return Math.min(32, inheritance + refinement + breadth);
+    }
+
     public int effectiveMeditationQiPerSecondMilli(int spiritualRoot, int constitution,
-                                                    int comprehension, int fortune) {
+                                                    int comprehension, int fortune,
+                                                    CultivationRealm realm, int realmLevel) {
         int matchPercent = aptitudeMatchPercent(spiritualRoot, constitution, comprehension, fortune);
-        return meditationQiPerSecondMilli * matchPercent / 100 + fortune * 5;
+        long aptitudeRate = (long) meditationQiPerSecondMilli * matchPercent / 100L + (long) fortune * 5L;
+        int completedBreakthroughs = realm.completedBreakthroughs(realmLevel);
+        long progressionPercent = 100L + completedBreakthroughs * 22L + realm.ordinal() * 100L;
+        long effectiveRate = aptitudeRate * progressionPercent / 100L;
+        return (int) Math.min(Integer.MAX_VALUE, effectiveRate);
     }
 
     public String elementalAffinity() {
@@ -118,7 +135,8 @@ public record CultivationTechnique(String id, String displayName, String doctrin
             default -> "";
         };
         return "基础吐纳 " + String.format(java.util.Locale.ROOT, "%.2f", meditationQiPerSecondMilli / 1000.0D)
-                + " 点/秒 · 契合属性：" + meditationAptitude.displayName()
+                + " 点/秒 · 每完成一层吐纳基础 +22%，每升一大境界额外 +100% · 契合属性："
+                + meditationAptitude.displayName()
                 + " · 真炁上限 +" + trueQiBonus + " · " + combatStyle + " · " + affinityEffect;
     }
 }

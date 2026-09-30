@@ -33,6 +33,21 @@ public final class CultivationAttributeEffects {
                 realmMovement, AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
 
+    /** Applies persisted cultivation attributes and restores health after a player reloads or respawns. */
+    public static void applyAndPreserveHealth(ServerPlayer player, CultivationData data) {
+        double oldMaxHealth = player.getMaxHealth();
+        float oldHealth = player.getHealth();
+        apply(player, data);
+        double newMaxHealth = player.getMaxHealth();
+        if (Math.abs(newMaxHealth - oldMaxHealth) > 0.0001D) {
+            float healthRatio = oldMaxHealth <= 0.0D ? 1.0F : oldHealth / (float) oldMaxHealth;
+            healthRatio = Math.max(0.0F, Math.min(1.0F, healthRatio));
+            player.setHealth((float) (newMaxHealth * healthRatio));
+        } else if (oldHealth > newMaxHealth) {
+            player.setHealth((float) newMaxHealth);
+        }
+    }
+
     public static void applyAfterBreakthrough(ServerPlayer player, CultivationData data) {
         double oldMaxHealth = player.getMaxHealth();
         apply(player, data);
