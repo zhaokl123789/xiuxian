@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class CultivationData implements INBTSerializable<CompoundTag> {
-    public static final int DATA_VERSION = 8;
+    public static final int DATA_VERSION = 9;
     public static final String STARTING_TECHNIQUE = "xiuxian:basic_breathing";
     public static final int BASE_ATTRIBUTE_MIN = 1;
     public static final int BASE_ATTRIBUTE_MAX = 12;
@@ -46,6 +46,16 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     private int techniqueStudyChance;
     private int techniqueStudyRoll;
     private int lastJumpBoostTick = -1000;
+    private int lastObservedFoodLevel = -1;
+    private boolean trueQiHealthRecovery;
+    private boolean hasTaixuAnchor;
+    private String taixuOriginDimension = "";
+    private double taixuOriginX;
+    private double taixuOriginY;
+    private double taixuOriginZ;
+    private float taixuOriginYaw;
+    private float taixuOriginPitch;
+    private float taixuOriginFlyingSpeed = 0.05F;
 
     public boolean isInitialized() {
         return initialized;
@@ -85,10 +95,95 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public int passiveHealthRecoveryIntervalTicks() {
         if (!initialized) return 0;
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        if (technique == null) return 0;
-        int recoveryPercent = technique.passiveHealthRecoveryPercent();
-        if (technique.elementalAffinity().equals("木")) recoveryPercent = Math.min(200, recoveryPercent + 25);
+        int recoveryPercent = technique == null ? 100 : technique.passiveHealthRecoveryPercent();
+        if (technique != null && technique.elementalAffinity().equals("木")) {
+            recoveryPercent = Math.min(200, recoveryPercent + 25);
+        }
         return realm.passiveHealthRecoveryIntervalTicksAt(realmLevel, constitution, recoveryPercent);
+    }
+
+    public int healthRecoveryTrueQiCost() {
+        int baseCost = 6 + realm.ordinal() * 4 + Math.max(0, realmLevel - 1) / 3;
+        int constitutionDiscount = Math.min(40, constitution / 3);
+        return Math.max(1, baseCost * (100 - constitutionDiscount) / 100);
+    }
+
+    public boolean isTrueQiHealthRecovery() {
+        return trueQiHealthRecovery;
+    }
+
+    public void setTrueQiHealthRecovery(boolean value) {
+        trueQiHealthRecovery = value;
+    }
+
+    public int hungerTrueQiCost() {
+        int stageDiscount = Math.max(0, realmLevel - 1) / 2;
+        return Math.max(1, 10 - realm.ordinal() * 2 - spiritualRoot / 30 - stageDiscount);
+    }
+
+    public boolean hasTaixuAnchor() {
+        return hasTaixuAnchor;
+    }
+
+    public String taixuOriginDimension() {
+        return taixuOriginDimension;
+    }
+
+    public double taixuOriginX() {
+        return taixuOriginX;
+    }
+
+    public double taixuOriginY() {
+        return taixuOriginY;
+    }
+
+    public double taixuOriginZ() {
+        return taixuOriginZ;
+    }
+
+    public float taixuOriginYaw() {
+        return taixuOriginYaw;
+    }
+
+    public float taixuOriginPitch() {
+        return taixuOriginPitch;
+    }
+
+    public float taixuOriginFlyingSpeed() {
+        return taixuOriginFlyingSpeed;
+    }
+
+    public void setTaixuAnchor(String dimension, double x, double y, double z, float yaw,
+                               float pitch, float flyingSpeed) {
+        hasTaixuAnchor = true;
+        taixuOriginDimension = dimension;
+        taixuOriginX = x;
+        taixuOriginY = y;
+        taixuOriginZ = z;
+        taixuOriginYaw = yaw;
+        taixuOriginPitch = pitch;
+        taixuOriginFlyingSpeed = flyingSpeed;
+    }
+
+    public void clearTaixuAnchor() {
+        hasTaixuAnchor = false;
+        taixuOriginDimension = "";
+        taixuOriginX = 0.0D;
+        taixuOriginY = 0.0D;
+        taixuOriginZ = 0.0D;
+        taixuOriginYaw = 0.0F;
+        taixuOriginPitch = 0.0F;
+        taixuOriginFlyingSpeed = 0.05F;
+    }
+
+    public boolean foodLevelDecreasedTo(int foodLevel) {
+        boolean decreased = lastObservedFoodLevel >= 0 && foodLevel < lastObservedFoodLevel;
+        lastObservedFoodLevel = foodLevel;
+        return decreased;
+    }
+
+    public void synchronizeObservedFoodLevel(int foodLevel) {
+        lastObservedFoodLevel = foodLevel;
     }
 
     public int passiveTrueQiRecoveryPerTenSeconds() {
@@ -227,7 +322,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             return 98;
         }
         int chance = 100 - technique.learningDifficulty() * 8
-                + comprehension / 5 + fortune / 10 + spiritualRoot / 25
+                + comprehension / 3 + fortune / 5 + spiritualRoot / 10
                 + Math.max(0, realmLevel - 1);
         return Math.max(10, Math.min(98, chance));
     }
@@ -290,7 +385,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
     public int breakthroughCost() {
         int baseCost = realm.breakthroughCost(realmLevel);
-        int comprehensionPercent = Math.max(75, 105 - comprehension / 2);
+        int comprehensionPercent = Math.max(50, 110 - comprehension);
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         int techniquePercent = technique == null ? 100 : technique.breakthroughCostPercent();
         long adjustedCost = (long) baseCost * comprehensionPercent * techniquePercent / 10_000L;
@@ -325,6 +420,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         this.majorBreakthroughFailures = 0;
         this.alchemyLevel = 1;
         this.alchemyExperience = 0;
+        this.lastObservedFoodLevel = -1;
+        clearTaixuAnchor();
         CultivationAttributeBonuses bonuses = familyOrigin.bonuses().plus(cultivationPath.bonuses());
         spiritualRoot = rollAttribute(random, bonuses.spiritualRoot());
         constitution = rollAttribute(random, bonuses.constitution());
@@ -422,6 +519,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
     public void copyFrom(CultivationData source) {
         deserializeNBT(source.serializeNBT());
+        lastObservedFoodLevel = -1;
     }
 
     public void resetForDeath() {
@@ -443,6 +541,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         immortalFoundation = "";
         majorBreakthroughFailures = 0;
         lastJumpBoostTick = -1000;
+        lastObservedFoodLevel = -1;
+        clearTaixuAnchor();
         stopMeditating();
         stopTechniqueStudy();
     }
@@ -474,6 +574,16 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             tag.putInt("fortune", fortune);
             tag.putString("immortalFoundation", immortalFoundation);
             tag.putInt("majorBreakthroughFailures", majorBreakthroughFailures);
+            if (hasTaixuAnchor) {
+                tag.putBoolean("hasTaixuAnchor", true);
+                tag.putString("taixuOriginDimension", taixuOriginDimension);
+                tag.putDouble("taixuOriginX", taixuOriginX);
+                tag.putDouble("taixuOriginY", taixuOriginY);
+                tag.putDouble("taixuOriginZ", taixuOriginZ);
+                tag.putFloat("taixuOriginYaw", taixuOriginYaw);
+                tag.putFloat("taixuOriginPitch", taixuOriginPitch);
+                tag.putFloat("taixuOriginFlyingSpeed", taixuOriginFlyingSpeed);
+            }
             if (isStudyingTechnique()) {
                 tag.putString("studyingTechnique", studyingTechniqueId);
                 tag.putInt("techniqueStudyTicks", techniqueStudyTicks);
@@ -491,6 +601,9 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
     @Override
     public void deserializeNBT(CompoundTag tag) {
+        lastObservedFoodLevel = -1;
+        trueQiHealthRecovery = false;
+        clearTaixuAnchor();
         initialized = tag.getBoolean("initialized");
         if (!initialized) {
             return;
@@ -536,6 +649,14 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         fortune = readAttribute(tag, "fortune", dataVersion, legacyBonuses.fortune());
         immortalFoundation = tag.getString("immortalFoundation");
         majorBreakthroughFailures = Math.max(0, tag.getInt("majorBreakthroughFailures"));
+        if (tag.getBoolean("hasTaixuAnchor")) {
+            String dimension = tag.getString("taixuOriginDimension");
+            if (net.minecraft.resources.ResourceLocation.tryParse(dimension) != null) {
+                setTaixuAnchor(dimension, tag.getDouble("taixuOriginX"), tag.getDouble("taixuOriginY"),
+                        tag.getDouble("taixuOriginZ"), tag.getFloat("taixuOriginYaw"),
+                        tag.getFloat("taixuOriginPitch"), tag.getFloat("taixuOriginFlyingSpeed"));
+            }
+        }
         if (immortalFoundation.isBlank() && realm.ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal()) {
             CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
             immortalFoundation = technique == null ? "" : technique.elementalAffinity();

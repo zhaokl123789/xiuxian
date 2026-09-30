@@ -70,9 +70,11 @@ public final class CultivationClientState {
 
     public static int passiveHealthRecoveryIntervalTicks() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        if (!initialized || technique == null) return 0;
-        int recoveryPercent = technique.passiveHealthRecoveryPercent();
-        if (technique.elementalAffinity().equals("木")) recoveryPercent = Math.min(200, recoveryPercent + 25);
+        if (!initialized) return 0;
+        int recoveryPercent = technique == null ? 100 : technique.passiveHealthRecoveryPercent();
+        if (technique != null && technique.elementalAffinity().equals("木")) {
+            recoveryPercent = Math.min(200, recoveryPercent + 25);
+        }
         return realm.passiveHealthRecoveryIntervalTicksAt(realmLevel, constitution, recoveryPercent);
     }
 
@@ -127,6 +129,14 @@ public final class CultivationClientState {
 
     public static int trueQi() { return trueQi; }
     public static int trueQiMaximum() { return trueQiMaximum; }
+
+    public static void spendTrueQiLocally(int amount) {
+        trueQi = Math.max(0, trueQi - Math.max(0, amount));
+    }
+
+    public static void updateTrueQi(int value) {
+        trueQi = Math.max(0, Math.min(trueQiMaximum, value));
+    }
     public static int alchemyLevel() { return alchemyLevel; }
     public static int alchemyExperience() { return alchemyExperience; }
     public static int alchemyExperienceToNextLevel() { return alchemyExperienceToNextLevel; }

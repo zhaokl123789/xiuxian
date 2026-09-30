@@ -70,13 +70,13 @@ public record CultivationTechnique(String id, String displayName, String doctrin
 
     public int aptitudeMatchPercent(int spiritualRoot, int constitution, int comprehension, int fortune) {
         int aptitude = meditationAptitude.value(spiritualRoot, constitution, comprehension, fortune);
-        return Math.min(130, 80 + aptitude / 2);
+        return Math.min(250, 50 + aptitude * 5 + fortune / 3);
     }
 
     public int effectiveMeditationQiPerSecondMilli(int spiritualRoot, int constitution,
                                                     int comprehension, int fortune) {
         int matchPercent = aptitudeMatchPercent(spiritualRoot, constitution, comprehension, fortune);
-        return meditationQiPerSecondMilli * matchPercent / 100 + fortune / 4;
+        return meditationQiPerSecondMilli * matchPercent / 100 + fortune * 5;
     }
 
     public String elementalAffinity() {

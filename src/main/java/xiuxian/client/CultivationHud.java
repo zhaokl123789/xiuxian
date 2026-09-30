@@ -7,6 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGuiEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
@@ -22,6 +24,16 @@ public final class CultivationHud {
     private static final int BAR_BACK = 0xFF161916;
 
     private CultivationHud() {}
+
+    @SubscribeEvent
+    public static void hideExtendedVanillaHealth(RenderGuiOverlayEvent.Pre event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && CultivationClientState.isInitialized()
+                && layout(minecraft) != null
+                && event.getOverlay().id().equals(VanillaGuiOverlay.PLAYER_HEALTH.id())) {
+            event.setCanceled(true);
+        }
+    }
 
     @SubscribeEvent
     public static void render(RenderGuiEvent.Post event) {
@@ -143,9 +155,32 @@ public final class CultivationHud {
         int barY = y + 19;
         graphics.fill(barX, barY, barX + barWidth, barY + 5, BAR_BACK);
         graphics.fill(barX, barY, barX + barWidth, barY + 1, 0xFF66583C);
-        int fillWidth = Math.round((barWidth - 2) * Math.max(0, Math.min(1, progress)));
-        if (fillWidth > 0) {
-            graphics.fill(barX + 1, barY + 1, barX + 1 + fillWidth, barY + 4, color);
+        if (label.equals("气血")) {
+            drawSegmentedHealth(graphics, barX + 1, barY + 1, barWidth - 2, 3, progress);
+        } else {
+            int fillWidth = Math.round((barWidth - 2) * Math.max(0, Math.min(1, progress)));
+            if (fillWidth > 0) {
+                graphics.fill(barX + 1, barY + 1, barX + 1 + fillWidth, barY + 4, color);
+            }
+        }
+    }
+
+    private static void drawSegmentedHealth(GuiGraphics graphics, int x, int y, int width, int height,
+                                            float progress) {
+        int[] colors = {0xFFB84545, 0xFFCF584B, 0xFFD96F46, 0xFFE09A48,
+                0xFFCEB24C, 0xFF9FB45A, 0xFF69A878, 0xFF4C9BA0};
+        int segments = Math.max(4, Math.min(colors.length, width / 5));
+        int gap = 1;
+        int segmentWidth = Math.max(1, (width - (segments - 1) * gap) / segments);
+        float clampedProgress = Math.max(0.0F, Math.min(1.0F, progress));
+        for (int i = 0; i < segments; i++) {
+            int left = x + i * (segmentWidth + gap);
+            float segmentFill = Math.max(0.0F, Math.min(1.0F, clampedProgress * segments - i));
+            graphics.fill(left, y, left + segmentWidth, y + height, 0xFF302622);
+            int filledWidth = Math.round(segmentWidth * segmentFill);
+            if (filledWidth > 0) {
+                graphics.fill(left, y, left + filledWidth, y + height, colors[i]);
+            }
         }
     }
 

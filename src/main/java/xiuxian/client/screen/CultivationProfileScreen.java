@@ -132,7 +132,8 @@ public class CultivationProfileScreen extends Screen {
                 affinityValue, panelTop + scaled(96));
         int healthRecoveryInterval = CultivationClientState.passiveHealthRecoveryIntervalTicks();
         String healthValue = playerHealth() + (healthRecoveryInterval > 0
-                ? " · 每" + String.format(java.util.Locale.ROOT, "%.1f", healthRecoveryInterval / 20.0D) + "秒 +1"
+                ? " · 每" + String.format(java.util.Locale.ROOT, "%.1f", healthRecoveryInterval / 20.0D)
+                + "秒耗真炁恢复 1"
                 : " · 尚未通脉");
         drawValueRow(graphics, "气血", healthValue, panelTop + scaled(108));
         drawValueRow(graphics, "攻击", playerAttack(), panelTop + scaled(124));
@@ -165,7 +166,7 @@ public class CultivationProfileScreen extends Screen {
             case FETAL_BREATH -> "疾走加速 · 耗真炁";
             case QI_REFINING -> "疾走、腾跃 · 耗真炁";
             case FOUNDATION_ESTABLISHMENT -> "疾走、腾跃、御空 · 耗真炁";
-            case PURPLE_MANSION -> "御空身法 · V 太虚步";
+            case PURPLE_MANSION -> "御空身法 · V 太虚行旅／返世";
             default -> "当前境界未开放";
         };
         drawValueRow(graphics, "行炁身法", movement, panelTop + scaled(222));
@@ -232,10 +233,10 @@ public class CultivationProfileScreen extends Screen {
 
     private String attributeDescription(int index, CultivationTechnique technique) {
         String detail = switch (index) {
-            case 0 -> "契合当前功法时提升吐纳效率：适配系数为 80% + 灵根/2，上限 130%。";
-            case 1 -> "每点根骨降低 0.25% 受伤；根骨契合的功法也会获得吐纳适配。";
-            case 2 -> "每点悟性降低约 0.5% 突破需求；每 5 点参悟成功率提高 1%。";
-            case 3 -> "每 4 点气运使每秒吐纳多 1 毫点；参悟成功率每 10 点提高 1%。";
+            case 0 -> "契合当前功法时显著提升吐纳效率：50% + 契合资质×5 + 气运/3，上限 250%。";
+            case 1 -> "每点根骨降低 0.4% 受伤并降低真炁疗伤消耗；根骨契合时提升吐纳。";
+            case 2 -> "每点悟性降低 1% 突破需求；参悟成功率每 3 点提高 1%。";
+            case 3 -> "每点气运增加 5 毫点吐纳；每 3 点额外提高契合系数 1%；参悟成功率每 10 点提高 1%。";
             default -> "";
         };
         if (technique != null && technique.meditationAptitude().ordinal() == index) {

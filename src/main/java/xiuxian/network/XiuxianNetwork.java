@@ -17,7 +17,7 @@ import xiuxian.cultivation.CultivationEvents;
 import xiuxian.cultivation.CultivationData;
 
 public final class XiuxianNetwork {
-    private static final String PROTOCOL_VERSION = "6";
+    private static final String PROTOCOL_VERSION = "7";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation("xiuxian", "main"),
             () -> PROTOCOL_VERSION,
@@ -52,10 +52,11 @@ public final class XiuxianNetwork {
                 (message, buffer) -> {}, buffer -> new VoidWalkPacket(),
                 XiuxianNetwork::handleVoidWalk,
                 Optional.of(NetworkDirection.PLAY_TO_SERVER));
-        CHANNEL.registerMessage(nextMessageId++, JumpEnhancementPacket.class,
-                (message, buffer) -> {}, buffer -> new JumpEnhancementPacket(),
-                XiuxianNetwork::handleJumpEnhancement,
-                Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(nextMessageId++, TrueQiSyncPacket.class,
+                (message, buffer) -> buffer.writeVarInt(message.trueQi),
+                buffer -> new TrueQiSyncPacket(buffer.readVarInt()),
+                XiuxianNetwork::handleTrueQiSync,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(nextMessageId++, CultivationSyncPacket.class,
                 (message, buffer) -> {
                     buffer.writeBoolean(message.initialized);
@@ -125,8 +126,8 @@ public final class XiuxianNetwork {
         CHANNEL.sendToServer(new VoidWalkPacket());
     }
 
-    public static void requestJumpEnhancement() {
-        CHANNEL.sendToServer(new JumpEnhancementPacket());
+    public static void syncTrueQi(ServerPlayer player, int trueQi) {
+        CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new TrueQiSyncPacket(trueQi));
     }
 
     private static void handleOpenIdentityScreen(IdentityScreenPacket message,
@@ -176,13 +177,11 @@ public final class XiuxianNetwork {
         context.setPacketHandled(true);
     }
 
-    private static void handleJumpEnhancement(JumpEnhancementPacket message,
-                                               Supplier<NetworkEvent.Context> contextSupplier) {
+    private static void handleTrueQiSync(TrueQiSyncPacket message,
+                                         Supplier<NetworkEvent.Context> contextSupplier) {
         NetworkEvent.Context context = contextSupplier.get();
-        context.enqueueWork(() -> {
-            ServerPlayer player = context.getSender();
-            if (player != null) CultivationEvents.performJumpEnhancement(player);
-        });
+        context.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT,
+                () -> () -> xiuxian.client.CultivationClientState.updateTrueQi(message.trueQi)));
         context.setPacketHandled(true);
     }
 
@@ -210,7 +209,13 @@ public final class XiuxianNetwork {
 
     private static final class VoidWalkPacket {}
 
-    private static final class JumpEnhancementPacket {}
+    private static final class TrueQiSyncPacket {
+        private final int trueQi;
+
+        private TrueQiSyncPacket(int trueQi) {
+            this.trueQi = Math.max(0, trueQi);
+        }
+    }
 
     private static final class SelectIdentityPacket {
         private final String familyId;

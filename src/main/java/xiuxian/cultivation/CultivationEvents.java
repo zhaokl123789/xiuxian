@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -16,9 +17,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -31,6 +34,9 @@ import xiuxian.network.XiuxianNetwork;
 import xiuxian.item.XiuxianItems;
 
 public class CultivationEvents {
+    private static final ResourceKey<Level> TAIXU_LEVEL = TaixuDimension.LEVEL;
+    private static final float TAIXU_FLYING_SPEED = TaixuDimension.FLYING_SPEED;
+
     @SubscribeEvent
     public void attachPlayerData(AttachCapabilitiesEvent<Entity> event) {
         if (event.getObject() instanceof Player) {
@@ -109,6 +115,7 @@ public class CultivationEvents {
 
         player.setNoGravity(false);
         tickRealmMovement(player, data);
+        tickCultivationHunger(player, data);
         if (player.isAlive() && !data.isMeditating() && !data.isStudyingTechnique()) {
             applyPassiveRecovery(player, data);
         }
@@ -288,9 +295,31 @@ public class CultivationEvents {
                 if (technique != null && technique.elementalAffinity().equals("土")) {
                     techniqueReduction += 0.10F;
                 }
-                float reduction = Math.min(0.9F, data.constitution() * 0.0025F + techniqueReduction
+                float reduction = Math.min(0.9F, data.constitution() * 0.004F + techniqueReduction
                         + data.realm().damageReductionAt(data.realmLevel()));
                 event.setAmount(event.getAmount() * (1.0F - reduction));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onPassiveNaturalHealing(LivingHealEvent event) {
+        if (!(event.getEntity() instanceof Player player) || event.getAmount() != 1.0F
+                || player.hasEffect(net.minecraft.world.effect.MobEffects.REGENERATION)) return;
+        CultivationData data = getData(player);
+        if (data != null && data.isInitialized() && !data.isTrueQiHealthRecovery()) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onCultivatorJump(LivingEvent.LivingJumpEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            CultivationData data = getData(player);
+            performJumpEnhancement(player);
+            if (data != null && data.isInitialized()
+                    && data.realm().ordinal() >= CultivationRealm.QI_REFINING.ordinal()) {
+                XiuxianNetwork.syncTrueQi(player, data.trueQi());
             }
         }
     }
@@ -299,15 +328,12 @@ public class CultivationEvents {
         CultivationData data = getData(player);
         if (data == null || !data.isInitialized()
                 || data.realm().ordinal() < CultivationRealm.QI_REFINING.ordinal()) return;
-        if (player.isPassenger() || player.isFallFlying()
-                || (!player.onGround() && player.getDeltaMovement().y <= 0.0D)
-                || !data.canUseJumpBoostAt(player.tickCount)) return;
+        if (player.isPassenger() || player.isFallFlying()) return;
         int cost = 4 + data.realm().ordinal() * 2;
+        if (data.trueQi() < cost || !data.canUseJumpBoostAt(player.tickCount)) return;
         if (!data.spendTrueQi(cost)) return;
         double lift = 0.18D + data.realm().ordinal() * 0.05D;
         player.setDeltaMovement(player.getDeltaMovement().add(0.0D, lift, 0.0D));
-        player.connection.send(new ClientboundSetEntityMotionPacket(player));
-        XiuxianNetwork.syncCultivation(player, data);
     }
 
     private static void grantStartingKit(ServerPlayer player, FamilyOrigin family, CultivationPath path) {
@@ -511,6 +537,37 @@ public class CultivationEvents {
         boolean abilitiesChanged = false;
         int trueQiBefore = data.trueQi();
         var abilities = player.getAbilities();
+        if (player.level().dimension().equals(TAIXU_LEVEL)) {
+            if (data.realm() != CultivationRealm.PURPLE_MANSION || !data.hasTaixuAnchor()) {
+                TaixuDimension.returnToWorld(player, data);
+                return;
+            }
+            if (!abilities.mayfly || !abilities.flying) {
+                abilities.mayfly = true;
+                abilities.flying = true;
+                abilitiesChanged = true;
+            }
+            if (Math.abs(abilities.getFlyingSpeed() - TAIXU_FLYING_SPEED) > 0.0001F) {
+                abilities.setFlyingSpeed(TAIXU_FLYING_SPEED);
+                abilitiesChanged = true;
+            }
+            if (player.tickCount % 20 == 0) {
+                int travelCost = Math.max(1, 4 - data.comprehension() / 30);
+                if (!data.spendTrueQi(travelCost)) {
+                    player.sendSystemMessage(Component.literal("真炁将尽，太虚界层正在送你返世。"));
+                    TaixuDimension.returnToWorld(player, data);
+                    return;
+                }
+                XiuxianNetwork.syncTrueQi(player, data.trueQi());
+            }
+            if (abilitiesChanged) player.onUpdateAbilities();
+            CultivationAttributeEffects.apply(player, data);
+            return;
+        } else if (data.hasTaixuAnchor()) {
+            abilities.setFlyingSpeed(data.taixuOriginFlyingSpeed());
+            data.clearTaixuAnchor();
+        }
+
         boolean canFly = data.realm().ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal();
         if (!player.isCreative() && !player.isSpectator() && canFly && !abilities.mayfly) {
             abilities.mayfly = true;
@@ -538,6 +595,10 @@ public class CultivationEvents {
     }
 
     public static void performVoidWalk(ServerPlayer player) {
+        TaixuDimension.toggle(player);
+    }
+
+    private static void performLegacyVoidWalk(ServerPlayer player) {
         CultivationData data = getData(player);
         if (data == null || !data.isInitialized() || data.realm() != CultivationRealm.PURPLE_MANSION) {
             player.sendSystemMessage(Component.literal("唯有紫府真人，方可踏入太虚。"));
@@ -605,7 +666,7 @@ public class CultivationEvents {
     }
 
     private static void applyPassiveRecovery(ServerPlayer player, CultivationData data) {
-        if (player.tickCount % 200 == 0) {
+        if (player.tickCount % 200 == 0 && !TaixuDimension.isTaixu(player.level())) {
             int previousTrueQi = data.trueQi();
             data.restoreTrueQi(data.passiveTrueQiRecoveryPerTenSeconds());
             if (data.trueQi() != previousTrueQi) {
@@ -615,8 +676,26 @@ public class CultivationEvents {
 
         int healthInterval = data.passiveHealthRecoveryIntervalTicks();
         if (healthInterval > 0 && player.tickCount % healthInterval == 0
-                && player.getHealth() < player.getMaxHealth()) {
-            player.heal(1.0F);
+                && player.getHealth() < player.getMaxHealth()
+                && data.spendTrueQi(data.healthRecoveryTrueQiCost())) {
+            data.setTrueQiHealthRecovery(true);
+            try {
+                player.heal(1.0F);
+            } finally {
+                data.setTrueQiHealthRecovery(false);
+            }
+            XiuxianNetwork.syncCultivation(player, data);
+        }
+    }
+
+    private static void tickCultivationHunger(ServerPlayer player, CultivationData data) {
+        int foodLevel = player.getFoodData().getFoodLevel();
+        if (!player.isAlive() || !data.foodLevelDecreasedTo(foodLevel)) return;
+        if (data.spendTrueQi(data.hungerTrueQiCost())) {
+            int restoredFood = Math.min(20, foodLevel + 1);
+            player.getFoodData().setFoodLevel(restoredFood);
+            data.synchronizeObservedFoodLevel(restoredFood);
+            XiuxianNetwork.syncCultivation(player, data);
         }
     }
 
