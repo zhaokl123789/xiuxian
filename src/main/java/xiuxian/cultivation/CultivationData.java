@@ -56,6 +56,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     private float taixuOriginYaw;
     private float taixuOriginPitch;
     private float taixuOriginFlyingSpeed = 0.05F;
+    private boolean taixuOriginMayfly;
+    private boolean taixuOriginFlying;
 
     public boolean isInitialized() {
         return initialized;
@@ -153,8 +155,16 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return taixuOriginFlyingSpeed;
     }
 
+    public boolean taixuOriginMayfly() {
+        return taixuOriginMayfly;
+    }
+
+    public boolean taixuOriginFlying() {
+        return taixuOriginFlying;
+    }
+
     public void setTaixuAnchor(String dimension, double x, double y, double z, float yaw,
-                               float pitch, float flyingSpeed) {
+                               float pitch, float flyingSpeed, boolean mayfly, boolean flying) {
         hasTaixuAnchor = true;
         taixuOriginDimension = dimension;
         taixuOriginX = x;
@@ -163,6 +173,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         taixuOriginYaw = yaw;
         taixuOriginPitch = pitch;
         taixuOriginFlyingSpeed = flyingSpeed;
+        taixuOriginMayfly = mayfly;
+        taixuOriginFlying = flying;
     }
 
     public void clearTaixuAnchor() {
@@ -174,6 +186,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         taixuOriginYaw = 0.0F;
         taixuOriginPitch = 0.0F;
         taixuOriginFlyingSpeed = 0.05F;
+        taixuOriginMayfly = false;
+        taixuOriginFlying = false;
     }
 
     public boolean foodLevelDecreasedTo(int foodLevel) {
@@ -583,6 +597,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
                 tag.putFloat("taixuOriginYaw", taixuOriginYaw);
                 tag.putFloat("taixuOriginPitch", taixuOriginPitch);
                 tag.putFloat("taixuOriginFlyingSpeed", taixuOriginFlyingSpeed);
+                tag.putBoolean("taixuOriginMayfly", taixuOriginMayfly);
+                tag.putBoolean("taixuOriginFlying", taixuOriginFlying);
             }
             if (isStudyingTechnique()) {
                 tag.putString("studyingTechnique", studyingTechniqueId);
@@ -654,7 +670,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             if (net.minecraft.resources.ResourceLocation.tryParse(dimension) != null) {
                 setTaixuAnchor(dimension, tag.getDouble("taixuOriginX"), tag.getDouble("taixuOriginY"),
                         tag.getDouble("taixuOriginZ"), tag.getFloat("taixuOriginYaw"),
-                        tag.getFloat("taixuOriginPitch"), tag.getFloat("taixuOriginFlyingSpeed"));
+                        tag.getFloat("taixuOriginPitch"), tag.getFloat("taixuOriginFlyingSpeed"),
+                        tag.getBoolean("taixuOriginMayfly"), tag.getBoolean("taixuOriginFlying"));
             }
         }
         if (immortalFoundation.isBlank() && realm.ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal()) {

@@ -99,6 +99,9 @@ public class CultivationEvents {
 
         CultivationData data = getData(player);
         if (data == null || !data.isInitialized()) {
+            if (TaixuDimension.isTaixu(player.level())) {
+                TaixuDimension.returnToWorld(player, data);
+            }
             player.setNoGravity(false);
             if (!player.isCreative() && !player.isSpectator()
                     && (player.getAbilities().mayfly || player.getAbilities().flying)) {
@@ -185,9 +188,10 @@ public class CultivationEvents {
                 .then(Commands.literal("status").executes(context -> status(context.getSource())))
                 .then(Commands.literal("meditate").executes(context -> toggleMeditation(context.getSource())))
                 .then(Commands.literal("breakthrough").executes(context -> breakthrough(context.getSource())))
+                .then(Commands.literal("return").executes(context -> returnFromTaixu(context.getSource())))
                 .executes(context -> {
                     context.getSource().sendSuccess(() -> Component.literal(
-                            "命令：/xiuxian identity、/xiuxian status、/xiuxian meditate、/xiuxian breakthrough"), false);
+                            "命令：/xiuxian identity、/xiuxian status、/xiuxian meditate、/xiuxian breakthrough、/xiuxian return"), false);
                     return 1;
                 }));
     }
@@ -300,6 +304,16 @@ public class CultivationEvents {
                 event.setAmount(event.getAmount() * (1.0F - reduction));
             }
         }
+    }
+
+    private static int returnFromTaixu(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (!TaixuDimension.isTaixu(player.level())) {
+            source.sendFailure(Component.literal("你当前不在太虚之中。"));
+            return 0;
+        }
+        TaixuDimension.returnToWorld(player, getData(player));
+        return 1;
     }
 
     @SubscribeEvent
@@ -538,7 +552,7 @@ public class CultivationEvents {
         int trueQiBefore = data.trueQi();
         var abilities = player.getAbilities();
         if (player.level().dimension().equals(TAIXU_LEVEL)) {
-            if (data.realm() != CultivationRealm.PURPLE_MANSION || !data.hasTaixuAnchor()) {
+            if (data.realm().ordinal() < CultivationRealm.PURPLE_MANSION.ordinal()) {
                 TaixuDimension.returnToWorld(player, data);
                 return;
             }

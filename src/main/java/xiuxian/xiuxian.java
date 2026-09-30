@@ -8,6 +8,7 @@ import xiuxian.block.XiuxianBlocks;
 import xiuxian.block.XiuxianBlockEntities;
 import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationEvents;
+import xiuxian.cultivation.TaixuFeatures;
 import xiuxian.item.XiuxianItems;
 import xiuxian.network.XiuxianNetwork;
 import xiuxian.menu.XiuxianMenus;
@@ -18,6 +19,7 @@ public class xiuxian {
     public xiuxian() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         modEventBus.addListener(CultivationCapability::register);
+        TaixuFeatures.register(modEventBus);
         XiuxianNetwork.register();
         XiuxianBlocks.register(modEventBus);
         XiuxianBlockEntities.register(modEventBus);
