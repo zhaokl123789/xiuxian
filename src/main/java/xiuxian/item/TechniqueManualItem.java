@@ -104,21 +104,10 @@ public class TechniqueManualItem extends Item {
         super.appendHoverText(stack, level, lines, flags);
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         if (technique != null) {
-            lines.add(Component.literal("\u9053\u8bba\uff1a" + technique.doctrine()));
-            lines.add(Component.literal("\u9002\u4fee\uff1a" + technique.realmRangeLabel()
-                    + " \u00b7 \u96be\u5ea6 " + technique.learningDifficultyLabel()));
-            lines.add(Component.literal("\u529f\u6cd5\u8054\u7cfb\uff1a" + technique.relationSummary()
-                    + "\uff1b\u5171\u9e23\u5410\u7eb3 +" + technique.resonanceMeditationBonusPercent() + "%"
-                    + "\uff1b\u8fd0\u8f6c\u51cf\u76ca " + technique.drawbackMeditationPercent() + "%"));
-            lines.add(Component.literal(technique.effectSummary()));
-            if (technique.prerequisiteId() != null) {
-                CultivationTechnique prerequisite = CultivationTechniques.byId("xiuxian:" + technique.prerequisiteId());
-                lines.add(Component.literal("前置传承：" + (prerequisite == null ? technique.prerequisiteId()
-                        : "《" + prerequisite.displayName() + "》")));
-            }
-            lines.add(Component.literal("获取渠道：" + technique.acquisitionLabel()
-                    + (technique.exchangeCost() > 0 ? " · 兑换灵石：" + technique.exchangeCost() : "")));
-            lines.add(Component.literal("\u53f3\u952e\u5c55\u5377\u9605\u8bfb\uff0c\u8e72\u4e0b\u52a0\u53f3\u952e\u9759\u5fc3\u53c2\u609f\u3002"));
+            // Keep the inventory tooltip deliberately short.  Detailed lineage,
+            // attributes and acquisition rules belong in the cultivation profile
+            // and exchange screens, rather than taking over the item hover card.
+            lines.add(Component.literal("\u4f7f\u7528\u65b9\u5f0f\uff1a\u53f3\u952e\u5c55\u5377\uff1b\u8e72\u4e0b\u52a0\u53f3\u952e\u53c2\u609f"));
         }
     }
 }

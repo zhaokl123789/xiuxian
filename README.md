@@ -54,3 +54,30 @@
 开始修改前请阅读[贡献指南](CONTRIBUTING.md)。大型玩法变更先通过 Issue 或讨论确认范围；玩家数据、跨模组接口和资源格式需要保持兼容性。
 
 GitHub 仓库：[zhaokl123789/xiuxian](https://github.com/zhaokl123789/xiuxian)。协作者可克隆仓库并通过主题分支和 PR 参与开发。
+
+## 功法与胎息术法
+
+当前版本的紫府金丹道包含 68 本功法。功法书的悬浮提示保持简洁，只显示功法名称和使用方式；完整的道途、宗门、前置传承和属性关系请在修行档案中查看。功法不可合成，只能通过初始传承、宗门兑换、散修渠道或奇遇获得。
+
+胎息阶段已经接入数据驱动的术法目录：
+
+- 20 门通用胎息术法，覆盖护体、恢复、侦查、身法和低强度攻伐。
+- 吐纳引气诀、澄源返照各自拥有专属胎息术法；专属术法要求当前运转对应功法。
+- 每门术法都有真炁消耗、独立冷却和明确效果，胎息术法的伤害与控制保持在低阶范围。
+
+游戏内使用方式：
+
+```text
+/xiuxian spells                 查看当前境界和功法可用的术法
+/xiuxian cast <术法短名>          施展术法，例如 /xiuxian cast ember_bolt
+```
+
+新增术法请在 `src/main/java/xiuxian/cultivation/CultivationSpells.java` 的目录中登记，并明确境界、真炁消耗、冷却、目标类型和效果；功法专属术法填写 `requiredTechniqueId`。命令、消耗、冷却和粒子表现由同一目录统一处理，避免在事件类中重复实现。
+
+提交代码前请运行：
+
+```powershell
+.\gradlew.bat compileJava --no-daemon --console=plain
+.\gradlew.bat build --no-daemon --console=plain
+git diff --check
+```

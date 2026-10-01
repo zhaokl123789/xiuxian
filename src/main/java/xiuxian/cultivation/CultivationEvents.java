@@ -254,6 +254,11 @@ public class CultivationEvents {
                 .then(Commands.literal("identity").executes(context -> identity(context.getSource())))
                 .then(Commands.literal("status").executes(context -> status(context.getSource())))
                 .then(Commands.literal("techniques").executes(context -> techniques(context.getSource())))
+                .then(Commands.literal("spells").executes(context -> spells(context.getSource())))
+                .then(Commands.literal("cast")
+                        .then(Commands.argument("spell", StringArgumentType.word())
+                                .executes(context -> castSpell(context.getSource(),
+                                        StringArgumentType.getString(context, "spell")))))
                 .then(Commands.literal("exchange")
                         .then(Commands.argument("technique", StringArgumentType.word())
                                 .executes(context -> exchangeTechnique(context.getSource(),
@@ -418,6 +423,29 @@ public class CultivationEvents {
         if (data != null && data.isInitialized() && !data.isTrueQiHealthRecovery()) {
             event.setCanceled(true);
         }
+    }
+
+    private static int spells(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        CultivationData data = getData(player);
+        if (data == null || !data.isInitialized()) {
+            source.sendFailure(Component.literal("请先确立修行身份。"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("胎息可用术法：" + CultivationSpells.idList(data)), false);
+        source.sendSuccess(() -> Component.literal("施展方式：/xiuxian cast <术法短名>；每门术法消耗真炁并拥有独立冷却。"), false);
+        return 1;
+    }
+
+    private static int castSpell(CommandSourceStack source, String rawId) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        CultivationSpells.CastResult result = CultivationSpells.cast(player, rawId);
+        if (result.success()) {
+            source.sendSuccess(() -> Component.literal(result.message()), false);
+            return 1;
+        }
+        source.sendFailure(Component.literal(result.message()));
+        return 0;
     }
 
     @SubscribeEvent
