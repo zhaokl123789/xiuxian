@@ -115,7 +115,9 @@ public final class CultivationAttributeEffects {
         if (current != null) {
             instance.removeModifier(current);
         }
-        instance.addTransientModifier(new AttributeModifier(id, name, amount, operation));
+        // Permanent modifiers survive player entity replacement and are still
+        // explicitly refreshed from cultivation data after every transfer.
+        instance.addPermanentModifier(new AttributeModifier(id, name, amount, operation));
         return true;
     }
 

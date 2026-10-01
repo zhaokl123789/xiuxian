@@ -53,6 +53,10 @@ public class CultivationEvents {
     @SubscribeEvent
     public void onPlayerClone(PlayerEvent.Clone event) {
         event.getOriginal().reviveCaps();
+        // Forge may create the replacement entity before capability data is
+        // copied. Carry the durable cultivation snapshots across explicitly so
+        // the replacement cannot regress to the default identity.
+        event.getEntity().getPersistentData().merge(event.getOriginal().getPersistentData().copy());
         event.getOriginal().getCapability(CultivationCapability.CULTIVATION).ifPresent(original ->
                 event.getEntity().getCapability(CultivationCapability.CULTIVATION)
                         .ifPresent(copy -> {
@@ -65,7 +69,7 @@ public class CultivationEvents {
                                 CultivationAttributeEffects.applyAndPreserveHealth(player, copy);
                                 CultivationAttributeEffects.sync(player);
                             }
-                            if (event.getEntity() instanceof ServerPlayer player) {
+                            if (event.getEntity() instanceof ServerPlayer player && copy.isInitialized()) {
                                 TaixuDimension.persistCultivationData(player, copy);
                             }
                         }));
@@ -94,6 +98,7 @@ public class CultivationEvents {
         if (data.isInitialized()) {
             CultivationAttributeEffects.applyAndPreserveHealth(player, data);
             CultivationAttributeEffects.sync(player);
+            DIMENSION_SYNC_TICKS.put(player.getUUID(), 20);
         }
         XiuxianNetwork.syncCultivation(player, data);
         if (!data.isInitialized()) {
@@ -109,6 +114,7 @@ public class CultivationEvents {
                 if (data.isInitialized()) {
                     CultivationAttributeEffects.applyAndPreserveHealth(player, data);
                     CultivationAttributeEffects.sync(player);
+                    DIMENSION_SYNC_TICKS.put(player.getUUID(), 20);
                 }
                 XiuxianNetwork.syncCultivation(player, data);
                 if (!data.isInitialized()) {

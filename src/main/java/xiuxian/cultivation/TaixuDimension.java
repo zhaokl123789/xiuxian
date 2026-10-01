@@ -292,7 +292,10 @@ public final class TaixuDimension {
     }
 
     private static void savePersistentState(ServerPlayer player, CultivationData data) {
-        if (data != null) {
+        // A freshly cloned player can expose the default capability for a few
+        // ticks. Never let that empty record overwrite a valid progression
+        // snapshot from the previous entity.
+        if (data != null && data.isInitialized()) {
             player.getPersistentData().put(CULTIVATION_STATE, data.serializeNBT());
         }
     }

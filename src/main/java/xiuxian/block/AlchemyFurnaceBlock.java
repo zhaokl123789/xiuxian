@@ -59,8 +59,8 @@ public class AlchemyFurnaceBlock extends FurnaceBlock {
         }
         if (player instanceof ServerPlayer serverPlayer) {
             int requiredLevel = AlchemyFurnaceTier.byLevel(tier).requiredAlchemyLevel();
-            xiuxian.cultivation.CultivationData data = serverPlayer.getCapability(
-                    xiuxian.cultivation.CultivationCapability.CULTIVATION).orElse(null);
+            xiuxian.cultivation.CultivationData data =
+                    xiuxian.cultivation.TaixuDimension.recoverTripData(serverPlayer);
             if (data == null || !data.isInitialized()) {
                 serverPlayer.sendSystemMessage(Component.literal("先选择修行身份，才能踏入丹道。"));
                 return;
