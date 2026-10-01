@@ -98,10 +98,7 @@ public record CultivationTechnique(String id, String displayName, String doctrin
 
     /** Whether this manual can be used as a broad foundation for other paths. */
     public boolean isUniversal() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "basic_breathing", "clear_origin", "embrace_one", "five_elements_return" -> true;
-            default -> false;
-        };
+        return CultivationTechniques.profile(id).universal();
     }
 
     /** A locked lineage is intentionally unavailable outside its matching cultivation path. */
@@ -110,11 +107,7 @@ public record CultivationTechnique(String id, String displayName, String doctrin
     }
 
     public String requiredPath() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "sword_intent", "heavenly_cycle" -> "sect";
-            case "iron_body", "void_shadow", "star_forger" -> "wanderer";
-            default -> null;
-        };
+        return CultivationTechniques.profile(id).requiredPath();
     }
 
     public boolean isCompatibleWithPath(CultivationPath path) {
@@ -123,54 +116,55 @@ public record CultivationTechnique(String id, String displayName, String doctrin
 
     /** Manuals in the same lineage resonate when retained as secondary manuals. */
     public String resonanceGroup() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "basic_breathing", "clear_origin", "embrace_one", "five_elements_return" -> "foundation";
-            case "water_virtue", "valley_spirit", "return_to_root", "iron_body" -> "body";
-            case "mysterious_gate", "sword_intent", "heavenly_cycle", "void_shadow" -> "void";
-            case "less_private", "female_spirit", "know_stop", "return_nature", "star_forger" -> "dao";
-            default -> "misc";
-        };
+        // Keep the runtime key ASCII-only.  Some legacy saves were written with
+        // mojibake lineage labels, so grouping by the stable technique id avoids
+        // duplicate switch labels and keeps old manuals compatible.
+        return CultivationTechniques.resonanceGroupFor(id);
     }
 
     public int resonanceMeditationBonusPercent() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "clear_origin", "five_elements_return" -> 8;
-            case "water_virtue", "return_to_root" -> 5;
-            case "sword_intent", "heavenly_cycle" -> 6;
-            case "return_nature", "star_forger" -> 7;
-            default -> 0;
-        };
+        return CultivationTechniques.profile(id).resonanceMeditationBonus();
     }
 
     public int drawbackMeditationPercent() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "iron_body", "sword_intent" -> 8;
-            case "void_shadow", "less_private" -> 5;
-            default -> 0;
-        };
+        return CultivationTechniques.profile(id).drawbackMeditationPercent();
     }
 
     public int resonanceTrueQiBonus() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "water_virtue", "five_elements_return" -> 2;
-            case "mysterious_gate", "heavenly_cycle" -> 3;
-            case "return_nature", "star_forger" -> 4;
-            default -> 0;
-        };
+        return CultivationTechniques.profile(id).resonanceTrueQiBonus();
     }
 
     public int drawbackTrueQiCostPercent() {
-        return switch (id.substring(id.indexOf(':') + 1)) {
-            case "iron_body", "sword_intent" -> 12;
-            case "void_shadow", "less_private" -> 8;
-            default -> 0;
-        };
+        return CultivationTechniques.profile(id).drawbackTrueQiCostPercent();
+    }
+
+    public String prerequisiteId() {
+        return CultivationTechniques.profile(id).prerequisiteId();
+    }
+
+    public String sectName() {
+        return CultivationTechniques.profile(id).sect();
+    }
+
+    public String acquisitionLabel() {
+        return CultivationTechniques.profile(id).acquisition();
+    }
+
+    public int exchangeCost() {
+        return CultivationTechniques.profile(id).exchangeCost();
     }
 
     public String relationSummary() {
-        if (isPathLocked()) return "路径锁定：" + requiredPathName();
-        if (isUniversal()) return "通用根基，可与同道共鸣";
-        return "共鸣系：" + resonanceGroupName();
+        String gate = isPathLocked() ? "道途限制：" + requiredPathName() : "通用道途";
+        String prerequisite = prerequisiteId() == null ? "无前置" : "前置：" + prerequisiteName();
+        return gate + " · 宗门：" + sectName() + " · " + resonanceGroupName() + " · " + prerequisite
+                + " · 获取：" + acquisitionLabel();
+    }
+
+    private String prerequisiteName() {
+        CultivationTechnique prerequisite = prerequisiteId() == null ? null
+                : CultivationTechniques.byId("xiuxian:" + prerequisiteId());
+        return prerequisite == null ? prerequisiteId() : prerequisite.displayName();
     }
 
     public String requiredPathName() {

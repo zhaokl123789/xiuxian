@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "group": "xiuxian:advanced_manuals",
-  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:echo_shard" }, { "item": "minecraft:clock" }],
-  "result": { "item": "xiuxian:manual_heavenly_cycle" }
-}

@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "group": "xiuxian:advanced_manuals",
-  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:iron_sword" }, { "item": "minecraft:quartz" }],
-  "result": { "item": "xiuxian:manual_sword_intent" }
-}

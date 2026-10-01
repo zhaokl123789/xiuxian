@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "group": "xiuxian:advanced_manuals",
-  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:nether_star" }, { "item": "minecraft:iron_ingot" }],
-  "result": { "item": "xiuxian:manual_star_forger" }
-}

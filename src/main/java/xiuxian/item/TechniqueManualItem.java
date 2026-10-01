@@ -28,6 +28,13 @@ public class TechniqueManualItem extends Item {
     }
 
     @Override
+    public Component getName(ItemStack stack) {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return technique == null ? super.getName(stack)
+                : Component.literal("《" + technique.displayName() + "》");
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, net.minecraft.world.entity.player.Player player,
                                                    InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
@@ -104,6 +111,13 @@ public class TechniqueManualItem extends Item {
                     + "\uff1b\u5171\u9e23\u5410\u7eb3 +" + technique.resonanceMeditationBonusPercent() + "%"
                     + "\uff1b\u8fd0\u8f6c\u51cf\u76ca " + technique.drawbackMeditationPercent() + "%"));
             lines.add(Component.literal(technique.effectSummary()));
+            if (technique.prerequisiteId() != null) {
+                CultivationTechnique prerequisite = CultivationTechniques.byId("xiuxian:" + technique.prerequisiteId());
+                lines.add(Component.literal("前置传承：" + (prerequisite == null ? technique.prerequisiteId()
+                        : "《" + prerequisite.displayName() + "》")));
+            }
+            lines.add(Component.literal("获取渠道：" + technique.acquisitionLabel()
+                    + (technique.exchangeCost() > 0 ? " · 兑换灵石：" + technique.exchangeCost() : "")));
             lines.add(Component.literal("\u53f3\u952e\u5c55\u5377\u9605\u8bfb\uff0c\u8e72\u4e0b\u52a0\u53f3\u952e\u9759\u5fc3\u53c2\u609f\u3002"));
         }
     }

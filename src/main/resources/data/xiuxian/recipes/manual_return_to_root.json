@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "group": "xiuxian:fetal_breath_manuals",
-  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:amethyst_shard" }, { "item": "minecraft:azure_bluet" }],
-  "result": { "item": "xiuxian:manual_return_to_root" }
-}

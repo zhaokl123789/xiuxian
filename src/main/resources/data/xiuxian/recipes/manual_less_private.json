@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "group": "xiuxian:fetal_breath_manuals",
-  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:bamboo" }, { "item": "minecraft:emerald" }],
-  "result": { "item": "xiuxian:manual_less_private" }
-}

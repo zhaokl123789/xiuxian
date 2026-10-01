@@ -12,7 +12,11 @@ import net.minecraftforge.registries.RegistryObject;
 import xiuxian.block.XiuxianBlocks;
 import xiuxian.cultivation.CultivationTechniques;
 import xiuxian.cultivation.CultivationRealm;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class XiuxianItems {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "xiuxian");
@@ -122,12 +126,43 @@ public final class XiuxianItems {
     public static final RegistryObject<Item> VOID_SHADOW_MANUAL = manual("manual_void_shadow", CultivationTechniques.VOID_SHADOW);
     public static final RegistryObject<Item> HEAVENLY_CYCLE_MANUAL = manual("manual_heavenly_cycle", CultivationTechniques.HEAVENLY_CYCLE);
     public static final RegistryObject<Item> STAR_FORGER_MANUAL = manual("manual_star_forger", CultivationTechniques.STAR_FORGER);
-    public static final List<RegistryObject<Item>> CULTIVATION_MANUALS = List.of(
+    private static final Set<String> LEGACY_MANUAL_IDS = Set.of(
+            "xiuxian:basic_breathing", "xiuxian:clear_origin", "xiuxian:wuwei_breath",
+            "xiuxian:embrace_one", "xiuxian:valley_spirit", "xiuxian:water_virtue",
+            "xiuxian:return_to_root", "xiuxian:mysterious_gate", "xiuxian:less_private",
+            "xiuxian:female_spirit", "xiuxian:know_stop", "xiuxian:return_nature",
+            "xiuxian:five_elements_return", "xiuxian:sword_intent", "xiuxian:iron_body",
+            "xiuxian:void_shadow", "xiuxian:heavenly_cycle", "xiuxian:star_forger");
+    private static final List<RegistryObject<Item>> EXTENDED_CULTIVATION_MANUALS =
+            CultivationTechniques.all().stream()
+                    .filter(technique -> !LEGACY_MANUAL_IDS.contains(technique.id()))
+                    .map(technique -> manual("manual_" + technique.id().substring(technique.id().indexOf(':') + 1), technique))
+                    .toList();
+    public static final List<RegistryObject<Item>> CULTIVATION_MANUALS = combineManuals(
             BASIC_BREATHING_MANUAL, CLEAR_ORIGIN_MANUAL, WUWEI_BREATH_MANUAL, EMBRACE_ONE_MANUAL,
             VALLEY_SPIRIT_MANUAL, WATER_VIRTUE_MANUAL, RETURN_TO_ROOT_MANUAL, MYSTERIOUS_GATE_MANUAL,
             LESS_PRIVATE_MANUAL, FEMALE_SPIRIT_MANUAL, KNOW_STOP_MANUAL, RETURN_NATURE_MANUAL,
             FIVE_ELEMENTS_RETURN_MANUAL, SWORD_INTENT_MANUAL, IRON_BODY_MANUAL,
             VOID_SHADOW_MANUAL, HEAVENLY_CYCLE_MANUAL, STAR_FORGER_MANUAL);
+    private static final Map<String, RegistryObject<Item>> MANUALS_BY_TECHNIQUE = indexManuals();
+
+    private static List<RegistryObject<Item>> combineManuals(RegistryObject<Item>... legacy) {
+        List<RegistryObject<Item>> result = new ArrayList<>(List.of(legacy));
+        result.addAll(EXTENDED_CULTIVATION_MANUALS);
+        return List.copyOf(result);
+    }
+
+    private static Map<String, RegistryObject<Item>> indexManuals() {
+        Map<String, RegistryObject<Item>> result = new LinkedHashMap<>();
+        for (int i = 0; i < CultivationTechniques.all().size(); i++) {
+            result.put(CultivationTechniques.all().get(i).id(), CULTIVATION_MANUALS.get(i));
+        }
+        return Map.copyOf(result);
+    }
+
+    public static RegistryObject<Item> manualForTechnique(String techniqueId) {
+        return MANUALS_BY_TECHNIQUE.get(techniqueId);
+    }
 
     private XiuxianItems() {}
 

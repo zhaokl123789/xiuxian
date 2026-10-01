@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "group": "xiuxian:fetal_breath_manuals",
-  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:brown_mushroom" }, { "item": "minecraft:iron_nugget" }],
-  "result": { "item": "xiuxian:manual_return_nature" }
-}

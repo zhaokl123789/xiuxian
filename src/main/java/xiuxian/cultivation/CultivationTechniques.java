@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.util.RandomSource;
 
 /** Original manuals plus several linked lineages for combat, body and void cultivation. */
 public final class CultivationTechniques {
@@ -99,12 +100,79 @@ public final class CultivationTechniques {
             CultivationRealm.DAO_TAI, 9, 202, CultivationTechnique.Aptitude.COMPREHENSION, 68,
             0.03F, 18.0D, 130, 380, 8, 1.35F, 12, 0.01D, "铸魂", "星火", "神魂");
 
-    public static final List<CultivationTechnique> ALL = List.of(
+    /**
+     * The Purple Mansion / Golden Core line now has a real catalogue instead
+     * of a handful of placeholder manuals.  Each seed is an independent
+     * inheritance.  A seed carries its sect/path gate, lineage and acquisition
+     * channel; the numeric values are expanded into a complete technique below.
+     */
+    private static final List<TechniqueSeed> EXTENDED_SEEDS = List.of(
+            seed("azurewood_return", "青木回春诀", CultivationRealm.QI_REFINING, CultivationRealm.DAO_TAI, "sect", "青木宗", "木脉", "clear_origin", "宗门兑换", 180),
+            seed("scarlet_sun_script", "赤霄炼阳篇", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, "sect", "赤霄宫", "火脉", "wuwei_breath", "宗门兑换", 260),
+            seed("taie_pure_void", "太乙清微经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "太乙门", "清微", "mysterious_gate", "宗门兑换", 420),
+            seed("purple_thunder_register", "紫霄雷府经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "紫霄府", "雷脉", "sword_intent", "奇遇传承", 0),
+            seed("golden_watch_sword", "金阙剑章", CultivationRealm.QI_REFINING, CultivationRealm.DAO_TAI, "sect", "金阙剑宗", "剑道", "sword_intent", "宗门兑换", 320),
+            seed("plain_mystic_gate", "太素玄门诀", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, "sect", "太素宗", "太素", "five_elements_return", "宗门兑换", 240),
+            seed("north_sea_true_water", "北冥真水诀", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, "sect", "北冥水府", "水脉", "water_virtue", "奇遇传承", 0),
+            seed("nine_yang_heavenly_gang", "九曜天罡录", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "九曜宫", "星辰", "heavenly_cycle", "宗门兑换", 500),
+            seed("mysterious_mountain_suppress", "玄都镇岳功", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.GOLDEN_CORE, "sect", "玄都山", "厚土", "iron_body", "宗门兑换", 280),
+            seed("pill_cauldron_origin", "丹鼎养元经", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, "sect", "丹鼎院", "丹道", "valley_spirit", "宗门兑换", 220),
+            seed("spirit_platform_visualize", "灵台观想法", CultivationRealm.QI_REFINING, CultivationRealm.DAO_TAI, "sect", "灵台寺", "神魂", "embrace_one", "奇遇传承", 0),
+            seed("evergreen_wood", "乙木长生经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "青木宗", "木脉", "azurewood_return", "宗门兑换", 620),
+            seed("away_fire_burning_sky", "离火焚天经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "赤霄宫", "火脉", "scarlet_sun_script", "宗门兑换", 680),
+            seed("geng_metal_soul_cleave", "庚金斩魄诀", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "金阙剑宗", "剑道", "golden_watch_sword", "宗门兑换", 720),
+            seed("kan_water_tide_song", "坎水听潮诀", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "北冥水府", "水脉", "north_sea_true_water", "宗门兑换", 640),
+            seed("wu_earth_thick_load", "戊土厚载经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "玄都山", "厚土", "mysterious_mountain_suppress", "宗门兑换", 610),
+            seed("two_rituals_transformation", "两仪化生经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "太乙门", "两仪", "taie_pure_void", "宗门兑换", 760),
+            seed("three_talents_origin", "三才归元篇", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "太素宗", "三才", "plain_mystic_gate", "奇遇传承", 0),
+            seed("four_symbols_soul_guard", "四象镇魂录", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "灵台寺", "神魂", "spirit_platform_visualize", "宗门兑换", 880),
+            seed("five_thunder_true_register", "五雷正法", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "紫霄府", "雷脉", "purple_thunder_register", "奇遇传承", 0),
+            seed("jade_pure_cave_script", "玉清洞玄经", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "太乙门", "清微", "two_rituals_transformation", "宗门兑换", 960),
+            seed("star_dipper_mystery", "太微星斗经", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "九曜宫", "星辰", "nine_yang_heavenly_gang", "宗门兑换", 1100),
+            seed("purple_mansion_nourish_soul", "紫府养神篇", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "sect", "灵台寺", "神魂", "spirit_platform_visualize", "宗门兑换", 520),
+            seed("golden_core_jade_fluid", "金丹玉液经", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "丹鼎院", "丹道", "pill_cauldron_origin", "宗门兑换", 1000),
+            seed("pure_yang_temper_form", "纯阳炼形篇", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "赤霄宫", "火脉", "away_fire_burning_sky", "奇遇传承", 0),
+            seed("lunar_soul_condense", "太阴凝魄诀", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "sect", "北冥水府", "水脉", "kan_water_tide_song", "奇遇传承", 0),
+            seed("cloud_drifts_free", "流云散手诀", CultivationRealm.QI_REFINING, CultivationRealm.DAO_TAI, "wanderer", "散修盟", "身法", "wuwei_breath", "散修集市", 150),
+            seed("smoke_cloud_escape", "烟霞遁法", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, "wanderer", "散修盟", "遁法", "cloud_drifts_free", "奇遇传承", 0),
+            seed("white_bone_sha", "白骨养煞经", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, "wanderer", "白骨洞", "煞道", "iron_body", "奇遇传承", 0),
+            seed("chaotic_star_shift", "乱星换位术", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "星盗会", "星辰", "void_shadow", "散修集市", 580),
+            seed("cold_river_moon_hook", "寒江钓月功", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.GOLDEN_CORE, "wanderer", "寒江客", "水脉", "water_virtue", "散修集市", 300),
+            seed("earth_hide_blade", "厚土藏锋诀", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.GOLDEN_CORE, "wanderer", "玄岩寨", "厚土", "iron_body", "散修集市", 280),
+            seed("formless_roaming", "无相游身篇", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "无相门", "身法", "cloud_drifts_free", "奇遇传承", 0),
+            seed("thousand_li_wind_listen", "千里听风诀", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "听风楼", "风脉", "female_spirit", "散修集市", 520),
+            seed("scarlet_blood_temper", "赤血淬骨法", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.GOLDEN_CORE, "wanderer", "血河寨", "体修", "iron_body", "奇遇传承", 0),
+            seed("lunar_hidden_form", "太阴匿形经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "幽月楼", "遁法", "void_shadow", "散修集市", 700),
+            seed("karma_cleave_blade", "斩业刀经", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "wanderer", "断业客", "刀道", "less_private", "奇遇传承", 0),
+            seed("hundred_poison_temper", "百毒炼身诀", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.GOLDEN_CORE, "wanderer", "万毒谷", "毒道", "iron_body", "散修集市", 360),
+            seed("carefree_wind_drive", "逍遥御风篇", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "逍遥客", "风脉", "female_spirit", "散修集市", 760),
+            seed("nether_soul_capture", "幽冥摄魂录", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "wanderer", "幽冥渡", "神魂", "star_forger", "奇遇传承", 0),
+            seed("yellow_spring_crossing", "黄泉渡厄经", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "wanderer", "黄泉客", "水脉", "lunar_soul_condense", "奇遇传承", 0),
+            seed("dragon_gate_transform", "龙门化蛟诀", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "龙门散人", "水脉", "north_sea_true_water", "奇遇传承", 0),
+            seed("phoenix_nine_heavens", "凤鸣九天经", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "wanderer", "凤鸣客", "火脉", "pure_yang_temper_form", "奇遇传承", 0),
+            seed("heavenly_machination", "天机推演录", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "天机阁", "推演", "know_stop", "散修集市", 900),
+            seed("mountain_sea_forgetfulness", "山海忘忧诀", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "wanderer", "忘忧谷", "道心", "return_nature", "奇遇传承", 0),
+            seed("red_dust_refine_heart", "红尘炼心篇", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, "wanderer", "红尘客栈", "道心", "less_private", "散修集市", 620),
+            seed("void_seal_return", "虚空归藏法", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, "wanderer", "虚空行者", "太虚", "void_shadow", "奇遇传承", 0),
+            seed("universal_nine_turns", "九转混元功", CultivationRealm.FOUNDATION_ESTABLISHMENT, CultivationRealm.DAO_TAI, null, "无主传承", "混元", "five_elements_return", "奇遇传承", 0),
+            seed("innate_one_qi", "先天一炁经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, null, "古仙遗府", "混元", "universal_nine_turns", "奇遇传承", 0),
+            seed("great_dao_simple", "大道至简录", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, null, "古仙遗府", "混元", "innate_one_qi", "奇遇传承", 0));
+
+    private static final List<CultivationTechnique> EXTENDED = EXTENDED_SEEDS.stream()
+            .map(CultivationTechniques::fromSeed).toList();
+
+    public static List<CultivationTechnique> ALL = List.of(
             BASIC_BREATHING, CLEAR_ORIGIN, WUWEI_BREATH, EMBRACE_ONE, VALLEY_SPIRIT,
             WATER_VIRTUE, RETURN_TO_ROOT, MYSTERIOUS_GATE, LESS_PRIVATE, FEMALE_SPIRIT,
             KNOW_STOP, RETURN_NATURE, FIVE_ELEMENTS_RETURN, SWORD_INTENT, IRON_BODY,
             VOID_SHADOW, HEAVENLY_CYCLE, STAR_FORGER);
+    static {
+        java.util.ArrayList<CultivationTechnique> expanded = new java.util.ArrayList<>(ALL);
+        expanded.addAll(EXTENDED);
+        ALL = List.copyOf(expanded);
+    }
     private static final Map<String, CultivationTechnique> TECHNIQUES = createIndex();
+    private static final Map<String, TechniqueProfile> PROFILES = createProfiles();
 
     private CultivationTechniques() {}
 
@@ -114,6 +182,126 @@ public final class CultivationTechniques {
 
     public static List<CultivationTechnique> all() {
         return ALL;
+    }
+
+    public record TechniqueProfile(String requiredPath, String sect, String lineage,
+                                   boolean universal, String prerequisiteId,
+                                   String acquisition, int exchangeCost,
+                                   int resonanceMeditationBonus, int resonanceTrueQiBonus,
+                                   int drawbackMeditationPercent, int drawbackTrueQiCostPercent) {
+        public boolean isAdventure() {
+            return "奇遇传承".equals(acquisition);
+        }
+    }
+
+    private record TechniqueSeed(String id, String name, CultivationRealm minimum,
+                                 CultivationRealm maximum, String requiredPath, String sect,
+                                 String lineage, String prerequisiteId, String acquisition,
+                                 int exchangeCost) {}
+
+    private static TechniqueSeed seed(String id, String name, CultivationRealm minimum,
+                                      CultivationRealm maximum, String requiredPath, String sect,
+                                      String lineage, String prerequisiteId, String acquisition,
+                                      int exchangeCost) {
+        return new TechniqueSeed(id, name, minimum, maximum, requiredPath, sect, lineage,
+                prerequisiteId, acquisition, exchangeCost);
+    }
+
+    private static CultivationTechnique fromSeed(TechniqueSeed seed) {
+        int i = EXTENDED_SEEDS.indexOf(seed);
+        CultivationTechnique.Aptitude aptitude = CultivationTechnique.Aptitude.values()[i % 4];
+        return special(seed.id, seed.name,
+                seed.sect + "所传，道统以" + seed.lineage + "为本，重在紫府立道、金丹定品。",
+                "依" + seed.lineage + "行周天，先纳灵机，再以神念收束；" +
+                        (i % 2 == 0 ? "行功稳健而擅长久战。" : "爆发凌厉但真炁消耗更重。"),
+                seed.minimum, seed.maximum, 3 + i % 7, 146 + i * 3, aptitude,
+                72 + i % 40, 0.02F + (i % 6) * 0.012F, 4.0D + i * 0.8D,
+                100 + (i % 9) * 10, 72 + i * 11, 2 + i % 8,
+                1.03F + (i % 6) * 0.045F, i % 9, 0.005D + (i % 6) * 0.006D,
+                seed.lineage, seed.lineage, (i % 3 == 0 ? "蓄势" : i % 3 == 1 ? "攻守" : "机变"));
+    }
+
+    private static Map<String, TechniqueProfile> createProfiles() {
+        Map<String, TechniqueProfile> profiles = new LinkedHashMap<>();
+        for (TechniqueSeed seed : EXTENDED_SEEDS) {
+            int i = EXTENDED_SEEDS.indexOf(seed);
+            profiles.put("xiuxian:" + seed.id, new TechniqueProfile(seed.requiredPath, seed.sect,
+                    seed.lineage, seed.requiredPath == null, emptyToNull(seed.prerequisiteId),
+                    seed.acquisition, seed.exchangeCost, 3 + i % 7, 1 + i % 4,
+                    i % 5 == 0 ? 6 : 0, i % 7 == 0 ? 8 : 0));
+        }
+        profiles.put("xiuxian:basic_breathing", new TechniqueProfile(null, "散修与宗门共传", "根基", true, null, "初始传承", 0, 0, 0, 0, 0));
+        profiles.put("xiuxian:clear_origin", new TechniqueProfile(null, "散修与宗门共传", "根基", true, "basic_breathing", "散修集市", 120, 8, 0, 0, 0));
+        profiles.put("xiuxian:wuwei_breath", new TechniqueProfile(null, "散修与宗门共传", "根基", true, "clear_origin", "散修集市", 140, 0, 0, 0, 0));
+        profiles.put("xiuxian:embrace_one", new TechniqueProfile(null, "散修与宗门共传", "根基", true, "clear_origin", "宗门兑换", 150, 0, 0, 0, 0));
+        profiles.put("xiuxian:valley_spirit", new TechniqueProfile(null, "散修与宗门共传", "肉身", true, "embrace_one", "宗门兑换", 180, 0, 0, 0, 0));
+        profiles.put("xiuxian:water_virtue", new TechniqueProfile(null, "北冥水府", "肉身", false, "valley_spirit", "宗门兑换", 220, 5, 2, 0, 0));
+        profiles.put("xiuxian:return_to_root", new TechniqueProfile(null, "散修与宗门共传", "肉身", true, "valley_spirit", "奇遇传承", 0, 5, 0, 0, 0));
+        profiles.put("xiuxian:mysterious_gate", new TechniqueProfile(null, "太乙门", "太虚", false, "return_to_root", "宗门兑换", 260, 0, 3, 0, 0));
+        profiles.put("xiuxian:less_private", new TechniqueProfile(null, "散修与宗门共传", "道心", true, "mysterious_gate", "散修集市", 300, 0, 0, 5, 8));
+        profiles.put("xiuxian:female_spirit", new TechniqueProfile(null, "散修与宗门共传", "道心", true, "less_private", "散修集市", 320, 0, 0, 0, 0));
+        profiles.put("xiuxian:know_stop", new TechniqueProfile(null, "散修与宗门共传", "道心", true, "female_spirit", "宗门兑换", 340, 0, 0, 0, 0));
+        profiles.put("xiuxian:return_nature", new TechniqueProfile(null, "散修与宗门共传", "道心", true, "know_stop", "奇遇传承", 0, 7, 4, 0, 0));
+        profiles.put("xiuxian:five_elements_return", new TechniqueProfile(null, "太素宗", "根基", true, "embrace_one", "宗门兑换", 260, 8, 2, 0, 0));
+        profiles.put("xiuxian:sword_intent", new TechniqueProfile("sect", "金阙剑宗", "剑道", false, "clear_origin", "宗门兑换", 300, 6, 0, 8, 12));
+        profiles.put("xiuxian:iron_body", new TechniqueProfile("wanderer", "玄岩寨", "肉身", false, "valley_spirit", "散修集市", 260, 0, 0, 8, 12));
+        profiles.put("xiuxian:void_shadow", new TechniqueProfile("wanderer", "虚空行者", "太虚", false, "mysterious_gate", "奇遇传承", 0, 0, 0, 5, 8));
+        profiles.put("xiuxian:heavenly_cycle", new TechniqueProfile("sect", "九曜宫", "星辰", false, "mysterious_gate", "宗门兑换", 360, 6, 3, 0, 0));
+        profiles.put("xiuxian:star_forger", new TechniqueProfile("wanderer", "星盗会", "神魂", false, "heavenly_cycle", "奇遇传承", 0, 7, 4, 0, 0));
+        return profiles;
+    }
+
+    private static String emptyToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
+    }
+
+    public static TechniqueProfile profile(String id) {
+        TechniqueProfile profile = PROFILES.get(id);
+        return profile == null ? new TechniqueProfile(null, "无名传承", "混元", true,
+                null, "奇遇传承", 0, 0, 0, 0, 0) : profile;
+    }
+
+    /**
+     * Stable resonance buckets used by the stat system.  The original data
+     * predates the extended catalogue and contains localized lineage labels;
+     * ids are the only representation that stays stable across save files.
+     */
+    public static String resonanceGroupFor(String id) {
+        String key = id == null ? "" : id.substring(id.indexOf(':') + 1);
+        return switch (key) {
+            case "basic_breathing", "clear_origin", "wuwei_breath", "embrace_one",
+                    "five_elements_return", "azurewood_return", "scarlet_sun_script",
+                    "taie_pure_void", "plain_mystic_gate", "pill_cauldron_origin",
+                    "universal_nine_turns", "innate_one_qi", "great_dao_simple" -> "foundation";
+            case "valley_spirit", "water_virtue", "return_to_root", "iron_body",
+                    "north_sea_true_water", "mysterious_mountain_suppress", "wu_earth_thick_load",
+                    "cold_river_moon_hook", "earth_hide_blade", "white_bone_sha",
+                    "scarlet_blood_temper", "hundred_poison_temper", "dragon_gate_transform" -> "body";
+            case "mysterious_gate", "void_shadow", "heavenly_cycle", "star_forger",
+                    "purple_thunder_register", "nine_yang_heavenly_gang", "two_rituals_transformation",
+                    "five_thunder_true_register", "jade_pure_cave_script", "star_dipper_mystery",
+                    "chaotic_star_shift", "smoke_cloud_escape", "lunar_hidden_form",
+                    "void_seal_return", "thousand_li_wind_listen", "carefree_wind_drive" -> "void";
+            case "less_private", "female_spirit", "know_stop", "return_nature", "sword_intent",
+                    "golden_watch_sword", "geng_metal_soul_cleave", "spirit_platform_visualize",
+                    "four_symbols_soul_guard", "purple_mansion_nourish_soul", "golden_core_jade_fluid",
+                    "pure_yang_temper_form", "lunar_soul_condense", "cloud_drifts_free",
+                    "formless_roaming", "karma_cleave_blade", "nether_soul_capture",
+                    "yellow_spring_crossing", "phoenix_nine_heavens", "heavenly_machination",
+                    "mountain_sea_forgetfulness", "red_dust_refine_heart" -> "dao";
+            default -> "misc";
+        };
+    }
+
+    public static CultivationTechnique randomAdventureTechnique(CultivationData data, RandomSource random) {
+        if (data == null || !data.isInitialized()) return null;
+        List<CultivationTechnique> candidates = ALL.stream()
+                .filter(t -> profile(t.id()).isAdventure())
+                .filter(t -> t.canBeLearnedAt(data.realm()))
+                .filter(t -> t.isCompatibleWithPath(data.cultivationPath()))
+                .filter(t -> !data.hasLearnedTechnique(t.id()))
+                .toList();
+        return candidates.isEmpty() ? null : candidates.get(random.nextInt(candidates.size()));
     }
 
     /** Returns manuals that fit the cultivator's current realm and aptitude. */
@@ -128,6 +316,9 @@ public final class CultivationTechniques {
         CultivationRealm realm = data.realm();
         return ALL.stream()
                 .filter(technique -> technique.canBeLearnedAt(realm))
+                .filter(technique -> technique.isCompatibleWithPath(data.cultivationPath()))
+                .filter(technique -> technique.prerequisiteId() == null
+                        || data.hasLearnedTechnique("xiuxian:" + technique.prerequisiteId()))
                 .filter(technique -> !data.hasLearnedTechnique(technique.id()))
                 .sorted(Comparator.comparingInt((CultivationTechnique technique) ->
                         recommendationScore(technique, realm, spiritualRoot, constitution,

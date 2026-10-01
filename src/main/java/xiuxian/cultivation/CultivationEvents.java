@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.BlockPos;
@@ -253,6 +254,10 @@ public class CultivationEvents {
                 .then(Commands.literal("identity").executes(context -> identity(context.getSource())))
                 .then(Commands.literal("status").executes(context -> status(context.getSource())))
                 .then(Commands.literal("techniques").executes(context -> techniques(context.getSource())))
+                .then(Commands.literal("exchange")
+                        .then(Commands.argument("technique", StringArgumentType.word())
+                                .executes(context -> exchangeTechnique(context.getSource(),
+                                        StringArgumentType.getString(context, "technique")))))
                 .then(Commands.literal("meditate").executes(context -> toggleMeditation(context.getSource())))
                 .then(Commands.literal("breakthrough").executes(context -> breakthrough(context.getSource())))
                 .then(Commands.literal("return").executes(context -> returnFromTaixu(context.getSource())))
@@ -373,7 +378,24 @@ public class CultivationEvents {
                 && (event.getFrom().equals(TAIXU_LEVEL) || TaixuDimension.isTaixu(player.level()))) {
             TaixuDimension.onDimensionChanged(player);
             DIMENSION_SYNC_TICKS.put(player.getUUID(), 8);
+            if (TaixuDimension.isTaixu(player.level())) {
+                discoverTaixuInheritance(player);
+            }
         }
+    }
+
+    private static void discoverTaixuInheritance(ServerPlayer player) {
+        CultivationData data = TaixuDimension.recoverTripData(player);
+        if (data == null || !data.isInitialized() || player.getRandom().nextInt(100) >= 18) return;
+        CultivationTechnique technique = CultivationTechniques.randomAdventureTechnique(data, player.getRandom());
+        if (technique == null) return;
+        var manual = XiuxianItems.manualForTechnique(technique.id());
+        if (manual == null) return;
+        ItemStack stack = new ItemStack(manual.get());
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
+        player.sendSystemMessage(Component.literal("太虚深处浮出一卷残金古册：你获得奇遇传承《"
+                + technique.displayName() + "》。"));
+        player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.7F, 1.2F);
     }
 
     private static int returnFromTaixu(CommandSourceStack source) throws CommandSyntaxException {
@@ -427,7 +449,6 @@ public class CultivationEvents {
         if (family.receivesStartingManual(path)) {
             giveStartingItem(player, new ItemStack(XiuxianItems.BASIC_BREATHING_MANUAL.get()));
         }
-
         switch (family) {
             case MORTAL -> {
                 giveStartingItem(player, new ItemStack(Items.WOODEN_PICKAXE));
@@ -480,6 +501,79 @@ public class CultivationEvents {
         } else if (technique.elementalAffinity().equals("金")) {
             event.setAmount(event.getAmount() * 1.15F);
         }
+    }
+
+    private static int exchangeTechnique(CommandSourceStack source, String rawId) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        CultivationData data = getData(player);
+        if (data == null || !data.isInitialized()) {
+            source.sendFailure(Component.literal("尚未确立修行身份，无法兑换传承。"));
+            return 0;
+        }
+        String id = rawId.startsWith("xiuxian:") ? rawId : "xiuxian:" + rawId;
+        CultivationTechnique technique = CultivationTechniques.byId(id);
+        if (technique == null) {
+            source.sendFailure(Component.literal("没有找到这门功法，使用功法短名查询，例如 azurewood_return。"));
+            return 0;
+        }
+        if (technique.exchangeCost() <= 0) {
+            source.sendFailure(Component.literal("《" + technique.displayName() + "》只会在奇遇中出现，不能通过兑换获得。"));
+            return 0;
+        }
+        if (!technique.isCompatibleWithPath(data.cultivationPath())) {
+            source.sendFailure(Component.literal("你的道途不承认《" + technique.displayName() + "》，它属于"
+                    + technique.sectName() + "。"));
+            return 0;
+        }
+        if (!technique.canBeLearnedAt(data.realm())) {
+            source.sendFailure(Component.literal("当前境界还无法承载《" + technique.displayName() + "》。"));
+            return 0;
+        }
+        if (data.prerequisiteMissing(technique)) {
+            source.sendFailure(Component.literal("兑换《" + technique.displayName() + "》需要先掌握前置传承。"));
+            return 0;
+        }
+        if (data.hasLearnedTechnique(technique.id())) {
+            source.sendFailure(Component.literal("你已经掌握《" + technique.displayName() + "》。"));
+            return 0;
+        }
+        if (!consumeSpiritStones(player, technique.exchangeCost())) {
+            source.sendFailure(Component.literal("灵石不足，需要 " + technique.exchangeCost() + " 枚灵石。"));
+            return 0;
+        }
+        var manual = XiuxianItems.manualForTechnique(technique.id());
+        if (manual == null) {
+            source.sendFailure(Component.literal("这门功法的传承卷尚未落册。"));
+            return 0;
+        }
+        ItemStack stack = new ItemStack(manual.get());
+        if (!player.getInventory().add(stack)) player.drop(stack, false);
+        source.sendSuccess(() -> Component.literal("你以灵石向" + technique.sectName() + "换得《"
+                + technique.displayName() + "》，请手持典籍蹲下参悟。"), false);
+        return 1;
+    }
+
+    private static boolean consumeSpiritStones(ServerPlayer player, int cost) {
+        int remaining = cost;
+        int[] values = {64, 16, 4, 1};
+        net.minecraft.world.item.Item[] items = {
+                XiuxianItems.SUPREME_SPIRIT_STONE.get(), XiuxianItems.HIGH_SPIRIT_STONE.get(),
+                XiuxianItems.MID_SPIRIT_STONE.get(), XiuxianItems.SPIRIT_STONE.get()};
+        for (int i = 0; i < items.length; i++) {
+            remaining -= player.getInventory().countItem(items[i]) * values[i];
+        }
+        if (remaining > 0) return false;
+        remaining = cost;
+        for (int i = 0; i < items.length && remaining > 0; i++) {
+            for (int slot = 0; slot < player.getInventory().items.size() && remaining > 0; slot++) {
+                ItemStack stack = player.getInventory().items.get(slot);
+                if (!stack.is(items[i])) continue;
+                int take = Math.min(stack.getCount(), (remaining + values[i] - 1) / values[i]);
+                stack.shrink(take);
+                remaining -= take * values[i];
+            }
+        }
+        return true;
     }
 
     private static int status(CommandSourceStack source) throws CommandSyntaxException {

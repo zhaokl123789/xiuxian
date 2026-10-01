@@ -378,6 +378,11 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return learnedTechniqueIds.contains(id);
     }
 
+    public boolean prerequisiteMissing(CultivationTechnique technique) {
+        return technique != null && technique.prerequisiteId() != null
+                && !learnedTechniqueIds.contains("xiuxian:" + technique.prerequisiteId());
+    }
+
     /** Selects a previously learned manual without discarding the other lineages. */
     public boolean activateTechnique(String id) {
         CultivationTechnique technique = CultivationTechniques.byId(id);
@@ -393,7 +398,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public boolean learnTechnique(String id) {
         CultivationTechnique technique = CultivationTechniques.byId(id);
         if (technique == null || !technique.canBeLearnedAt(realm)
-                || !technique.isCompatibleWithPath(cultivationPath)) {
+                || !technique.isCompatibleWithPath(cultivationPath)
+                || prerequisiteMissing(technique)) {
             return false;
         }
         learnedTechniqueIds.add(id);
@@ -431,7 +437,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         CultivationTechnique technique = CultivationTechniques.byId(id);
         if (!initialized || meditating || isStudyingTechnique() || hasLearnedTechnique(id)
                 || technique == null || !technique.canBeLearnedAt(realm)
-                || !technique.isCompatibleWithPath(cultivationPath)) {
+                || !technique.isCompatibleWithPath(cultivationPath)
+                || prerequisiteMissing(technique)) {
             return false;
         }
         studyingTechniqueId = id;
