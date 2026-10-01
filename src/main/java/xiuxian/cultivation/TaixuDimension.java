@@ -210,9 +210,9 @@ public final class TaixuDimension {
         CultivationData returnedData = recoverTripData(traveler, null, tripSnapshot);
         if (returnedData != null && returnedData.isInitialized()) {
             returnedData.clearTaixuAnchor();
-            XiuxianNetwork.syncCultivation(traveler, returnedData);
-            clearTripSnapshot(traveler);
         }
+        clearTripSnapshot(traveler);
+        if (returnedData != null) XiuxianNetwork.syncCultivation(traveler, returnedData);
         traveler.getAbilities().mayfly = restoreMayfly;
         traveler.getAbilities().flying = restoreMayfly && restoreFlying;
         traveler.getAbilities().setFlyingSpeed(flyingSpeed);
@@ -253,26 +253,26 @@ public final class TaixuDimension {
             savePersistentState(player, data);
             return data;
         }
-        // Outside the transfer callback, the live capability is authoritative.
-        // Keep a second durable copy so a freshly attached capability can be
-        // restored before any gameplay checks run.
+        CompoundTag persistentData = player.getPersistentData();
+        CompoundTag snapshot = null;
+        if (isTaixu(player.level())
+                && persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
+                && persistentData.getCompound(TRIP_SNAPSHOT).getBoolean("initialized")) {
+            snapshot = persistentData.getCompound(TRIP_SNAPSHOT);
+        } else if (persistentData.contains(CULTIVATION_STATE, Tag.TAG_COMPOUND)
+                && persistentData.getCompound(CULTIVATION_STATE).getBoolean("initialized")) {
+            snapshot = persistentData.getCompound(CULTIVATION_STATE);
+        }
+
+        // Realm progression is monotonic during normal play. If a stale
+        // initialized capability survived a transfer, prefer the durable copy
+        // only when it demonstrably contains later progression.
         if (data != null && data.isInitialized()) {
+            if (snapshot != null && isMoreAdvanced(snapshot, data)) {
+                data.deserializeNBT(snapshot.copy());
+            }
             savePersistentState(player, data);
             return data;
-        }
-        // The persistent trip snapshot is only authoritative while the player is
-        // actually in Taixu.  Reading it in the overworld can resurrect an old
-        // trip and make the entry check see a stale realm.
-        CompoundTag snapshot = fallbackSnapshot;
-        if (snapshot == null || !snapshot.getBoolean("initialized")) {
-            CompoundTag persistentData = player.getPersistentData();
-            if (isTaixu(player.level())
-                    && persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
-                    && persistentData.getCompound(TRIP_SNAPSHOT).getBoolean("initialized")) {
-                snapshot = persistentData.getCompound(TRIP_SNAPSHOT);
-            } else if (persistentData.contains(CULTIVATION_STATE, Tag.TAG_COMPOUND)) {
-                snapshot = persistentData.getCompound(CULTIVATION_STATE);
-            }
         }
         if (data != null && snapshot != null && snapshot.getBoolean("initialized")) {
             data.deserializeNBT(snapshot.copy());
@@ -281,6 +281,14 @@ public final class TaixuDimension {
             savePersistentState(player, data);
         }
         return data;
+    }
+
+    private static boolean isMoreAdvanced(CompoundTag snapshot, CultivationData data) {
+        CultivationRealm savedRealm = CultivationRealm.byId(snapshot.getString("realm"));
+        if (savedRealm == null) return false;
+        int realmOrder = Integer.compare(savedRealm.ordinal(), data.realm().ordinal());
+        return realmOrder > 0 || (realmOrder == 0
+                && snapshot.getInt("realmLevel") > data.realmLevel());
     }
 
     private static void savePersistentState(ServerPlayer player, CultivationData data) {
@@ -318,8 +326,8 @@ public final class TaixuDimension {
             if (data != null && data.isInitialized()) {
                 CultivationAttributeEffects.applyAndPreserveHealth(player, data);
                 CultivationAttributeEffects.sync(player);
-                XiuxianNetwork.syncCultivation(player, data);
             }
+            if (data != null) XiuxianNetwork.syncCultivation(player, data);
             return;
         }
 

@@ -1,5 +1,8 @@
 package xiuxian.cultivation;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -36,6 +39,7 @@ import xiuxian.item.XiuxianItems;
 public class CultivationEvents {
     private static final ResourceKey<Level> TAIXU_LEVEL = TaixuDimension.LEVEL;
     private static final float TAIXU_FLYING_SPEED = TaixuDimension.FLYING_SPEED;
+    private static final Map<UUID, Integer> DIMENSION_SYNC_TICKS = new HashMap<>();
 
     @SubscribeEvent
     public void attachPlayerData(AttachCapabilitiesEvent<Entity> event) {
@@ -147,6 +151,18 @@ public class CultivationEvents {
             return;
         }
 
+        Integer syncTicks = DIMENSION_SYNC_TICKS.get(player.getUUID());
+        if (syncTicks != null) {
+            CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+            CultivationAttributeEffects.sync(player);
+            XiuxianNetwork.syncCultivation(player, data);
+            if (syncTicks <= 1) {
+                DIMENSION_SYNC_TICKS.remove(player.getUUID());
+            } else {
+                DIMENSION_SYNC_TICKS.put(player.getUUID(), syncTicks - 1);
+            }
+        }
+
         if (TaixuDimension.isTaixu(player.level())) {
             TaixuDimension.ensureTaixuState(player, data);
         } else {
@@ -222,6 +238,7 @@ public class CultivationEvents {
         if (TaixuDimension.isTaixu(player.level())) {
             TaixuDimension.saveTripSnapshot(player, data);
         }
+        TaixuDimension.persistCultivationData(player, data);
     }
 
     @SubscribeEvent
@@ -285,18 +302,14 @@ public class CultivationEvents {
 
     @SubscribeEvent
     public void onUninitializedPlayerBreaksBlock(BlockEvent.BreakEvent event) {
-        if (!isInitialized(event.getPlayer())) {
-            event.setCanceled(true);
-        } else if (event.getPlayer() instanceof ServerPlayer player && isChanneling(player)) {
+        if (event.getPlayer() instanceof ServerPlayer player && isChanneling(player)) {
             interruptChannel(player);
         }
     }
 
     @SubscribeEvent
     public void onUninitializedPlayerInteracts(PlayerInteractEvent event) {
-        if (!isInitialized(event.getEntity()) && event.isCancelable()) {
-            event.setCanceled(true);
-        } else if (event.getEntity() instanceof ServerPlayer player) {
+        if (event.getEntity() instanceof ServerPlayer player) {
             CultivationData data = getData(player);
             if (data != null && data.isMeditating()) {
                 interruptChannel(player);
@@ -306,9 +319,7 @@ public class CultivationEvents {
 
     @SubscribeEvent
     public void onUninitializedPlayerAttacks(AttackEntityEvent event) {
-        if (!isInitialized(event.getEntity())) {
-            event.setCanceled(true);
-        } else if (event.getEntity() instanceof ServerPlayer player && isChanneling(player)) {
+        if (event.getEntity() instanceof ServerPlayer player && isChanneling(player)) {
             interruptChannel(player);
         }
     }
@@ -322,10 +333,6 @@ public class CultivationEvents {
             }
         }
         if (!(event.getEntity() instanceof Player player)) return;
-        if (!isInitialized(player)) {
-            event.setCanceled(true);
-            return;
-        }
         if (!player.level().isClientSide) {
             CultivationData data = getData(player);
             if (data != null) {
@@ -359,6 +366,7 @@ public class CultivationEvents {
         if (event.getEntity() instanceof ServerPlayer player
                 && (event.getFrom().equals(TAIXU_LEVEL) || TaixuDimension.isTaixu(player.level()))) {
             TaixuDimension.onDimensionChanged(player);
+            DIMENSION_SYNC_TICKS.put(player.getUUID(), 8);
         }
     }
 
@@ -968,11 +976,6 @@ public class CultivationEvents {
             level.sendParticles(i % 2 == 0 ? ParticleTypes.ENCHANT : ParticleTypes.END_ROD,
                     x, y, z, 1, 0.0D, 0.02D, 0.0D, 0.01D);
         }
-    }
-
-    private static boolean isInitialized(Player player) {
-        CultivationData data = getData(player);
-        return data != null && data.isInitialized();
     }
 
     private static boolean isChanneling(Player player) {
