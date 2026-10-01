@@ -1,6 +1,11 @@
 package xiuxian.client;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import xiuxian.cultivation.CultivationTechnique;
+import xiuxian.cultivation.CultivationTechniques;
+import xiuxian.cultivation.CultivationRealm;
 import xiuxian.client.screen.IdentityCreationScreen;
 import xiuxian.client.screen.TechniqueBookScreen;
 
@@ -35,6 +40,18 @@ public final class ClientScreens {
                 studyingTechniqueId, techniqueStudyTicks, techniqueStudyDuration, techniqueStudyChance,
                 trueQi, trueQiMaximum, alchemyLevel, alchemyExperience, alchemyExperienceToNextLevel,
                 immortalFoundation, majorBreakthroughFailures);
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null && initialized) {
+            CultivationRealm realm = CultivationClientState.realm();
+            CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+            double expectedMaxHealth = 20.0D + realm.healthBonusAt(CultivationClientState.realmLevel())
+                    + (technique == null ? 0.0D : technique.healthBonus());
+            AttributeInstance health = minecraft.player.getAttribute(Attributes.MAX_HEALTH);
+            if (health != null) {
+                health.setBaseValue(expectedMaxHealth);
+                minecraft.player.setHealth(Math.min(minecraft.player.getHealth(), (float) expectedMaxHealth));
+            }
+        }
     }
 
     public static void openTechniqueBookScreen(String techniqueId) {

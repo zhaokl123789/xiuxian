@@ -18,6 +18,9 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.ITeleporter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import xiuxian.network.XiuxianNetwork;
 
 public final class TaixuDimension {
@@ -29,6 +32,7 @@ public final class TaixuDimension {
     private static final String TRIP_SNAPSHOT = "xiuxian_taixu_cultivation";
     /** Durable fallback for capability instances recreated during a dimension transfer. */
     private static final String CULTIVATION_STATE = "xiuxian_cultivation_state";
+    private static final Map<UUID, CompoundTag> LIVE_STATE = new HashMap<>();
 
     private TaixuDimension() {}
 
@@ -257,15 +261,16 @@ public final class TaixuDimension {
             return data;
         }
         CompoundTag persistentData = player.getPersistentData();
-        CompoundTag snapshot = null;
-        if (isTaixu(player.level())
+        CompoundTag snapshot = LIVE_STATE.get(player.getUUID());
+        if (snapshot == null || !snapshot.getBoolean("initialized")) snapshot = null;
+        if (snapshot == null && isTaixu(player.level())
                 && persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
                 && persistentData.getCompound(TRIP_SNAPSHOT).getBoolean("initialized")) {
             snapshot = persistentData.getCompound(TRIP_SNAPSHOT);
-        } else if (persistentData.contains(CULTIVATION_STATE, Tag.TAG_COMPOUND)
+        } else if (snapshot == null && persistentData.contains(CULTIVATION_STATE, Tag.TAG_COMPOUND)
                 && persistentData.getCompound(CULTIVATION_STATE).getBoolean("initialized")) {
             snapshot = persistentData.getCompound(CULTIVATION_STATE);
-        } else if (persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
+        } else if (snapshot == null && persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
                 && persistentData.getCompound(TRIP_SNAPSHOT).getBoolean("initialized")) {
             // Keep the last valid Taixu record as a repair fallback. It is
             // overwritten on every trip and cleared only on death.
@@ -304,7 +309,9 @@ public final class TaixuDimension {
         // ticks. Never let that empty record overwrite a valid progression
         // snapshot from the previous entity.
         if (data != null && data.isInitialized()) {
-            player.getPersistentData().put(CULTIVATION_STATE, data.serializeNBT());
+            CompoundTag snapshot = data.serializeNBT();
+            LIVE_STATE.put(player.getUUID(), snapshot.copy());
+            player.getPersistentData().put(CULTIVATION_STATE, snapshot);
         }
     }
 
@@ -314,7 +321,9 @@ public final class TaixuDimension {
 
     public static void saveTripSnapshot(ServerPlayer player, CultivationData data) {
         if (data.isInitialized()) {
-            player.getPersistentData().put(TRIP_SNAPSHOT, data.serializeNBT());
+            CompoundTag snapshot = data.serializeNBT();
+            LIVE_STATE.put(player.getUUID(), snapshot.copy());
+            player.getPersistentData().put(TRIP_SNAPSHOT, snapshot);
         }
     }
 
@@ -325,6 +334,7 @@ public final class TaixuDimension {
 
     public static void clearTripSnapshot(ServerPlayer player) {
         player.getPersistentData().remove(TRIP_SNAPSHOT);
+        LIVE_STATE.remove(player.getUUID());
     }
 
     public static void onDimensionChanged(ServerPlayer player) {
