@@ -59,6 +59,10 @@ public class CultivationEvents {
                             }
                             if (event.getEntity() instanceof ServerPlayer player && copy.isInitialized()) {
                                 CultivationAttributeEffects.applyAndPreserveHealth(player, copy);
+                                CultivationAttributeEffects.sync(player);
+                            }
+                            if (event.getEntity() instanceof ServerPlayer player) {
+                                TaixuDimension.persistCultivationData(player, copy);
                             }
                         }));
         if (event.isWasDeath()) {
@@ -85,6 +89,7 @@ public class CultivationEvents {
         }
         if (data.isInitialized()) {
             CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+            CultivationAttributeEffects.sync(player);
         }
         XiuxianNetwork.syncCultivation(player, data);
         if (!data.isInitialized()) {
@@ -99,6 +104,7 @@ public class CultivationEvents {
             if (data != null) {
                 if (data.isInitialized()) {
                     CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+                    CultivationAttributeEffects.sync(player);
                 }
                 XiuxianNetwork.syncCultivation(player, data);
                 if (!data.isInitialized()) {
@@ -625,6 +631,9 @@ public class CultivationEvents {
     }
 
     private static CultivationData getData(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            return TaixuDimension.recoverTripData(serverPlayer);
+        }
         return player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
     }
 

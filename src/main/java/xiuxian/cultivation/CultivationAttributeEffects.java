@@ -1,6 +1,7 @@
 package xiuxian.cultivation;
 
 import java.util.UUID;
+import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -19,18 +20,22 @@ public final class CultivationAttributeEffects {
 
     public static void apply(ServerPlayer player, CultivationData data) {
         CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
-        update(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER, "修为：气血",
+        boolean changed = false;
+        changed |= update(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER, "\u4fee\u4e3a\uff1a\u6c14\u8840",
                 data.realm().healthBonusAt(data.realmLevel()) + data.techniqueHealthBonus());
-        update(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER, "修为：攻击",
+        changed |= update(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER, "\u4fee\u4e3a\uff1a\u653b\u4f10",
                 data.realm().attackBonusAt(data.realmLevel()) + data.techniqueCombatAttackBonus());
-        update(player, Attributes.ARMOR, ARMOR_MODIFIER, "修为：护体",
+        changed |= update(player, Attributes.ARMOR, ARMOR_MODIFIER, "\u4fee\u4e3a\uff1a\u62a4\u4f53",
                 data.realm().armorBonusAt(data.realmLevel()));
-        update(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT, "Technique movement",
+        changed |= update(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT, "\u529f\u6cd5\u8eab\u6cd5",
                 technique == null ? 0.0D : technique.movementSpeedBonus());
         double realmMovement = player.isSprinting() && data.trueQi() > 0
                 ? 0.15D + data.realm().ordinal() * 0.08D : 0.0D;
-        update(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT, "Cultivation sprint",
+        changed |= update(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT, "\u4fee\u884c\u5954\u884c",
                 realmMovement, AttributeModifier.Operation.MULTIPLY_TOTAL);
+        if (changed) {
+            sync(player);
+        }
     }
 
     /** Applies persisted cultivation attributes and restores health after a player reloads or respawns. */
@@ -42,9 +47,10 @@ public final class CultivationAttributeEffects {
         if (Math.abs(newMaxHealth - oldMaxHealth) > 0.0001D) {
             float healthRatio = oldMaxHealth <= 0.0D ? 1.0F : oldHealth / (float) oldMaxHealth;
             healthRatio = Math.max(0.0F, Math.min(1.0F, healthRatio));
-            player.setHealth((float) (newMaxHealth * healthRatio));
+            player.setHealth(Math.min((float) newMaxHealth,
+                    Math.max(0.0F, (float) (newMaxHealth * healthRatio))));
         } else if (oldHealth > newMaxHealth) {
-            player.setHealth((float) newMaxHealth);
+            player.setHealth(Math.max(0.0F, (float) newMaxHealth));
         }
     }
 
@@ -53,17 +59,24 @@ public final class CultivationAttributeEffects {
         apply(player, data);
         double gainedMaxHealth = player.getMaxHealth() - oldMaxHealth;
         if (gainedMaxHealth > 0.0D) {
-            player.heal((float) gainedMaxHealth);
+            double healAmount = Math.max(0.0D, Math.min(gainedMaxHealth,
+                    player.getMaxHealth() - player.getHealth()));
+            player.heal((float) healAmount);
         }
+        sync(player);
     }
 
     public static void remove(ServerPlayer player) {
-        remove(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER);
-        remove(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER);
-        remove(player, Attributes.ARMOR, ARMOR_MODIFIER);
-        remove(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT);
-        remove(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT);
+        boolean changed = false;
+        changed |= remove(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER);
+        changed |= remove(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER);
+        changed |= remove(player, Attributes.ARMOR, ARMOR_MODIFIER);
+        changed |= remove(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT);
+        changed |= remove(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT);
         setMeditating(player, false);
+        if (changed) {
+            sync(player);
+        }
     }
 
     public static void setMeditating(ServerPlayer player, boolean meditating) {
@@ -74,42 +87,54 @@ public final class CultivationAttributeEffects {
 
         AttributeModifier current = instance.getModifier(MEDITATION_MOVEMENT);
         if (meditating && current == null) {
-            instance.addTransientModifier(new AttributeModifier(MEDITATION_MOVEMENT, "修行：入定", -1.0D,
+            instance.addTransientModifier(new AttributeModifier(MEDITATION_MOVEMENT, "\u5165\u5b9a\u51cf\u901f", -1.0D,
                     AttributeModifier.Operation.MULTIPLY_TOTAL));
+            sync(player);
         } else if (!meditating && current != null) {
             instance.removeModifier(current);
+            sync(player);
         }
     }
 
-    private static void update(ServerPlayer player, Attribute attribute, UUID id, String name, double amount) {
-        update(player, attribute, id, name, amount, AttributeModifier.Operation.ADDITION);
+    private static boolean update(ServerPlayer player, Attribute attribute, UUID id, String name, double amount) {
+        return update(player, attribute, id, name, amount, AttributeModifier.Operation.ADDITION);
     }
 
-    private static void update(ServerPlayer player, Attribute attribute, UUID id, String name,
-                               double amount, AttributeModifier.Operation operation) {
+    private static boolean update(ServerPlayer player, Attribute attribute, UUID id, String name,
+                                  double amount, AttributeModifier.Operation operation) {
         AttributeInstance instance = player.getAttribute(attribute);
         if (instance == null) {
-            return;
+            return false;
         }
 
         AttributeModifier current = instance.getModifier(id);
-        if (current != null && Math.abs(current.getAmount() - amount) < 0.0001D) {
-            return;
+        if (current != null && Math.abs(current.getAmount() - amount) < 0.0001D
+                && current.getOperation() == operation) {
+            return false;
         }
         if (current != null) {
             instance.removeModifier(current);
         }
         instance.addTransientModifier(new AttributeModifier(id, name, amount, operation));
+        return true;
     }
 
-    private static void remove(ServerPlayer player, Attribute attribute, UUID id) {
+    private static boolean remove(ServerPlayer player, Attribute attribute, UUID id) {
         AttributeInstance instance = player.getAttribute(attribute);
         if (instance == null) {
-            return;
+            return false;
         }
         AttributeModifier current = instance.getModifier(id);
-        if (current != null) {
-            instance.removeModifier(current);
+        if (current == null) {
+            return false;
         }
+        instance.removeModifier(current);
+        return true;
+    }
+
+    /** Sends all client-syncable attributes after a transfer or respawn. */
+    public static void sync(ServerPlayer player) {
+        player.connection.send(new ClientboundUpdateAttributesPacket(player.getId(),
+                player.getAttributes().getSyncableAttributes()));
     }
 }

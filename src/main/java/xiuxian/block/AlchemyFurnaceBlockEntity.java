@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.crafting.Recipe;
-import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationData;
 import xiuxian.menu.AlchemyFurnaceMenu;
 import xiuxian.recipe.AlchemyRecipe;
@@ -248,7 +247,7 @@ public class AlchemyFurnaceBlockEntity extends BlockEntity implements Container,
     }
 
     public void awardAlchemyExperience(ServerPlayer player) {
-        CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+        CultivationData data = xiuxian.cultivation.TaixuDimension.recoverTripData(player);
         int earned = takePendingAlchemyExperience();
         if (data == null || earned <= 0) return;
         int oldLevel = data.alchemyLevel();

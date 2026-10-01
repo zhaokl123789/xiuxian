@@ -9,10 +9,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationData;
 import xiuxian.cultivation.CultivationTechnique;
 import xiuxian.cultivation.CultivationTechniques;
+import xiuxian.cultivation.TaixuDimension;
 import xiuxian.network.XiuxianNetwork;
 
 public class TechniqueManualItem extends Item {
@@ -39,7 +39,8 @@ public class TechniqueManualItem extends Item {
             return InteractionResultHolder.sidedSuccess(stack, false);
         }
 
-        CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+        CultivationData data = player instanceof ServerPlayer serverPlayer
+                ? TaixuDimension.recoverTripData(serverPlayer) : null;
         if (data == null || !data.isInitialized()) {
             player.sendSystemMessage(Component.literal("\u5148\u786e\u7acb\u4fee\u884c\u8eab\u4efd\uff0c\u624d\u80fd\u7814\u8bfb\u529f\u6cd5\u3002"));
             return InteractionResultHolder.fail(stack);

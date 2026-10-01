@@ -13,9 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
-import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationData;
 import xiuxian.cultivation.CultivationRealm;
+import xiuxian.cultivation.TaixuDimension;
 import xiuxian.network.XiuxianNetwork;
 
 /** A creative test item used to jump directly to one major realm. */
@@ -35,7 +35,8 @@ public final class RealmAscensionPillItem extends Item {
                 player.sendSystemMessage(Component.literal("此丹仅供创造模式测试使用。"));
                 return InteractionResultHolder.fail(stack);
             }
-            CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+            CultivationData data = player instanceof ServerPlayer serverPlayer
+                    ? TaixuDimension.recoverTripData(serverPlayer) : null;
             if (data == null || !data.isInitialized()) {
                 player.sendSystemMessage(Component.literal("先确立修行身份，才能服用升境丹。"));
                 return InteractionResultHolder.fail(stack);
@@ -58,7 +59,8 @@ public final class RealmAscensionPillItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (!(entity instanceof Player player)) return stack;
         if (!level.isClientSide && player.getAbilities().instabuild) {
-            CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+            CultivationData data = player instanceof ServerPlayer serverPlayer
+                    ? TaixuDimension.recoverTripData(serverPlayer) : null;
             if (data != null && data.grantDirectRealm(target, player.getRandom())) {
                 level.playSound(null, player.blockPosition(), SoundEvents.BEACON_ACTIVATE,
                         SoundSource.PLAYERS, 0.65F, 1.15F);

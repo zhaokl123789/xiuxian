@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.network.chat.Component;
-import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationData;
+import xiuxian.cultivation.TaixuDimension;
 import xiuxian.network.XiuxianNetwork;
 
 public class QiGatheringPillItem extends Item {
@@ -39,7 +39,8 @@ public class QiGatheringPillItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide) {
-            CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+            CultivationData data = player instanceof ServerPlayer serverPlayer
+                    ? TaixuDimension.recoverTripData(serverPlayer) : null;
             if (data == null || !data.isInitialized()) {
                 player.sendSystemMessage(Component.literal("先确立修行身份，才能炼化丹药。"));
                 return InteractionResultHolder.fail(stack);
@@ -70,7 +71,8 @@ public class QiGatheringPillItem extends Item {
         }
 
         if (!level.isClientSide) {
-            CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+            CultivationData data = player instanceof ServerPlayer serverPlayer
+                    ? TaixuDimension.recoverTripData(serverPlayer) : null;
             if (data == null || !data.isInitialized()) {
                 return stack;
             }
