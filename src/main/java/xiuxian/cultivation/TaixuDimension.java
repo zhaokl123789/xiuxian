@@ -37,7 +37,10 @@ public final class TaixuDimension {
     }
 
     public static void toggle(ServerPlayer player) {
-        CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+        // Always resolve through the durable state first. The capability on a
+        // replacement player can be initialized while still containing the
+        // default realm from before the transfer.
+        CultivationData data = recoverTripData(player);
         if (isTaixu(player.level())) {
             returnToWorld(player, data);
             return;
@@ -264,9 +267,9 @@ public final class TaixuDimension {
             snapshot = persistentData.getCompound(CULTIVATION_STATE);
         }
 
-        // Realm progression is monotonic during normal play. If a stale
-        // initialized capability survived a transfer, prefer the durable copy
-        // only when it demonstrably contains later progression.
+        // Realm progression is monotonic during normal play. If an initialized
+        // capability survived a transfer with the default or an older realm,
+        // prefer the durable copy.
         if (data != null && data.isInitialized()) {
             if (snapshot != null && isMoreAdvanced(snapshot, data)) {
                 data.deserializeNBT(snapshot.copy());

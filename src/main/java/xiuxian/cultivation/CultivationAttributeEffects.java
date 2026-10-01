@@ -21,8 +21,19 @@ public final class CultivationAttributeEffects {
     public static void apply(ServerPlayer player, CultivationData data) {
         CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
         boolean changed = false;
-        changed |= update(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER, "\u4fee\u4e3a\uff1a\u6c14\u8840",
-                data.realm().healthBonusAt(data.realmLevel()) + data.techniqueHealthBonus());
+        AttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
+        double expectedHealth = 20.0D + data.realm().healthBonusAt(data.realmLevel())
+                + data.techniqueHealthBonus();
+        if (health != null) {
+            if (health.getModifier(HEALTH_MODIFIER) != null) {
+                health.removeModifier(HEALTH_MODIFIER);
+                changed = true;
+            }
+            if (Math.abs(health.getBaseValue() - expectedHealth) > 0.0001D) {
+                health.setBaseValue(expectedHealth);
+                changed = true;
+            }
+        }
         changed |= update(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER, "\u4fee\u4e3a\uff1a\u653b\u4f10",
                 data.realm().attackBonusAt(data.realmLevel()) + data.techniqueCombatAttackBonus());
         changed |= update(player, Attributes.ARMOR, ARMOR_MODIFIER, "\u4fee\u4e3a\uff1a\u62a4\u4f53",
@@ -68,7 +79,14 @@ public final class CultivationAttributeEffects {
 
     public static void remove(ServerPlayer player) {
         boolean changed = false;
-        changed |= remove(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER);
+        AttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
+        if (health != null) {
+            changed |= remove(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER);
+            if (Math.abs(health.getBaseValue() - 20.0D) > 0.0001D) {
+                health.setBaseValue(20.0D);
+                changed = true;
+            }
+        }
         changed |= remove(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER);
         changed |= remove(player, Attributes.ARMOR, ARMOR_MODIFIER);
         changed |= remove(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT);
