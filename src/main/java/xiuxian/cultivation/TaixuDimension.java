@@ -213,8 +213,8 @@ public final class TaixuDimension {
         CultivationData returnedData = recoverTripData(traveler, null, tripSnapshot);
         if (returnedData != null && returnedData.isInitialized()) {
             returnedData.clearTaixuAnchor();
+            persistCultivationData(traveler, returnedData);
         }
-        clearTripSnapshot(traveler);
         if (returnedData != null) XiuxianNetwork.syncCultivation(traveler, returnedData);
         traveler.getAbilities().mayfly = restoreMayfly;
         traveler.getAbilities().flying = restoreMayfly && restoreFlying;
@@ -265,6 +265,11 @@ public final class TaixuDimension {
         } else if (persistentData.contains(CULTIVATION_STATE, Tag.TAG_COMPOUND)
                 && persistentData.getCompound(CULTIVATION_STATE).getBoolean("initialized")) {
             snapshot = persistentData.getCompound(CULTIVATION_STATE);
+        } else if (persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)
+                && persistentData.getCompound(TRIP_SNAPSHOT).getBoolean("initialized")) {
+            // Keep the last valid Taixu record as a repair fallback. It is
+            // overwritten on every trip and cleared only on death.
+            snapshot = persistentData.getCompound(TRIP_SNAPSHOT);
         }
 
         // Realm progression is monotonic during normal play. If an initialized
