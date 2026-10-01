@@ -40,6 +40,13 @@ public final class TaixuDimension {
             returnToWorld(player, data);
             return;
         }
+        // A dimension transfer can expose a freshly attached capability for a
+        // short moment. Recover the live cultivation record before checking the
+        // permanent Taixu requirement so a valid Purple Mansion cultivator is
+        // never rejected because the capability was not copied yet.
+        if (data == null || !data.isInitialized()) {
+            data = recoverTripData(player);
+        }
         if (data == null || !data.isInitialized()
                 || data.realm().ordinal() < CultivationRealm.PURPLE_MANSION.ordinal()) {
             player.sendSystemMessage(Component.literal("唯有紫府真人，方可踏入或离开太虚。"));
@@ -47,10 +54,6 @@ public final class TaixuDimension {
         }
         if (data.isMeditating() || data.isStudyingTechnique() || player.isPassenger()) {
             player.sendSystemMessage(Component.literal("当前心神未定，不能行太虚。"));
-            return;
-        }
-        if (!player.level().dimension().equals(Level.OVERWORLD)) {
-            player.sendSystemMessage(Component.literal("太虚行路暂只可从主世界启程。"));
             return;
         }
         ServerLevel taixu = player.server.getLevel(LEVEL);
@@ -238,15 +241,33 @@ public final class TaixuDimension {
             player.reviveCaps();
             data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
         }
+        // A snapshot explicitly supplied by the transfer flow is authoritative:
+        // Forge may attach a fresh, initialized-but-stale capability to the new
+        // player entity before the dimension callback runs.
+        if (data != null && fallbackSnapshot != null && fallbackSnapshot.getBoolean("initialized")) {
+            data.deserializeNBT(fallbackSnapshot.copy());
+            return data;
+        }
+        // Outside the transfer callback, the live capability is authoritative;
+        // replaying the persistent entry snapshot on every tick erases progress.
+        if (data != null && data.isInitialized()) {
+            return data;
+        }
+        // The persistent trip snapshot is only authoritative while the player is
+        // actually in Taixu.  Reading it in the overworld can resurrect an old
+        // trip and make the entry check see a stale realm.
         CompoundTag snapshot = fallbackSnapshot;
         if (snapshot == null || !snapshot.getBoolean("initialized")) {
+            if (!isTaixu(player.level())) {
+                return data;
+            }
             CompoundTag persistentData = player.getPersistentData();
             if (persistentData.contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND)) {
                 snapshot = persistentData.getCompound(TRIP_SNAPSHOT);
             }
         }
         if (data != null && snapshot != null && snapshot.getBoolean("initialized")
-                && (fallbackSnapshot != null || !data.isInitialized())) {
+                && (fallbackSnapshot != null || isTaixu(player.level()))) {
             data.deserializeNBT(snapshot.copy());
         }
         return data;
@@ -269,7 +290,17 @@ public final class TaixuDimension {
 
     public static void onDimensionChanged(ServerPlayer player) {
         boolean hasTripSnapshot = player.getPersistentData().contains(TRIP_SNAPSHOT, Tag.TAG_COMPOUND);
-        if (!isTaixu(player.level()) && !hasTripSnapshot) return;
+        if (!isTaixu(player.level())) {
+            // A return has already restored the capability and removed the
+            // temporary snapshot. Never deserialize a stale snapshot in the
+            // overworld during the dimension event callback.
+            CultivationData data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
+            if (data != null && data.isInitialized()) {
+                CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+                XiuxianNetwork.syncCultivation(player, data);
+            }
+            return;
+        }
 
         CompoundTag snapshot = hasTripSnapshot
                 ? player.getPersistentData().getCompound(TRIP_SNAPSHOT).copy() : null;
@@ -281,7 +312,9 @@ public final class TaixuDimension {
             player.getAbilities().setFlyingSpeed(FLYING_SPEED);
             player.onUpdateAbilities();
             CultivationAttributeEffects.applyAndPreserveHealth(player, data);
-            saveTripSnapshot(player, data);
+            if (player.tickCount % 20 == 0) {
+                saveTripSnapshot(player, data);
+            }
         }
         XiuxianNetwork.syncCultivation(player, data);
     }

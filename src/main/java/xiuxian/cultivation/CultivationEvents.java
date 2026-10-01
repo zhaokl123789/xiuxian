@@ -143,6 +143,11 @@ public class CultivationEvents {
 
         if (TaixuDimension.isTaixu(player.level())) {
             TaixuDimension.ensureTaixuState(player, data);
+        } else {
+            // Dimension changes can briefly rebuild the vanilla attribute map.
+            // Reapply the persisted modifiers until the player is back on the
+            // cultivation values instead of leaving the default 20 health.
+            CultivationAttributeEffects.applyAndPreserveHealth(player, data);
         }
 
         player.setNoGravity(false);
@@ -328,9 +333,13 @@ public class CultivationEvents {
                     XiuxianNetwork.syncCultivation(serverPlayer, data);
                 }
                 CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
-                float techniqueReduction = technique == null ? 0.0F : technique.damageReduction();
+                float techniqueReduction = data.techniqueDamageReduction();
                 if (technique != null && technique.elementalAffinity().equals("土")) {
                     techniqueReduction += 0.10F;
+                }
+                if (technique != null && technique.drawbackTrueQiCostPercent() > 0
+                        && data.trueQi() < Math.max(1, data.trueQiMaximum() / 10)) {
+                    techniqueReduction = Math.max(0.0F, techniqueReduction - 0.05F);
                 }
                 float reduction = Math.min(0.9F, data.constitution() * 0.004F + techniqueReduction
                         + data.realm().damageReductionAt(data.realmLevel()));

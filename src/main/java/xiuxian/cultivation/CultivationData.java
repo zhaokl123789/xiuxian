@@ -7,6 +7,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.util.INBTSerializable;
 import java.util.LinkedHashSet;
+import java.util.Collections;
 import java.util.Set;
 
 public class CultivationData implements INBTSerializable<CompoundTag> {
@@ -75,6 +76,10 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return techniqueId;
     }
 
+    public Set<String> learnedTechniqueIds() {
+        return Collections.unmodifiableSet(learnedTechniqueIds);
+    }
+
     public CultivationRealm realm() {
         return realm;
     }
@@ -91,7 +96,17 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
     public int trueQiMaximum() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        return realm.trueQiMaximumAt(realmLevel) + (technique == null ? 0 : technique.trueQiBonus());
+        int bonus = technique == null ? 0 : technique.trueQiBonus();
+        if (technique != null) {
+            for (String id : learnedTechniqueIds) {
+                CultivationTechnique learned = CultivationTechniques.byId(id);
+                if (learned != null && learned != technique
+                        && learned.resonanceGroup().equals(technique.resonanceGroup())) {
+                    bonus += learned.resonanceTrueQiBonus() * 5;
+                }
+            }
+        }
+        return realm.trueQiMaximumAt(realmLevel) + bonus;
     }
 
     public int passiveHealthRecoveryIntervalTicks() {
@@ -106,8 +121,59 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
 
     public int meditationQiPerSecondMilli() {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
-        return technique == null ? 0 : technique.effectiveMeditationQiPerSecondMilli(
+        if (technique == null) return 0;
+        int base = technique.effectiveMeditationQiPerSecondMilli(
                 spiritualRoot, constitution, comprehension, fortune, realm, realmLevel);
+        int resonance = 0;
+        for (String id : learnedTechniqueIds) {
+            CultivationTechnique learned = CultivationTechniques.byId(id);
+            if (learned != null && learned != technique
+                    && learned.resonanceGroup().equals(technique.resonanceGroup())) {
+                resonance += learned.resonanceMeditationBonusPercent();
+            }
+        }
+        int drawback = technique.drawbackMeditationPercent();
+        return (int) Math.max(1L, (long) base * (100L + resonance - drawback) / 100L);
+    }
+
+    public int techniqueTrueQiRecoveryPerSecond() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        if (technique == null) return 0;
+        int recovery = technique.trueQiRecoveryPerSecond();
+        for (String id : learnedTechniqueIds) {
+            CultivationTechnique learned = CultivationTechniques.byId(id);
+            if (learned != null && learned != technique
+                    && learned.resonanceGroup().equals(technique.resonanceGroup())) {
+                recovery += learned.resonanceTrueQiBonus();
+            }
+        }
+        return Math.max(0, recovery - technique.drawbackTrueQiCostPercent() * recovery / 100);
+    }
+
+    public int techniqueCombatAttackBonus() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        if (technique == null) return 0;
+        int bonus = technique.combatAttackBonus();
+        for (String id : learnedTechniqueIds) {
+            CultivationTechnique learned = CultivationTechniques.byId(id);
+            if (learned != null && learned != technique
+                    && learned.resonanceGroup().equals(technique.resonanceGroup())) {
+                bonus += learned.resonanceTrueQiBonus();
+            }
+        }
+        return bonus;
+    }
+
+    public double techniqueHealthBonus() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return technique == null ? 0.0D : technique.healthBonus()
+                + (learnedTechniqueIds.size() > 1 && technique.isUniversal() ? 4.0D : 0.0D);
+    }
+
+    public float techniqueDamageReduction() {
+        CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
+        return technique == null ? 0.0F : technique.damageReduction()
+                + (learnedTechniqueIds.size() > 1 && "body".equals(technique.resonanceGroup()) ? 0.02F : 0.0F);
     }
 
     public int healthRecoveryTrueQiCost() {
@@ -211,7 +277,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         if (technique == null) return 0;
         int recovery = realm.passiveTrueQiRecoveryPerTenSecondsAt(
-                realmLevel, comprehension, technique.trueQiRecoveryPerSecond());
+                realmLevel, comprehension, techniqueTrueQiRecoveryPerSecond());
         return technique.elementalAffinity().equals("水") && recovery > 0
                 ? recovery + Math.max(1, recovery / 3) : recovery;
     }
@@ -312,12 +378,24 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return learnedTechniqueIds.contains(id);
     }
 
-    public boolean learnTechnique(String id) {
+    /** Selects a previously learned manual without discarding the other lineages. */
+    public boolean activateTechnique(String id) {
         CultivationTechnique technique = CultivationTechniques.byId(id);
-        if (technique == null || !technique.canBeLearnedAt(realm)) {
+        if (technique == null || !learnedTechniqueIds.contains(id)
+                || !technique.isCompatibleWithPath(cultivationPath)) {
             return false;
         }
-        learnedTechniqueIds.clear();
+        techniqueId = id;
+        clampTrueQi();
+        return true;
+    }
+
+    public boolean learnTechnique(String id) {
+        CultivationTechnique technique = CultivationTechniques.byId(id);
+        if (technique == null || !technique.canBeLearnedAt(realm)
+                || !technique.isCompatibleWithPath(cultivationPath)) {
+            return false;
+        }
         learnedTechniqueIds.add(id);
         techniqueId = id;
         clampTrueQi();
@@ -332,7 +410,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         CultivationTechnique technique = CultivationTechniques.byId(techniqueId);
         CultivationRealm targetRealm = breakthroughTargetRealm();
         if (technique == null || targetRealm == null || !technique.canBeLearnedAt(realm)
-                || !technique.canCultivateTo(targetRealm)) return false;
+                || !technique.canCultivateTo(targetRealm)
+                || !technique.isCompatibleWithPath(cultivationPath)) return false;
         return targetRealm != CultivationRealm.PURPLE_MANSION
                 || technique.matchesImmortalFoundation(immortalFoundation);
     }
@@ -351,7 +430,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
                                        double x, double y, double z, boolean wasCrouching) {
         CultivationTechnique technique = CultivationTechniques.byId(id);
         if (!initialized || meditating || isStudyingTechnique() || hasLearnedTechnique(id)
-                || technique == null || !technique.canBeLearnedAt(realm)) {
+                || technique == null || !technique.canBeLearnedAt(realm)
+                || !technique.isCompatibleWithPath(cultivationPath)) {
             return false;
         }
         studyingTechniqueId = id;
@@ -485,7 +565,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             meditationQiRemainder %= 1000;
             addQi(qiGain);
             CultivationTechnique activeTechnique = CultivationTechniques.byId(techniqueId);
-            restoreTrueQi(activeTechnique == null ? 1 : activeTechnique.trueQiRecoveryPerSecond());
+            restoreTrueQi(activeTechnique == null ? 1 : techniqueTrueQiRecoveryPerSecond());
             return true;
         }
         return false;

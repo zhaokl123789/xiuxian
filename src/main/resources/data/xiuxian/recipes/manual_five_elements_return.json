@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "xiuxian:advanced_manuals",
+  "ingredients": [{ "item": "minecraft:book" }, { "item": "minecraft:amethyst_shard" }, { "item": "minecraft:prismarine_crystals" }, { "item": "minecraft:gold_nugget" }],
+  "result": { "item": "xiuxian:manual_five_elements_return" }
+}

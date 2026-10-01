@@ -67,5 +67,11 @@
   "item.xiuxian.test_foundation_pill": "测试：筑基升境丹",
   "item.xiuxian.test_purple_mansion_pill": "测试：紫府升境丹",
   "item.xiuxian.test_golden_core_pill": "测试：金丹升境丹",
-  "item.xiuxian.test_dao_tai_pill": "测试：道胎升境丹"
+  "item.xiuxian.test_dao_tai_pill": "测试：道胎升境丹",
+  "item.xiuxian.manual_five_elements_return": "\u300a\u4e94\u884c\u5f52\u5143\u8bc0\u300b",
+  "item.xiuxian.manual_sword_intent": "\u300a\u592a\u767d\u5251\u5fc3\u7bc7\u300b",
+  "item.xiuxian.manual_iron_body": "\u300a\u7384\u5cb3\u953b\u4f53\u7bc7\u300b",
+  "item.xiuxian.manual_void_shadow": "\u300a\u592a\u865a\u9041\u5f71\u7ecf\u300b",
+  "item.xiuxian.manual_heavenly_cycle": "\u300a\u5468\u5929\u661f\u6cb3\u5f55\u300b",
+  "item.xiuxian.manual_star_forger": "\u300a\u661f\u9668\u94f8\u9b42\u6cd5\u300b"
 }

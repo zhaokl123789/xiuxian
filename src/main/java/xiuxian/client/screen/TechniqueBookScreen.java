@@ -65,6 +65,12 @@ public final class TechniqueBookScreen extends Screen {
                     + String.format(java.util.Locale.ROOT, "%.2f", technique.spellPowerMultiplier())
                     + "\uff1b\u8fd1\u6218\u653b\u51fb +" + technique.combatAttackBonus();
             y = drawSection(graphics, "\u771f\u7081\u4e0e\u6218\u6cd5", combat, y + 5);
+            String relation = technique.relationSummary()
+                    + "\uff1b\u540c\u7cfb\u53c2\u609f\u589e\u76ca\uff1a\u5410\u7eb3 +" + technique.resonanceMeditationBonusPercent() + "%"
+                    + "\uff0c\u771f\u7081\u6062\u590d +" + technique.resonanceTrueQiBonus()
+                    + "\uff1b\u8fd0\u8f6c\u51cf\u76ca\uff1a\u5410\u7eb3 -" + technique.drawbackMeditationPercent() + "%"
+                    + "\uff0c\u771f\u7081\u6062\u590d\u4ee3\u4ef7 " + technique.drawbackTrueQiCostPercent() + "%";
+            y = drawSection(graphics, "\u529f\u6cd5\u8054\u7cfb", relation, y + 5);
             String inheritance = "\u9002\u4fee\u5883\u754c\uff1a" + technique.realmRangeLabel()
                     + "\uff1b\u53c2\u609f\u96be\u5ea6\uff1a" + technique.learningDifficulty() + "/10 \u00b7 "
                     + technique.learningDifficultyLabel()

@@ -45,15 +45,19 @@ public class TechniqueManualItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
         if (technique == null) return InteractionResultHolder.fail(stack);
+        if (data.hasLearnedTechnique(techniqueId)) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                data.activateTechnique(techniqueId);
+                XiuxianNetwork.syncCultivation(serverPlayer, data);
+            }
+            player.sendSystemMessage(Component.literal("\u4f60\u5df2\u5c06\u300a" + technique.displayName()
+                    + "\u300b\u7acb\u4e3a\u5f53\u524d\u529f\u6cd5\u3002"));
+            return InteractionResultHolder.sidedSuccess(stack, false);
+        }
         if (!technique.canBeLearnedAt(data.realm())) {
             player.sendSystemMessage(Component.literal("\u300a" + technique.displayName() + "\u300b\u9002\u4fee\u5883\u754c\u4e3a"
                     + technique.realmRangeLabel() + "\uff0c\u5f53\u524d\u5883\u754c\u65e0\u6cd5\u53c2\u609f\u6b64\u6cd5\u3002"));
             return InteractionResultHolder.fail(stack);
-        }
-        if (data.hasLearnedTechnique(techniqueId)) {
-            player.sendSystemMessage(Component.literal("\u4f60\u5df2\u5c06\u300a" + technique.displayName()
-                    + "\u300b\u7acb\u4e3a\u5f53\u524d\u529f\u6cd5\u3002"));
-            return InteractionResultHolder.sidedSuccess(stack, false);
         }
         if (data.isMeditating()) {
             player.sendSystemMessage(Component.literal("\u8bf7\u5148\u7ed3\u675f\u5410\u7eb3\uff0c\u518d\u53c2\u609f\u65b0\u7684\u529f\u6cd5\u3002"));
@@ -95,6 +99,9 @@ public class TechniqueManualItem extends Item {
             lines.add(Component.literal("\u9053\u8bba\uff1a" + technique.doctrine()));
             lines.add(Component.literal("\u9002\u4fee\uff1a" + technique.realmRangeLabel()
                     + " \u00b7 \u96be\u5ea6 " + technique.learningDifficultyLabel()));
+            lines.add(Component.literal("\u529f\u6cd5\u8054\u7cfb\uff1a" + technique.relationSummary()
+                    + "\uff1b\u5171\u9e23\u5410\u7eb3 +" + technique.resonanceMeditationBonusPercent() + "%"
+                    + "\uff1b\u8fd0\u8f6c\u51cf\u76ca " + technique.drawbackMeditationPercent() + "%"));
             lines.add(Component.literal(technique.effectSummary()));
             lines.add(Component.literal("\u53f3\u952e\u5c55\u5377\u9605\u8bfb\uff0c\u8e72\u4e0b\u52a0\u53f3\u952e\u9759\u5fc3\u53c2\u609f\u3002"));
         }

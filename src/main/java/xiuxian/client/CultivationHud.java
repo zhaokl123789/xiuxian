@@ -107,6 +107,7 @@ public final class CultivationHud {
         String title = "参悟《" + technique.displayName() + "》";
         String chance = "识海映象 · 成功率 " + CultivationClientState.techniqueStudyChance() + "% · " + percent + "%";
 
+        drawTechniqueWaterfall(graphics, technique, screenWidth, minecraft.getWindow().getGuiScaledHeight());
         graphics.fill(x, y, x + width, y + height, 0xD00D1512);
         graphics.fill(x, y, x + width, y + 1, GOLD);
         graphics.fill(x, y + height - 1, x + width, y + height, 0xFF78633D);
@@ -122,6 +123,31 @@ public final class CultivationHud {
         if (fillWidth > 0) {
             graphics.fill(barX + 1, barY + 1, barX + 1 + fillWidth, barY + 6, 0xFF9BC9AE);
         }
+    }
+
+    private static void drawTechniqueWaterfall(GuiGraphics graphics, CultivationTechnique technique,
+                                               int screenWidth, int screenHeight) {
+        Minecraft minecraft = Minecraft.getInstance();
+        long tick = minecraft.level == null ? 0L : minecraft.level.getGameTime();
+        String[] glyphs = {"\u6c14", "\u7ecf", "\u8109", "\u795e", "\u610f", "\u4e39", "\u5143", "\u9053", "\u606f", "\u5b9a"};
+        int columns = Math.max(8, screenWidth / 34);
+        for (int column = 0; column < columns; column++) {
+            int x = 10 + column * 34;
+            int speed = 1 + Math.floorMod(column * 7, 3);
+            int offset = Math.floorMod((int) (tick * speed + column * 47), Math.max(1, screenHeight + 120));
+            int length = 5 + Math.floorMod(column * 3, 6);
+            for (int row = 0; row < length; row++) {
+                int y = offset - row * 14;
+                if (y < 6 || y > screenHeight - 8) continue;
+                int alpha = Math.max(35, 210 - row * 28);
+                int color = (alpha << 24) | (row == 0 ? 0xD8F2D0 : 0x6FB8A0);
+                String glyph = glyphs[Math.floorMod(column + row + technique.id().hashCode(), glyphs.length)];
+                graphics.drawString(minecraft.font, glyph, x, y, color, false);
+            }
+        }
+        int pulse = 80 + Math.floorMod((int) tick, 80);
+        graphics.fill(screenWidth / 2 - 1, 4, screenWidth / 2 + 1, screenHeight - 4,
+                (pulse << 24) | 0x5D8D7B);
     }
 
     private static void drawMeter(GuiGraphics graphics, int x, int y, int width,

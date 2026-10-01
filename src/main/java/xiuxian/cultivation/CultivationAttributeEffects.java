@@ -20,9 +20,9 @@ public final class CultivationAttributeEffects {
     public static void apply(ServerPlayer player, CultivationData data) {
         CultivationTechnique technique = CultivationTechniques.byId(data.techniqueId());
         update(player, Attributes.MAX_HEALTH, HEALTH_MODIFIER, "修为：气血",
-                data.realm().healthBonusAt(data.realmLevel()) + (technique == null ? 0.0D : technique.healthBonus()));
+                data.realm().healthBonusAt(data.realmLevel()) + data.techniqueHealthBonus());
         update(player, Attributes.ATTACK_DAMAGE, ATTACK_MODIFIER, "修为：攻击",
-                data.realm().attackBonusAt(data.realmLevel()) + (technique == null ? 0 : technique.combatAttackBonus()));
+                data.realm().attackBonusAt(data.realmLevel()) + data.techniqueCombatAttackBonus());
         update(player, Attributes.ARMOR, ARMOR_MODIFIER, "修为：护体",
                 data.realm().armorBonusAt(data.realmLevel()));
         update(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT, "Technique movement",

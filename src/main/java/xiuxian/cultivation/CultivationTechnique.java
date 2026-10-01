@@ -96,6 +96,101 @@ public record CultivationTechnique(String id, String displayName, String doctrin
         return (int) Math.min(Integer.MAX_VALUE, effectiveRate);
     }
 
+    /** Whether this manual can be used as a broad foundation for other paths. */
+    public boolean isUniversal() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "basic_breathing", "clear_origin", "embrace_one", "five_elements_return" -> true;
+            default -> false;
+        };
+    }
+
+    /** A locked lineage is intentionally unavailable outside its matching cultivation path. */
+    public boolean isPathLocked() {
+        return requiredPath() != null;
+    }
+
+    public String requiredPath() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "sword_intent", "heavenly_cycle" -> "sect";
+            case "iron_body", "void_shadow", "star_forger" -> "wanderer";
+            default -> null;
+        };
+    }
+
+    public boolean isCompatibleWithPath(CultivationPath path) {
+        return !isPathLocked() || (path != null && path.id().equals(requiredPath()));
+    }
+
+    /** Manuals in the same lineage resonate when retained as secondary manuals. */
+    public String resonanceGroup() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "basic_breathing", "clear_origin", "embrace_one", "five_elements_return" -> "foundation";
+            case "water_virtue", "valley_spirit", "return_to_root", "iron_body" -> "body";
+            case "mysterious_gate", "sword_intent", "heavenly_cycle", "void_shadow" -> "void";
+            case "less_private", "female_spirit", "know_stop", "return_nature", "star_forger" -> "dao";
+            default -> "misc";
+        };
+    }
+
+    public int resonanceMeditationBonusPercent() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "clear_origin", "five_elements_return" -> 8;
+            case "water_virtue", "return_to_root" -> 5;
+            case "sword_intent", "heavenly_cycle" -> 6;
+            case "return_nature", "star_forger" -> 7;
+            default -> 0;
+        };
+    }
+
+    public int drawbackMeditationPercent() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "iron_body", "sword_intent" -> 8;
+            case "void_shadow", "less_private" -> 5;
+            default -> 0;
+        };
+    }
+
+    public int resonanceTrueQiBonus() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "water_virtue", "five_elements_return" -> 2;
+            case "mysterious_gate", "heavenly_cycle" -> 3;
+            case "return_nature", "star_forger" -> 4;
+            default -> 0;
+        };
+    }
+
+    public int drawbackTrueQiCostPercent() {
+        return switch (id.substring(id.indexOf(':') + 1)) {
+            case "iron_body", "sword_intent" -> 12;
+            case "void_shadow", "less_private" -> 8;
+            default -> 0;
+        };
+    }
+
+    public String relationSummary() {
+        if (isPathLocked()) return "路径锁定：" + requiredPathName();
+        if (isUniversal()) return "通用根基，可与同道共鸣";
+        return "共鸣系：" + resonanceGroupName();
+    }
+
+    public String requiredPathName() {
+        return switch (requiredPath() == null ? "" : requiredPath()) {
+            case "sect" -> "宗门道统";
+            case "wanderer" -> "散修道统";
+            default -> "无锁定";
+        };
+    }
+
+    public String resonanceGroupName() {
+        return switch (resonanceGroup()) {
+            case "foundation" -> "根基共鸣";
+            case "body" -> "肉身共鸣";
+            case "void" -> "太虚共鸣";
+            case "dao" -> "道心共鸣";
+            default -> "同修共鸣";
+        };
+    }
+
     public String elementalAffinity() {
         for (String element : new String[]{"木", "火", "土", "金", "水"}) {
             if (qiAffinity.contains(element)) return element;

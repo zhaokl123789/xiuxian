@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Twelve original breathing manuals shaped by classical Daoist ideas. */
+/** Original manuals plus several linked lineages for combat, body and void cultivation. */
 public final class CultivationTechniques {
     public static final CultivationTechnique BASIC_BREATHING = technique(
             "basic_breathing", "吐纳引气诀", "守静抱一，气从微息而生；积涓流而成真元。",
@@ -68,11 +68,42 @@ public final class CultivationTechniques {
             "只守一呼一吸，不求异象；久久行之，根基自会渐厚。",
             CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, 10, 174,
             CultivationTechnique.Aptitude.COMPREHENSION, 65, 0.02F, 4.0D);
+    public static final CultivationTechnique FIVE_ELEMENTS_RETURN = special(
+            "five_elements_return", "五行归元诀", "五行相生，五脏为炉，纳五方灵机归于一元。",
+            "按木火土金水次序运转周天，根基越杂，归元越稳。", CultivationRealm.FOUNDATION_ESTABLISHMENT,
+            CultivationRealm.DAO_TAI, 5, 182, CultivationTechnique.Aptitude.SPIRITUAL_ROOT, 82,
+            0.04F, 12.0D, 145, 180, 6, 1.18F, 3, 0.01D, "中和", "五行", "五行归元");
+    public static final CultivationTechnique SWORD_INTENT = special(
+            "sword_intent", "太白剑心篇", "剑意先于剑招，斩念、斩妄、斩尽阻道之物。",
+            "静坐听剑鸣，战斗中只留一线锋芒；心乱则反噬经脉。", CultivationRealm.QI_REFINING,
+            CultivationRealm.DAO_TAI, 6, 176, CultivationTechnique.Aptitude.COMPREHENSION, 86,
+            0.01F, 5.0D, 95, 120, 4, 1.30F, 9, 0.025D, "守正", "金", "剑修");
+    public static final CultivationTechnique IRON_BODY = special(
+            "iron_body", "玄岳锻体篇", "以山岳为师，以气血为鼎，百炼筋骨而后炼神。",
+            "每日以真气淬体，受击越重越能积蓄反震之力，但吐纳速度较慢。", CultivationRealm.FOUNDATION_ESTABLISHMENT,
+            CultivationRealm.GOLDEN_CORE, 5, 128, CultivationTechnique.Aptitude.CONSTITUTION, 112,
+            0.12F, 32.0D, 170, 80, 3, 0.88F, 8, 0.0D, "厚土", "土", "体修");
+    public static final CultivationTechnique VOID_SHADOW = special(
+            "void_shadow", "太虚遁影经", "身化虚影，借太虚罅隙避开因果与锋芒。",
+            "以真气维持遁影，移动迅疾却畏惧正面硬撼，真气枯竭时会显形。", CultivationRealm.PURPLE_MANSION,
+            CultivationRealm.DAO_TAI, 7, 194, CultivationTechnique.Aptitude.FORTUNE, 94,
+            0.02F, 2.0D, 90, 260, 7, 1.22F, 4, 0.05D, "无常", "虚", "遁修");
+    public static final CultivationTechnique HEAVENLY_CYCLE = special(
+            "heavenly_cycle", "周天星河录", "引星辉入窍，借天时运转大周天，步步相扣。",
+            "夜间参悟效率更高，白昼强行运转会消耗额外真气。", CultivationRealm.PURPLE_MANSION,
+            CultivationRealm.DAO_TAI, 7, 188, CultivationTechnique.Aptitude.COMPREHENSION, 76,
+            0.06F, 10.0D, 160, 300, 8, 1.20F, 5, 0.015D, "天枢", "星辰", "星修");
+    public static final CultivationTechnique STAR_FORGER = special(
+            "star_forger", "星陨铸魂法", "以星陨之火锻神魂，神念一动便可牵引万钧。",
+            "神魂强盛但极耗心神，连续战斗后需要更长时间调息。", CultivationRealm.GOLDEN_CORE,
+            CultivationRealm.DAO_TAI, 9, 202, CultivationTechnique.Aptitude.COMPREHENSION, 68,
+            0.03F, 18.0D, 130, 380, 8, 1.35F, 12, 0.01D, "铸魂", "星火", "神魂");
 
     public static final List<CultivationTechnique> ALL = List.of(
             BASIC_BREATHING, CLEAR_ORIGIN, WUWEI_BREATH, EMBRACE_ONE, VALLEY_SPIRIT,
             WATER_VIRTUE, RETURN_TO_ROOT, MYSTERIOUS_GATE, LESS_PRIVATE, FEMALE_SPIRIT,
-            KNOW_STOP, RETURN_NATURE);
+            KNOW_STOP, RETURN_NATURE, FIVE_ELEMENTS_RETURN, SWORD_INTENT, IRON_BODY,
+            VOID_SHADOW, HEAVENLY_CYCLE, STAR_FORGER);
     private static final Map<String, CultivationTechnique> TECHNIQUES = createIndex();
 
     private CultivationTechniques() {}
@@ -154,6 +185,17 @@ public final class CultivationTechniques {
                 healthRecovery[rank],
                 qiCaps[rank], recovery[rank], spellPower[rank], attack[rank], speed[rank],
                 virtues[rank], qiKinds[rank], styles[rank]);
+    }
+
+    private static CultivationTechnique special(String id, String name, String doctrine, String method,
+                                                CultivationRealm minimumRealm, CultivationRealm maximumRealm,
+                                                int difficulty, int meditation, CultivationTechnique.Aptitude aptitude,
+                                                int breakthrough, float reduction, double health, int passiveRecovery,
+                                                int trueQiBonus, int trueQiRecovery, float spellPower, int attack,
+                                                double speed, String virtue, String affinity, String style) {
+        return new CultivationTechnique("xiuxian:" + id, name, doctrine, method, minimumRealm, maximumRealm,
+                difficulty, meditation, aptitude, breakthrough, reduction, health, passiveRecovery, trueQiBonus,
+                trueQiRecovery, spellPower, attack, speed, virtue, affinity, style);
     }
 
     private static String doctrineFor(String id, String fallback) {

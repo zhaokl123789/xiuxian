@@ -116,10 +116,18 @@ public final class XiuxianItems {
     public static final RegistryObject<Item> FEMALE_SPIRIT_MANUAL = manual("manual_female_spirit", CultivationTechniques.FEMALE_SPIRIT);
     public static final RegistryObject<Item> KNOW_STOP_MANUAL = manual("manual_know_stop", CultivationTechniques.KNOW_STOP);
     public static final RegistryObject<Item> RETURN_NATURE_MANUAL = manual("manual_return_nature", CultivationTechniques.RETURN_NATURE);
+    public static final RegistryObject<Item> FIVE_ELEMENTS_RETURN_MANUAL = manual("manual_five_elements_return", CultivationTechniques.FIVE_ELEMENTS_RETURN);
+    public static final RegistryObject<Item> SWORD_INTENT_MANUAL = manual("manual_sword_intent", CultivationTechniques.SWORD_INTENT);
+    public static final RegistryObject<Item> IRON_BODY_MANUAL = manual("manual_iron_body", CultivationTechniques.IRON_BODY);
+    public static final RegistryObject<Item> VOID_SHADOW_MANUAL = manual("manual_void_shadow", CultivationTechniques.VOID_SHADOW);
+    public static final RegistryObject<Item> HEAVENLY_CYCLE_MANUAL = manual("manual_heavenly_cycle", CultivationTechniques.HEAVENLY_CYCLE);
+    public static final RegistryObject<Item> STAR_FORGER_MANUAL = manual("manual_star_forger", CultivationTechniques.STAR_FORGER);
     public static final List<RegistryObject<Item>> CULTIVATION_MANUALS = List.of(
             BASIC_BREATHING_MANUAL, CLEAR_ORIGIN_MANUAL, WUWEI_BREATH_MANUAL, EMBRACE_ONE_MANUAL,
             VALLEY_SPIRIT_MANUAL, WATER_VIRTUE_MANUAL, RETURN_TO_ROOT_MANUAL, MYSTERIOUS_GATE_MANUAL,
-            LESS_PRIVATE_MANUAL, FEMALE_SPIRIT_MANUAL, KNOW_STOP_MANUAL, RETURN_NATURE_MANUAL);
+            LESS_PRIVATE_MANUAL, FEMALE_SPIRIT_MANUAL, KNOW_STOP_MANUAL, RETURN_NATURE_MANUAL,
+            FIVE_ELEMENTS_RETURN_MANUAL, SWORD_INTENT_MANUAL, IRON_BODY_MANUAL,
+            VOID_SHADOW_MANUAL, HEAVENLY_CYCLE_MANUAL, STAR_FORGER_MANUAL);
 
     private XiuxianItems() {}
 
