@@ -33,6 +33,12 @@ public final class TaixuDimension {
     /** Durable fallback for capability instances recreated during a dimension transfer. */
     private static final String CULTIVATION_STATE = "xiuxian_cultivation_state";
     private static final Map<UUID, CompoundTag> LIVE_STATE = new HashMap<>();
+    /**
+     * Forge may expose a replacement ServerPlayer before its capabilities are
+     * attached. Keep the actual mutable record by UUID so game actions during
+     * that short window still operate on the player's real identity.
+     */
+    private static final Map<UUID, CultivationData> LIVE_DATA = new HashMap<>();
 
     private TaixuDimension() {}
 
@@ -252,10 +258,17 @@ public final class TaixuDimension {
             player.reviveCaps();
             data = player.getCapability(CultivationCapability.CULTIVATION).orElse(null);
         }
+        CultivationData liveData = LIVE_DATA.get(player.getUUID());
+        if ((data == null || !data.isInitialized()) && liveData != null && liveData.isInitialized()) {
+            data = liveData;
+        }
         // A snapshot explicitly supplied by the transfer flow is authoritative:
         // Forge may attach a fresh, initialized-but-stale capability to the new
         // player entity before the dimension callback runs.
-        if (data != null && fallbackSnapshot != null && fallbackSnapshot.getBoolean("initialized")) {
+        if (fallbackSnapshot != null && fallbackSnapshot.getBoolean("initialized")) {
+            if (data == null) {
+                data = new CultivationData();
+            }
             data.deserializeNBT(fallbackSnapshot.copy());
             savePersistentState(player, data);
             return data;
@@ -290,6 +303,13 @@ public final class TaixuDimension {
         if (data != null && snapshot != null && snapshot.getBoolean("initialized")) {
             data.deserializeNBT(snapshot.copy());
         }
+        if (data == null && snapshot != null && snapshot.getBoolean("initialized")) {
+            // Capability attachment can lag behind the dimension callback.
+            // Use a real mutable record immediately and bind it to the UUID;
+            // the capability will be populated on the next successful lookup.
+            data = new CultivationData();
+            data.deserializeNBT(snapshot.copy());
+        }
         if (data != null) {
             savePersistentState(player, data);
         }
@@ -310,6 +330,7 @@ public final class TaixuDimension {
         // snapshot from the previous entity.
         if (data != null && data.isInitialized()) {
             CompoundTag snapshot = data.serializeNBT();
+            LIVE_DATA.put(player.getUUID(), data);
             LIVE_STATE.put(player.getUUID(), snapshot.copy());
             player.getPersistentData().put(CULTIVATION_STATE, snapshot);
         }
@@ -322,6 +343,7 @@ public final class TaixuDimension {
     public static void saveTripSnapshot(ServerPlayer player, CultivationData data) {
         if (data.isInitialized()) {
             CompoundTag snapshot = data.serializeNBT();
+            LIVE_DATA.put(player.getUUID(), data);
             LIVE_STATE.put(player.getUUID(), snapshot.copy());
             player.getPersistentData().put(TRIP_SNAPSHOT, snapshot);
         }
@@ -334,6 +356,7 @@ public final class TaixuDimension {
 
     public static void clearTripSnapshot(ServerPlayer player) {
         player.getPersistentData().remove(TRIP_SNAPSHOT);
+        LIVE_DATA.remove(player.getUUID());
         LIVE_STATE.remove(player.getUUID());
     }
 

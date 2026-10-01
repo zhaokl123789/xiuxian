@@ -731,10 +731,16 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         lastObservedFoodLevel = -1;
         trueQiHealthRecovery = false;
         clearTaixuAnchor();
-        initialized = tag.getBoolean("initialized");
-        if (!initialized) {
+        boolean savedInitialized = tag.getBoolean("initialized");
+        // Forge can deserialize a newly attached capability with an empty
+        // tag during a player entity replacement.  That tag represents
+        // "no data loaded yet", not a command to erase an already valid
+        // cultivation identity.  Death/resetForDeath() explicitly clears
+        // the in-memory flag, so a real reset still remains effective.
+        if (!savedInitialized) {
             return;
         }
+        initialized = true;
 
         int dataVersion = tag.getInt("dataVersion");
 
