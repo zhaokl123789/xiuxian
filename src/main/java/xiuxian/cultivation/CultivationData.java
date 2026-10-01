@@ -730,7 +730,6 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     public void deserializeNBT(CompoundTag tag) {
         lastObservedFoodLevel = -1;
         trueQiHealthRecovery = false;
-        clearTaixuAnchor();
         boolean savedInitialized = tag.getBoolean("initialized");
         // Forge can deserialize a newly attached capability with an empty
         // tag during a player entity replacement.  That tag represents
@@ -741,6 +740,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             return;
         }
         initialized = true;
+        clearTaixuAnchor();
 
         int dataVersion = tag.getInt("dataVersion");
 
