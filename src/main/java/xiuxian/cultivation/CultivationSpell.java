@@ -4,8 +4,23 @@ package xiuxian.cultivation;
 public record CultivationSpell(String id, String displayName, String description,
                                CultivationRealm minimumRealm, CultivationRealm maximumRealm,
                                int trueQiCost, int cooldownTicks, int range, float magnitude,
-                               int durationTicks, int amplifier, Effect effect, boolean targeted,
+                               int durationTicks, int amplifier, Element element, Effect effect, boolean targeted,
                                String requiredTechniqueId) {
+    public enum Element {
+        NONE("无"), METAL("金"), WOOD("木"), WATER("水"), FIRE("火"), EARTH("土"),
+        WIND("风"), THUNDER("雷"), SOUL("神魂");
+
+        private final String displayName;
+
+        Element(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String displayName() {
+            return displayName;
+        }
+    }
+
     public enum Effect {
         DAMAGE, HEAL, EFFECT, RESTORE_TRUE_QI, CLEANSE, PUSH
     }
@@ -15,7 +30,7 @@ public record CultivationSpell(String id, String displayName, String description
                 || description == null || description.isBlank() || minimumRealm == null
                 || maximumRealm == null || minimumRealm.ordinal() > maximumRealm.ordinal()
                 || trueQiCost <= 0 || cooldownTicks < 0 || range < 0 || magnitude < 0.0F
-                || durationTicks < 0 || amplifier < 0 || effect == null) {
+                || durationTicks < 0 || amplifier < 0 || element == null || effect == null) {
             throw new IllegalArgumentException("Spell values must be valid");
         }
     }

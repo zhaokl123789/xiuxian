@@ -62,7 +62,35 @@ public final class CultivationSpells {
                              CultivationSpell.Effect effect, boolean targeted, String requiredTechnique) {
         SPELLS.put("xiuxian:" + id, new CultivationSpell("xiuxian:" + id, name, description,
                 CultivationRealm.FETAL_BREATH, CultivationRealm.FETAL_BREATH, cost, cooldown,
-                range, magnitude, duration, amplifier, effect, targeted, requiredTechnique));
+                range, magnitude, duration, amplifier, elementFor(id), effect, targeted, requiredTechnique));
+    }
+
+    private static CultivationSpell.Element elementFor(String id) {
+        if (id.contains("ember") || id.contains("fire") || id.contains("scarlet")) {
+            return CultivationSpell.Element.FIRE;
+        }
+        if (id.contains("frost") || id.contains("water") || id.contains("clear_origin")) {
+            return CultivationSpell.Element.WATER;
+        }
+        if (id.contains("wind") || id.contains("light_body")) {
+            return CultivationSpell.Element.WIND;
+        }
+        if (id.contains("stone") || id.contains("earth") || id.contains("qi_breath")) {
+            return CultivationSpell.Element.EARTH;
+        }
+        if (id.contains("thunder")) {
+            return CultivationSpell.Element.THUNDER;
+        }
+        if (id.contains("soul") || id.contains("spirit") || id.contains("insight")) {
+            return CultivationSpell.Element.SOUL;
+        }
+        if (id.contains("golden")) {
+            return CultivationSpell.Element.METAL;
+        }
+        if (id.contains("wood") || id.contains("rejuvenation")) {
+            return CultivationSpell.Element.WOOD;
+        }
+        return CultivationSpell.Element.NONE;
     }
 
     public static CultivationSpell byId(String rawId) {
@@ -80,7 +108,8 @@ public final class CultivationSpells {
 
     public static String idList(CultivationData data) {
         List<String> names = available(data).stream()
-                .map(spell -> spell.id().substring(spell.id().indexOf(':') + 1) + "（" + spell.displayName() + "）")
+                .map(spell -> spell.id().substring(spell.id().indexOf(':') + 1) + "（" + spell.displayName()
+                        + "·" + spell.element().displayName() + "属性）")
                 .toList();
         return names.isEmpty() ? "当前没有可用术法" : String.join("、", names);
     }
