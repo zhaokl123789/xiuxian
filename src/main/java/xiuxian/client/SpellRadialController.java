@@ -79,21 +79,43 @@ public final class SpellRadialController {
         GuiGraphics graphics = event.getGuiGraphics();
         int cx = minecraft.getWindow().getGuiScaledWidth() / 2;
         int cy = minecraft.getWindow().getGuiScaledHeight() / 2;
-        graphics.fill(cx - 42, cy - 42, cx + 42, cy + 42, 0xD916211D);
-        graphics.drawCenteredString(minecraft.font, "\u8f6e\u76d8\u65bd\u6cd5", cx, cy - 5, 0xFFE8D8AF);
-        int[][] positions = {{cx - 34, cy - 86}, {cx + 46, cy - 10}, {cx - 34, cy + 66}, {cx - 114, cy - 10}};
+        graphics.fill(cx - 132, cy - 132, cx + 132, cy + 132, 0x40101712);
+        graphics.renderOutline(cx - 130, cy - 130, 260, 260, 0xAA9C7B42);
+        graphics.renderOutline(cx - 102, cy - 102, 204, 204, 0x66566D5B);
+        graphics.fill(cx - 36, cy - 36, cx + 36, cy + 36, 0xE016211D);
+        graphics.renderOutline(cx - 36, cy - 36, 72, 72, 0xFFE0B968);
+        graphics.drawCenteredString(minecraft.font, "\u7075", cx, cy - 5, 0xFFE8D8AF);
+        int[][] positions = {{cx - 42, cy - 112}, {cx + 70, cy - 18}, {cx - 42, cy + 94}, {cx - 154, cy - 18}};
         for (int i = 0; i < 4; i++) {
-            int color = i == selectedSlot ? 0xE08C6B3E : 0xB52A3A31;
-            graphics.fill(positions[i][0], positions[i][1], positions[i][0] + 68, positions[i][1] + 24, color);
             CultivationSpell spell = CultivationSpells.byId(CultivationClientState.spellAt(i));
+            int accent = spell == null ? 0xFF667A65 : elementColor(spell);
+            int color = i == selectedSlot ? (accent & 0x00FFFFFF) | 0xE0000000 : 0xB5202D28;
+            graphics.fill(positions[i][0], positions[i][1], positions[i][0] + 84, positions[i][1] + 34, color);
+            graphics.renderOutline(positions[i][0], positions[i][1], 84, 34, i == selectedSlot ? accent : 0xAA667A65);
             String name = spell == null ? "\u7a7a\u69fd" : spell.displayName();
-            graphics.drawCenteredString(minecraft.font, name, positions[i][0] + 34, positions[i][1] + 7, 0xFFE5DDCA);
+            graphics.drawCenteredString(minecraft.font, name, positions[i][0] + 42, positions[i][1] + 7, 0xFFE5DDCA);
+            graphics.drawCenteredString(minecraft.font, spell == null ? "" : spell.element().displayName(),
+                    positions[i][0] + 42, positions[i][1] + 20, accent);
         }
         CultivationSpell selected = CultivationSpells.byId(CultivationClientState.spellAt(selectedSlot));
         if (selected != null) {
             graphics.drawCenteredString(minecraft.font,
                     Component.literal(selected.displayName() + "  " + selected.trueQiCost() + "\u771f\u6c14"),
-                    cx, cy + 50, 0xFFB7C9BC);
+                    cx, cy + 49, elementColor(selected));
         }
+    }
+
+    private static int elementColor(CultivationSpell spell) {
+        return switch (spell.element()) {
+            case METAL -> 0xFFE5E8D2;
+            case WOOD -> 0xFF8FD39A;
+            case WATER -> 0xFF73C7E7;
+            case FIRE -> 0xFFFF9A5C;
+            case EARTH -> 0xFFD9B276;
+            case WIND -> 0xFFB4E1C1;
+            case THUNDER -> 0xFFE9E277;
+            case SOUL -> 0xFFC9A6FF;
+            default -> 0xFFB7C9BC;
+        };
     }
 }

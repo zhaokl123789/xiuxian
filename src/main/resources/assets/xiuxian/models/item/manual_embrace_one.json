@@ -1,1 +1,1 @@
-{ "parent": "minecraft:item/generated", "textures": { "layer0": "xiuxian:item/manual_embrace_one" } }
+{ "parent": "minecraft:item/generated", "textures": { "layer0": "xiuxian:item/manual_taixu" } }

@@ -107,6 +107,7 @@ public class TechniqueManualItem extends Item {
             // Keep the inventory tooltip deliberately short.  Detailed lineage,
             // attributes and acquisition rules belong in the cultivation profile
             // and exchange screens, rather than taking over the item hover card.
+            lines.add(Component.literal("\u9002\u914d\u5883\u754c\uff1a" + technique.realmRangeLabel()));
             lines.add(Component.literal("\u4f7f\u7528\u65b9\u5f0f\uff1a\u53f3\u952e\u5c55\u5377\uff1b\u8e72\u4e0b\u52a0\u53f3\u952e\u53c2\u609f"));
         }
     }

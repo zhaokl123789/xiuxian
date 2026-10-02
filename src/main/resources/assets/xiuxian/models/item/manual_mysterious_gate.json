@@ -1,1 +1,1 @@
-{ "parent": "minecraft:item/generated", "textures": { "layer0": "xiuxian:item/manual_mysterious_gate" } }
+{ "parent": "minecraft:item/generated", "textures": { "layer0": "xiuxian:item/manual_void" } }

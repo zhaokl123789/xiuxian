@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -238,9 +239,41 @@ public final class CultivationSpells {
             }
         }
         ServerLevel level = player.serverLevel();
-        level.sendParticles(ParticleTypes.ENCHANT, player.getX(), player.getY() + 1.0D,
-                player.getZ(), 12, 0.35D, 0.5D, 0.35D, 0.04D);
+        emitSpellParticles(level, player, spell, target);
         player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.45F, 1.0F);
+    }
+
+    /** Give each affinity a readable visual language while keeping the server authoritative. */
+    private static void emitSpellParticles(ServerLevel level, ServerPlayer player,
+                                            CultivationSpell spell, LivingEntity target) {
+        double x = target == null ? player.getX() : target.getX();
+        double y = (target == null ? player.getY() : target.getY()) + 1.0D;
+        double z = target == null ? player.getZ() : target.getZ();
+        ParticleOptions primary = particleFor(spell.element());
+        for (int i = 0; i < 14; i++) {
+            double angle = Math.PI * 2.0D * i / 14.0D;
+            double radius = 0.25D + (i % 3) * 0.08D;
+            level.sendParticles(primary, x + Math.cos(angle) * radius, y + 0.16D * (i % 4),
+                    z + Math.sin(angle) * radius, 1, 0.0D, 0.025D, 0.0D, 0.01D);
+        }
+        level.sendParticles(ParticleTypes.ENCHANT, x, y, z, 8, 0.3D, 0.45D, 0.3D, 0.06D);
+        if (spell.effect() == CultivationSpell.Effect.DAMAGE) {
+            level.sendParticles(ParticleTypes.CRIT, x, y, z, 6, 0.18D, 0.2D, 0.18D, 0.12D);
+        }
+    }
+
+    private static ParticleOptions particleFor(CultivationSpell.Element element) {
+        return switch (element) {
+            case METAL -> ParticleTypes.CRIT;
+            case WOOD -> ParticleTypes.HAPPY_VILLAGER;
+            case WATER -> ParticleTypes.SPLASH;
+            case FIRE -> ParticleTypes.FLAME;
+            case EARTH -> ParticleTypes.POOF;
+            case WIND -> ParticleTypes.CLOUD;
+            case THUNDER -> ParticleTypes.END_ROD;
+            case SOUL -> ParticleTypes.SOUL;
+            default -> ParticleTypes.ENCHANT;
+        };
     }
 
     private static MobEffectInstance effectFor(String id, int duration, int amplifier) {
