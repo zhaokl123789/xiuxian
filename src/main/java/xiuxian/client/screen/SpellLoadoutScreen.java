@@ -11,7 +11,7 @@ import xiuxian.cultivation.CultivationSpell;
 import xiuxian.cultivation.CultivationSpells;
 import xiuxian.network.XiuxianNetwork;
 
-/** Drag-and-drop spell board. Rendering is kept in one surface so controls cannot overlap. */
+/** Drag-and-drop spell board with an adaptive details panel. */
 public final class SpellLoadoutScreen extends Screen {
     private static final int PANEL = 0xF21A2420;
     private static final int PANEL_DARK = 0xD915201C;
@@ -22,13 +22,14 @@ public final class SpellLoadoutScreen extends Screen {
     private static final int GREEN = 0xFF8FCDA4;
 
     private int panelLeft, panelTop, panelWidth, panelHeight;
-    private int slotsLeft, slotsTop, slotsWidth, listLeft, listTop, listWidth, detailLeft, detailWidth;
-    private int scroll, selectedSlot, selectedSpell = -1, draggingSpell = -1;
+    private int slotsLeft, slotsTop, slotsWidth, listLeft, listTop, listWidth;
+    private int detailLeft, detailWidth, contentBottom, detailTop, detailHeight;
+    private int scroll, detailScroll, selectedSlot, selectedSpell = -1, draggingSpell = -1;
     private double dragX, dragY;
-    private boolean dragging;
+    private boolean dragging, compactLayout;
     private List<CultivationSpell> visibleSpells = List.of();
 
-    public SpellLoadoutScreen() { super(Component.literal("术法装配")); }
+    public SpellLoadoutScreen() { super(Component.literal("\u672f\u6cd5\u88c5\u914d")); }
 
     @Override
     protected void init() {
@@ -38,14 +39,36 @@ public final class SpellLoadoutScreen extends Screen {
         panelTop = (height - panelHeight) / 2;
         slotsLeft = panelLeft + 18;
         slotsTop = panelTop + 83;
-        slotsWidth = Math.min(280, Math.max(170, panelWidth / 4));
-        listLeft = slotsLeft + slotsWidth + 16;
         listTop = slotsTop;
-        listWidth = Math.min(430, Math.max(230, panelWidth / 3));
-        detailLeft = listLeft + listWidth + 16;
-        detailWidth = Math.max(170, panelLeft + panelWidth - detailLeft - 18);
+        contentBottom = panelTop + panelHeight - 18;
+        compactLayout = panelWidth < 720;
+        int innerWidth = panelWidth - 36;
+        if (compactLayout) {
+            slotsWidth = Math.max(120, (innerWidth - 16) * 36 / 100);
+            listLeft = slotsLeft + slotsWidth + 16;
+            listWidth = Math.max(120, innerWidth - slotsWidth - 16);
+            detailLeft = panelLeft + 18;
+            detailWidth = innerWidth;
+            detailHeight = Math.min(172, Math.max(148, panelHeight / 3));
+            detailTop = panelTop + panelHeight - detailHeight - 18;
+            contentBottom = detailTop - 10;
+        } else {
+            int gap = 16;
+            detailWidth = Math.max(250, Math.min(370, innerWidth * 30 / 100));
+            slotsWidth = Math.max(180, Math.min(270, innerWidth * 23 / 100));
+            listWidth = innerWidth - slotsWidth - detailWidth - gap * 2;
+            if (listWidth < 220) {
+                detailWidth = Math.max(240, detailWidth - (220 - listWidth));
+                listWidth = innerWidth - slotsWidth - detailWidth - gap * 2;
+            }
+            listLeft = slotsLeft + slotsWidth + gap;
+            detailLeft = listLeft + listWidth + gap;
+            detailTop = panelTop + 60;
+            detailHeight = panelHeight - 78;
+        }
         visibleSpells = availableSpells();
         scroll = Math.min(scroll, maxScroll());
+        detailScroll = Math.max(0, detailScroll);
         selectedSlot = Math.max(0, Math.min(CultivationClientState.spellSlotCount() - 1, selectedSlot));
     }
 
@@ -66,12 +89,15 @@ public final class SpellLoadoutScreen extends Screen {
     private int cardHeight() { return 58; }
     private int cardGap() { return 8; }
     private int cardColumns() { return listWidth >= 330 ? 2 : 1; }
-    private int visibleRows() { return Math.max(1, (panelHeight - 113) / (cardHeight() + cardGap())); }
+    private int visibleRows() { return Math.max(1, (contentBottom - listTop) / (cardHeight() + cardGap())); }
     private int maxScroll() {
         int rows = (visibleSpells.size() + cardColumns() - 1) / cardColumns();
         return Math.max(0, rows - visibleRows());
     }
-    private int slotHeight() { return Math.max(30, Math.min(44, (panelHeight - 145) / Math.max(1, CultivationClientState.spellSlotCount()) - 7)); }
+    private int slotHeight() {
+        return Math.max(30, Math.min(44,
+                (contentBottom - slotsTop) / Math.max(1, CultivationClientState.spellSlotCount()) - 7));
+    }
     private int[] slotRect(int slot) {
         int h = slotHeight();
         return new int[] {slotsLeft, slotsTop + slot * (h + 7), slotsWidth, h};
@@ -81,11 +107,16 @@ public final class SpellLoadoutScreen extends Screen {
         int cardWidth = (listWidth - (cols - 1) * cardGap()) / cols;
         int row = index / cols - scroll;
         int col = index % cols;
-        return new int[] {listLeft + col * (cardWidth + cardGap()), listTop + row * (cardHeight() + cardGap()), cardWidth, cardHeight()};
+        return new int[] {listLeft + col * (cardWidth + cardGap()),
+                listTop + row * (cardHeight() + cardGap()), cardWidth, cardHeight()};
     }
-    private boolean inside(double x, double y, int[] r) { return x >= r[0] && x <= r[0] + r[2] && y >= r[1] && y <= r[1] + r[3]; }
+    private boolean inside(double x, double y, int[] r) {
+        return x >= r[0] && x <= r[0] + r[2] && y >= r[1] && y <= r[1] + r[3];
+    }
     private int slotAt(double x, double y) {
-        for (int i = 0; i < CultivationClientState.spellSlotCount(); i++) if (inside(x, y, slotRect(i))) return i;
+        for (int i = 0; i < CultivationClientState.spellSlotCount(); i++) {
+            if (inside(x, y, slotRect(i))) return i;
+        }
         return -1;
     }
     private int cardAt(double x, double y) {
@@ -102,10 +133,12 @@ public final class SpellLoadoutScreen extends Screen {
         selectedSpell = spellIndex;
         XiuxianNetwork.requestEquipSpell(slot, visibleSpells.get(spellIndex).id());
     }
-    private void clearSlot(int slot) { if (slot >= 0) XiuxianNetwork.requestEquipSpell(slot, ""); }
+    private void clearSlot(int slot) {
+        if (slot >= 0) XiuxianNetwork.requestEquipSpell(slot, "");
+    }
     private String slotLabel(int slot) {
         CultivationSpell spell = CultivationSpells.byId(CultivationClientState.spellAt(slot));
-        return spell == null ? "空槽" : spell.displayName();
+        return spell == null ? "\u7a7a\u69fd" : spell.displayName();
     }
 
     @Override
@@ -115,30 +148,40 @@ public final class SpellLoadoutScreen extends Screen {
         graphics.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + panelHeight, PANEL);
         graphics.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + 3, GOLD);
         graphics.fill(panelLeft, panelTop + panelHeight - 3, panelLeft + panelWidth, panelTop + panelHeight, GOLD);
-        graphics.drawCenteredString(font, "太虚术法谱", width / 2, panelTop + 13, GOLD);
-        graphics.drawCenteredString(font, "按住术法卡拖入槽位；右键槽位清空；滚轮浏览备选术法", width / 2, panelTop + 31, MUTED);
-        int contentBottom = panelTop + panelHeight - 18;
+        graphics.drawCenteredString(font, "\u7075\u53f0\u672f\u6cd5\u88c5\u914d", width / 2, panelTop + 13, GOLD);
+        graphics.drawCenteredString(font,
+                "\u5de6\u952e\u62d6\u62fd\u672f\u6cd5\u5230\u5feb\u6377\u69fd\uff0c\u53f3\u952e\u6e05\u7a7a\u69fd\u4f4d\uff0c\u6eda\u8f6e\u67e5\u770b\u5217\u8868",
+                width / 2, panelTop + 31, MUTED);
         graphics.fill(slotsLeft - 8, panelTop + 60, slotsLeft + slotsWidth + 8, contentBottom, PANEL_DARK);
         graphics.fill(listLeft - 8, panelTop + 60, listLeft + listWidth + 8, contentBottom, PANEL_DARK);
-        graphics.fill(detailLeft, panelTop + 60, detailLeft + detailWidth, contentBottom, PANEL_LIGHT);
-        graphics.drawString(font, "快捷槽位  ·  " + CultivationClientState.spellSlotCount() + " 格", slotsLeft, panelTop + 67, TEXT, false);
-        graphics.drawString(font, "备选术法  ·  " + visibleSpells.size() + " 门", listLeft, panelTop + 67, TEXT, false);
-        graphics.drawString(font, "术法详情", detailLeft + 12, panelTop + 67, TEXT, false);
-        graphics.drawString(font, "Esc 返回", panelLeft + panelWidth - 68, panelTop + panelHeight - 12, MUTED, false);
-        for (int slot = 0; slot < CultivationClientState.spellSlotCount(); slot++) renderSlot(graphics, slot, mouseX, mouseY);
+        graphics.fill(detailLeft, detailTop, detailLeft + detailWidth, detailTop + detailHeight, PANEL_LIGHT);
+        graphics.drawString(font, "\u5feb\u6377\u69fd\u4f4d  \u00b7  "
+                + CultivationClientState.spellSlotCount() + " \u4e2a", slotsLeft, panelTop + 67, TEXT, false);
+        graphics.drawString(font, "\u5907\u9009\u672f\u6cd5  \u00b7  "
+                + visibleSpells.size() + " \u95e8", listLeft, panelTop + 67, TEXT, false);
+        if (!compactLayout) graphics.drawString(font, "\u672f\u6cd5\u8be6\u60c5",
+                detailLeft + 12, panelTop + 67, TEXT, false);
+        graphics.drawString(font, "Esc \u8fd4\u56de", panelLeft + panelWidth - 68,
+                panelTop + panelHeight - 12, MUTED, false);
+        for (int slot = 0; slot < CultivationClientState.spellSlotCount(); slot++) {
+            renderSlot(graphics, slot, mouseX, mouseY);
+        }
         for (int i = 0; i < visibleSpells.size(); i++) {
             int[] r = cardRect(i);
             if (r[1] < listTop || r[1] + r[3] > contentBottom) continue;
             renderCard(graphics, i, r, mouseX, mouseY);
         }
+        if (compactLayout) graphics.drawString(font, "\u672f\u6cd5\u8be6\u60c5",
+                detailLeft + 12, detailTop + 6, TEXT, false);
         renderDetails(graphics);
         if (dragging && draggingSpell >= 0 && draggingSpell < visibleSpells.size()) {
             CultivationSpell spell = visibleSpells.get(draggingSpell);
             int w = Math.min(210, Math.max(120, font.width(spell.displayName()) + 38));
-            graphics.fill((int) dragX - w / 2, (int) dragY - 18, (int) dragX + w / 2, (int) dragY + 18, 0xF02A473B);
+            graphics.fill((int) dragX - w / 2, (int) dragY - 18,
+                    (int) dragX + w / 2, (int) dragY + 18, 0xF02A473B);
             graphics.renderOutline((int) dragX - w / 2, (int) dragY - 18, w, 36, GOLD);
             graphics.drawCenteredString(font, spell.displayName(), (int) dragX, (int) dragY - 4, TEXT);
-            graphics.drawCenteredString(font, "拖入槽位", (int) dragX, (int) dragY + 9, MUTED);
+            graphics.drawCenteredString(font, "\u677e\u5f00\u653e\u5165\u69fd\u4f4d", (int) dragX, (int) dragY + 9, MUTED);
         }
     }
 
@@ -149,9 +192,12 @@ public final class SpellLoadoutScreen extends Screen {
         int fill = selected ? 0xE08C6B3E : hovered ? 0xE0526A55 : 0xC41F2B26;
         graphics.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], fill);
         graphics.renderOutline(r[0], r[1], r[2], r[3], selected ? GOLD : 0xFF667A65);
-        graphics.drawString(font, String.format("%02d", slot + 1), r[0] + 9, r[1] + (r[3] - 8) / 2, GOLD, false);
-        graphics.drawString(font, slotLabel(slot), r[0] + 42, r[1] + (r[3] - 8) / 2, TEXT, false);
-        if (selected) graphics.drawString(font, "当前", r[0] + r[2] - 35, r[1] + (r[3] - 8) / 2, MUTED, false);
+        graphics.drawString(font, String.format("%02d", slot + 1), r[0] + 9,
+                r[1] + (r[3] - 8) / 2, GOLD, false);
+        graphics.drawString(font, slotLabel(slot), r[0] + 42,
+                r[1] + (r[3] - 8) / 2, TEXT, false);
+        if (selected) graphics.drawString(font, "\u5f53\u524d", r[0] + r[2] - 35,
+                r[1] + (r[3] - 8) / 2, MUTED, false);
     }
 
     private void renderCard(GuiGraphics graphics, int index, int[] r, int mouseX, int mouseY) {
@@ -162,30 +208,40 @@ public final class SpellLoadoutScreen extends Screen {
         graphics.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], fill);
         graphics.renderOutline(r[0], r[1], r[2], r[3], selected ? GOLD : 0xFF667A65);
         graphics.drawString(font, spell.displayName(), r[0] + 10, r[1] + 8, TEXT, false);
-        graphics.drawString(font, spell.element().displayName() + "  ·  " + spell.trueQiCost() + " 真气", r[0] + 10, r[1] + 24, elementColor(spell), false);
+        graphics.drawString(font, spell.element().displayName() + "  \u00b7  "
+                + spell.trueQiCost() + " \u771f\u6c14", r[0] + 10, r[1] + 24, elementColor(spell), false);
         graphics.drawString(font, spell.usage(), r[0] + 10, r[1] + 40, MUTED, false);
     }
 
     private void renderDetails(GuiGraphics graphics) {
-        CultivationSpell selected = selectedSpell >= 0 && selectedSpell < visibleSpells.size() ? visibleSpells.get(selectedSpell) : null;
+        CultivationSpell selected = selectedSpell >= 0 && selectedSpell < visibleSpells.size()
+                ? visibleSpells.get(selectedSpell) : null;
         int x = detailLeft + 12;
-        int y = panelTop + 91;
+        int y = detailTop + 16 - detailScroll;
+        int sourceY = detailTop + detailHeight - 18;
         if (selected == null) {
-            graphics.drawString(font, "拖拽一门术法到左侧槽位", x, y, MUTED, false);
-            graphics.drawString(font, "选中后可在此查看施法参数", x, y + 18, MUTED, false);
+            graphics.drawString(font, "\u9009\u62e9\u4e00\u95e8\u672f\u6cd5\u67e5\u770b\u8be6\u60c5", x, y, MUTED, false);
+            graphics.drawString(font, "\u62d6\u62fd\u5230\u5de6\u4fa7\u69fd\u4f4d\u5373\u53ef\u88c5\u914d", x, y + 18, MUTED, false);
             return;
         }
         graphics.drawString(font, selected.displayName(), x, y, GOLD, false);
-        graphics.drawString(font, "属性：" + selected.element().displayName(), x, y + 22, TEXT, false);
-        graphics.drawString(font, "消耗：" + selected.trueQiCost() + " 真气", x, y + 39, TEXT, false);
-        graphics.drawString(font, "冷却：" + Math.max(1, selected.cooldownTicks() / 20) + " 秒", x, y + 56, TEXT, false);
-        graphics.drawString(font, "范围：" + selected.range() + " 格  ·  " + selected.usage(), x, y + 73, TEXT, false);
+        graphics.drawString(font, "\u5c5e\u6027\uff1a" + selected.element().displayName(), x, y + 22, TEXT, false);
+        graphics.drawString(font, "\u6d88\u8017\uff1a" + selected.trueQiCost() + " \u771f\u6c14", x, y + 39, TEXT, false);
+        graphics.drawString(font, "\u51b7\u5374\uff1a" + Math.max(1, selected.cooldownTicks() / 20)
+                + " \u79d2", x, y + 56, TEXT, false);
+        graphics.drawString(font, "\u8303\u56f4\uff1a" + selected.range() + " \u7c73  \u00b7  "
+                + selected.usage(), x, y + 73, TEXT, false);
         int lineY = y + 101;
-        for (FormattedCharSequence line : font.split(Component.literal(selected.description()), Math.max(100, detailWidth - 28))) {
+        int maxLineY = sourceY - 12;
+        for (FormattedCharSequence line : font.split(Component.literal(selected.description()),
+                Math.max(100, detailWidth - 28))) {
+            if (lineY > maxLineY) break;
             graphics.drawString(font, line, x, lineY, MUTED, false);
             lineY += 13;
         }
-        graphics.drawString(font, CultivationSpells.isAutomaticallyLearned(selected.id()) ? "来源：入境自悟" : "来源：奇遇术法书", x, panelTop + panelHeight - 38, GREEN, false);
+        graphics.drawString(font, CultivationSpells.isAutomaticallyLearned(selected.id())
+                ? "\u6765\u6e90\uff1a\u5883\u754c\u81ea\u609f" : "\u6765\u6e90\uff1a\u672f\u6cd5\u4e66\u6216\u5947\u9047",
+                x, sourceY, GREEN, false);
     }
 
     private int elementColor(CultivationSpell spell) {
@@ -207,9 +263,18 @@ public final class SpellLoadoutScreen extends Screen {
         if (slot >= 0) { selectedSlot = slot; return true; }
         int card = cardAt(mouseX, mouseY);
         if (card >= 0) {
-            selectedSpell = card; draggingSpell = card; dragging = true; dragX = mouseX; dragY = mouseY; return true;
+            selectedSpell = card;
+            draggingSpell = card;
+            dragging = true;
+            dragX = mouseX;
+            dragY = mouseY;
+            detailScroll = 0;
+            return true;
         }
-        if (mouseX >= panelLeft + panelWidth - 92 && mouseY >= panelTop + panelHeight - 38) { onClose(); return true; }
+        if (mouseX >= panelLeft + panelWidth - 92 && mouseY >= panelTop + panelHeight - 38) {
+            onClose();
+            return true;
+        }
         return true;
     }
 
@@ -224,15 +289,24 @@ public final class SpellLoadoutScreen extends Screen {
         if (button == 0 && dragging) {
             int slot = slotAt(mouseX, mouseY);
             if (slot >= 0) equip(slot, draggingSpell);
-            dragging = false; draggingSpell = -1; return true;
+            dragging = false;
+            draggingSpell = -1;
+            return true;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (mouseX >= listLeft - 8 && mouseX <= listLeft + listWidth + 8) {
-            scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta))); return true;
+        if (mouseX >= listLeft - 8 && mouseX <= listLeft + listWidth + 8
+                && mouseY >= listTop && mouseY <= contentBottom) {
+            scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta)));
+            return true;
+        }
+        if (mouseX >= detailLeft && mouseX <= detailLeft + detailWidth
+                && mouseY >= detailTop && mouseY <= detailTop + detailHeight) {
+            detailScroll = Math.max(0, Math.min(52, detailScroll - (int) Math.signum(delta) * 13));
+            return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
