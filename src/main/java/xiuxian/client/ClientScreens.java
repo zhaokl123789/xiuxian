@@ -45,6 +45,13 @@ public final class ClientScreens {
                 immortalFoundation, majorBreakthroughFailures, spellLoadout,
                 learnedSpellIds == null ? Set.of() : Set.copyOf(learnedSpellIds));
         Minecraft minecraft = Minecraft.getInstance();
+        // The identity screen is server-authoritative, but a late sync must
+        // still reopen it.  This prevents the first-login flow disappearing
+        // when the player joins before the initial capability packet arrives.
+        if (minecraft.player != null && !initialized) {
+            openIdentityScreen();
+            return;
+        }
         if (minecraft.player != null && initialized) {
             CultivationRealm realm = CultivationClientState.realm();
             CultivationTechnique technique = CultivationTechniques.byId(techniqueId);

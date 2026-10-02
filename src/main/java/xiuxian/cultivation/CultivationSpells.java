@@ -181,15 +181,16 @@ public final class CultivationSpells {
         if (readyAt > now) {
             return CastResult.fail("《" + spell.displayName() + "》还需 " + Math.max(1, (readyAt - now + 19) / 20) + " 秒才能再次施展。");
         }
-        if (!data.spendTrueQi(spell.trueQiCost())) {
-            return CastResult.fail("真炁不足，施展《" + spell.displayName() + "》需要 " + spell.trueQiCost() + " 点真炁。");
+        SpellTuning tuning = tune(data, spell);
+        if (!data.spendTrueQi(tuning.cost())) {
+            return CastResult.fail("真气不足，施展「" + spell.displayName() + "」需要 " + tuning.cost() + " 点真气。");
         }
         LivingEntity target = spell.targeted() ? nearestTarget(player, spell.range()) : null;
         if (spell.targeted() && target == null) {
-            data.restoreTrueQi(spell.trueQiCost());
-            return CastResult.fail("施展《" + spell.displayName() + "》需要附近有目标。");
+            data.restoreTrueQi(tuning.cost());
+            return CastResult.fail("施展「" + spell.displayName() + "」需要有效目标。");
         }
-        apply(player, data, spell, target);
+        apply(player, data, spell, target, tuning);
         playerCooldowns.put(spell.id(), now + spell.cooldownTicks());
         XiuxianNetwork.syncCultivation(player, data);
         return CastResult.success("你施展了《" + spell.displayName() + "》：" + spell.description());
@@ -213,13 +214,14 @@ public final class CultivationSpells {
                 .stream().min((a, b) -> Double.compare(player.distanceToSqr(a), player.distanceToSqr(b))).orElse(null);
     }
 
-    private static void apply(ServerPlayer player, CultivationData data, CultivationSpell spell, LivingEntity target) {
-        int duration = Math.max(1, spell.durationTicks());
+    private static void apply(ServerPlayer player, CultivationData data, CultivationSpell spell,
+                              LivingEntity target, SpellTuning tuning) {
+        int duration = Math.max(1, tuning.duration());
         int amplifier = spell.amplifier();
         switch (spell.effect()) {
-            case DAMAGE -> target.hurt(player.damageSources().magic(), spell.magnitude());
-            case HEAL -> player.heal(spell.magnitude());
-            case RESTORE_TRUE_QI -> data.restoreTrueQi(Math.round(spell.magnitude()));
+            case DAMAGE -> target.hurt(player.damageSources().magic(), tuning.magnitude());
+            case HEAL -> player.heal(tuning.magnitude());
+            case RESTORE_TRUE_QI -> data.restoreTrueQi(Math.round(tuning.magnitude()));
             case CLEANSE -> {
                 player.removeEffect(MobEffects.WEAKNESS);
                 player.removeEffect(MobEffects.DIG_SLOWDOWN);
@@ -242,6 +244,77 @@ public final class CultivationSpells {
         emitSpellParticles(level, player, spell, target);
         player.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.45F, 1.0F);
     }
+
+    /** Describes how the equipped manual resonates with a spell's element. */
+    public static String affinitySummary(String techniqueId, CultivationSpell spell) {
+        AffinityRelation relation = relation(techniqueElement(techniqueId),
+                spell == null ? CultivationSpell.Element.NONE : spell.element());
+        return switch (relation) {
+            case MATCH -> "功法共鸣：真气消耗 -20%，术法威力与持续时间 +10%";
+            case GENERATE -> "五行相生：真气消耗 -10%，术法效果 +5%";
+            case CONFLICT -> "属性相冲：真气消耗 +15%，术法效果 -8%";
+            default -> "属性平和：无额外修正";
+        };
+    }
+
+    private static SpellTuning tune(CultivationData data, CultivationSpell spell) {
+        AffinityRelation relation = relation(techniqueElement(data.techniqueId()), spell.element());
+        int cost = spell.trueQiCost();
+        float magnitude = spell.magnitude();
+        int duration = spell.durationTicks();
+        if (relation == AffinityRelation.MATCH) {
+            cost = Math.max(1, cost * 80 / 100);
+            magnitude *= 1.10F;
+            duration = Math.round(duration * 1.10F);
+        } else if (relation == AffinityRelation.GENERATE) {
+            cost = Math.max(1, cost * 90 / 100);
+            magnitude *= 1.05F;
+            duration = Math.round(duration * 1.05F);
+        } else if (relation == AffinityRelation.CONFLICT) {
+            cost = Math.max(1, cost * 115 / 100);
+            magnitude *= 0.92F;
+            duration = Math.round(duration * 0.92F);
+        }
+        return new SpellTuning(cost, magnitude, duration);
+    }
+
+    private enum AffinityRelation { NONE, MATCH, GENERATE, CONFLICT }
+
+    private static AffinityRelation relation(CultivationSpell.Element technique,
+                                             CultivationSpell.Element spell) {
+        if (technique == CultivationSpell.Element.NONE || spell == CultivationSpell.Element.NONE) return AffinityRelation.NONE;
+        if (technique == spell) return AffinityRelation.MATCH;
+        boolean generates = (technique == CultivationSpell.Element.WOOD && spell == CultivationSpell.Element.FIRE)
+                || (technique == CultivationSpell.Element.FIRE && spell == CultivationSpell.Element.EARTH)
+                || (technique == CultivationSpell.Element.EARTH && spell == CultivationSpell.Element.METAL)
+                || (technique == CultivationSpell.Element.METAL && spell == CultivationSpell.Element.WATER)
+                || (technique == CultivationSpell.Element.WATER && spell == CultivationSpell.Element.WOOD);
+        if (generates) return AffinityRelation.GENERATE;
+        boolean conflicts = (technique == CultivationSpell.Element.WOOD && spell == CultivationSpell.Element.METAL)
+                || (technique == CultivationSpell.Element.METAL && spell == CultivationSpell.Element.WOOD)
+                || (technique == CultivationSpell.Element.FIRE && spell == CultivationSpell.Element.WATER)
+                || (technique == CultivationSpell.Element.WATER && spell == CultivationSpell.Element.FIRE)
+                || (technique == CultivationSpell.Element.EARTH && spell == CultivationSpell.Element.WIND)
+                || (technique == CultivationSpell.Element.WIND && spell == CultivationSpell.Element.EARTH);
+        return conflicts ? AffinityRelation.CONFLICT : AffinityRelation.NONE;
+    }
+
+    /** Stable element mapping for old saves whose localized affinity text was encoded differently. */
+    public static CultivationSpell.Element techniqueElement(String rawId) {
+        String id = rawId == null ? "" : rawId.toLowerCase(java.util.Locale.ROOT);
+        if (id.contains("five_elements")) return CultivationSpell.Element.NONE;
+        if (id.contains("wood") || id.contains("azure") || id.contains("evergreen") || id.contains("valley") || id.contains("return_to_root") || id.contains("wuwei")) return CultivationSpell.Element.WOOD;
+        if (id.contains("fire") || id.contains("scarlet") || id.contains("sun") || id.contains("star_forger")) return CultivationSpell.Element.FIRE;
+        if (id.contains("water") || id.contains("north_sea") || id.contains("canglang") || id.contains("kan_water") || id.contains("water_virtue")) return CultivationSpell.Element.WATER;
+        if (id.contains("metal") || id.contains("sword") || id.contains("geng") || id.contains("golden")) return CultivationSpell.Element.METAL;
+        if (id.contains("earth") || id.contains("mountain") || id.contains("iron_body") || id.contains("thick_load") || id.contains("basic_breathing") || id.contains("know_stop")) return CultivationSpell.Element.EARTH;
+        if (id.contains("thunder")) return CultivationSpell.Element.THUNDER;
+        if (id.contains("wind") || id.contains("void") || id.contains("mysterious_crane") || id.contains("less_private")) return CultivationSpell.Element.WIND;
+        if (id.contains("soul") || id.contains("spirit") || id.contains("moon") || id.contains("heavenly_cycle") || id.contains("mysterious_gate") || id.contains("embrace_one")) return CultivationSpell.Element.SOUL;
+        return CultivationSpell.Element.NONE;
+    }
+
+    private record SpellTuning(int cost, float magnitude, int duration) {}
 
     /** Give each affinity a readable visual language while keeping the server authoritative. */
     private static void emitSpellParticles(ServerLevel level, ServerPlayer player,

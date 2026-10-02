@@ -41,30 +41,45 @@ public final class SpellLoadoutScreen extends Screen {
         slotsTop = panelTop + 83;
         listTop = slotsTop;
         contentBottom = panelTop + panelHeight - 18;
-        compactLayout = panelWidth < 720;
-        int innerWidth = panelWidth - 36;
+        // Keep the three panes inside the panel at every GUI scale.  The old
+        // fixed minimums could make listWidth negative on a scaled window,
+        // moving the detail text over the slot pane.
+        compactLayout = panelWidth < 860;
+        int innerWidth = Math.max(180, panelWidth - 36);
+        int gap = 16;
         if (compactLayout) {
-            slotsWidth = Math.max(120, (innerWidth - 16) * 36 / 100);
-            listLeft = slotsLeft + slotsWidth + 16;
-            listWidth = Math.max(120, innerWidth - slotsWidth - 16);
+            slotsWidth = Math.max(120, (innerWidth - gap) * 36 / 100);
+            listLeft = slotsLeft + slotsWidth + gap;
+            listWidth = Math.max(120, innerWidth - slotsWidth - gap);
             detailLeft = panelLeft + 18;
             detailWidth = innerWidth;
-            detailHeight = Math.min(172, Math.max(148, panelHeight / 3));
+            detailHeight = Math.min(178, Math.max(120, panelHeight / 3));
             detailTop = panelTop + panelHeight - detailHeight - 18;
-            contentBottom = detailTop - 10;
+            contentBottom = Math.max(slotsTop + 36, detailTop - 10);
         } else {
-            int gap = 16;
-            detailWidth = Math.max(250, Math.min(370, innerWidth * 30 / 100));
-            slotsWidth = Math.max(180, Math.min(270, innerWidth * 23 / 100));
-            listWidth = innerWidth - slotsWidth - detailWidth - gap * 2;
+            int available = Math.max(420, innerWidth - gap * 2);
+            slotsWidth = Math.max(180, Math.min(270, available * 24 / 100));
+            detailWidth = Math.max(250, Math.min(370, available * 31 / 100));
+            listWidth = available - slotsWidth - detailWidth;
             if (listWidth < 220) {
-                detailWidth = Math.max(240, detailWidth - (220 - listWidth));
-                listWidth = innerWidth - slotsWidth - detailWidth - gap * 2;
+                int deficit = 220 - listWidth;
+                int reduceSlots = Math.min(deficit / 2 + deficit % 2, Math.max(0, slotsWidth - 180));
+                slotsWidth -= reduceSlots;
+                deficit -= reduceSlots;
+                detailWidth -= Math.min(deficit, Math.max(0, detailWidth - 240));
+                listWidth = available - slotsWidth - detailWidth;
             }
+            listWidth = Math.max(180, listWidth);
             listLeft = slotsLeft + slotsWidth + gap;
             detailLeft = listLeft + listWidth + gap;
+            // Final edge clamp protects against odd font/window scale values.
+            int rightEdge = panelLeft + panelWidth - 18;
+            if (detailLeft + detailWidth > rightEdge) {
+                detailWidth = Math.max(220, rightEdge - detailLeft);
+            }
             detailTop = panelTop + 60;
-            detailHeight = panelHeight - 78;
+            detailHeight = Math.max(120, panelHeight - 78);
+            contentBottom = panelTop + panelHeight - 18;
         }
         visibleSpells = availableSpells();
         scroll = Math.min(scroll, maxScroll());
@@ -219,9 +234,13 @@ public final class SpellLoadoutScreen extends Screen {
         int x = detailLeft + 12;
         int y = detailTop + 16 - detailScroll;
         int sourceY = detailTop + detailHeight - 18;
+        // Details are clipped to their own pane so a narrow/scaled GUI can
+        // never paint the placeholder over the slot column.
+        graphics.enableScissor(detailLeft, detailTop, detailLeft + detailWidth, detailTop + detailHeight);
         if (selected == null) {
             graphics.drawString(font, "\u9009\u62e9\u4e00\u95e8\u672f\u6cd5\u67e5\u770b\u8be6\u60c5", x, y, MUTED, false);
             graphics.drawString(font, "\u62d6\u62fd\u5230\u5de6\u4fa7\u69fd\u4f4d\u5373\u53ef\u88c5\u914d", x, y + 18, MUTED, false);
+            graphics.disableScissor();
             return;
         }
         graphics.drawString(font, selected.displayName(), x, y, GOLD, false);
@@ -231,7 +250,9 @@ public final class SpellLoadoutScreen extends Screen {
                 + " \u79d2", x, y + 56, TEXT, false);
         graphics.drawString(font, "\u8303\u56f4\uff1a" + selected.range() + " \u7c73  \u00b7  "
                 + selected.usage(), x, y + 73, TEXT, false);
-        int lineY = y + 101;
+        graphics.drawString(font, CultivationSpells.affinitySummary(CultivationClientState.techniqueId(), selected),
+                x, y + 90, GREEN, false);
+        int lineY = y + 111;
         int maxLineY = sourceY - 12;
         for (FormattedCharSequence line : font.split(Component.literal(selected.description()),
                 Math.max(100, detailWidth - 28))) {
@@ -242,6 +263,7 @@ public final class SpellLoadoutScreen extends Screen {
         graphics.drawString(font, CultivationSpells.isAutomaticallyLearned(selected.id())
                 ? "\u6765\u6e90\uff1a\u5883\u754c\u81ea\u609f" : "\u6765\u6e90\uff1a\u672f\u6cd5\u4e66\u6216\u5947\u9047",
                 x, sourceY, GREEN, false);
+        graphics.disableScissor();
     }
 
     private int elementColor(CultivationSpell spell) {
