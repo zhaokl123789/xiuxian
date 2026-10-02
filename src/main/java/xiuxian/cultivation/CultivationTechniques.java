@@ -158,7 +158,29 @@ public final class CultivationTechniques {
             seed("innate_one_qi", "先天一炁经", CultivationRealm.PURPLE_MANSION, CultivationRealm.DAO_TAI, null, "古仙遗府", "混元", "universal_nine_turns", "奇遇传承", 0),
             seed("great_dao_simple", "大道至简录", CultivationRealm.GOLDEN_CORE, CultivationRealm.DAO_TAI, null, "古仙遗府", "混元", "innate_one_qi", "奇遇传承", 0));
 
-    private static final List<CultivationTechnique> EXTENDED = EXTENDED_SEEDS.stream()
+    private static final List<TechniqueSeed> FETAL_SEEDS = List.of(
+            seed("taixu_guiding_breath", "太虚引息篇", CultivationRealm.FETAL_BREATH, CultivationRealm.FETAL_BREATH, null, "太虚遗脉", "本源", "basic_breathing", "太虚奇遇", 0),
+            seed("azurewood_nourishing_qi", "青木养元诀", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "青木宗", "木脉", "clear_origin", "宗门兑换", 80),
+            seed("scarlet_cloud_qi", "赤霞炼气章", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "赤霞门", "火脉", "basic_breathing", "宗门兑换", 80),
+            seed("mysterious_water_tide", "玄水归潮诀", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "玄水宫", "水脉", "clear_origin", "宗门兑换", 90),
+            seed("thick_earth_suppress", "厚土镇元功", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "厚土宗", "土脉", "basic_breathing", "宗门兑换", 90),
+            seed("geng_metal_temper_breath", "庚金淬息录", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "金剑宗", "金脉", "clear_origin", "宗门兑换", 100),
+            seed("wind_listening_breath", "风行听息术", CultivationRealm.FETAL_BREATH, CultivationRealm.FETAL_BREATH, "sect", "风行谷", "风脉", "basic_breathing", "宗门兑换", 70),
+            seed("thunder_guiding_origin", "雷引纳元诀", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "雷霄宗", "雷脉", "clear_origin", "宗门兑换", 100),
+            seed("moonlight_calm_mind", "月华静心篇", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "月华楼", "神魂", "clear_origin", "宗门兑换", 100),
+            seed("mysterious_crane_breath", "玄鹤吐纳法", CultivationRealm.FETAL_BREATH, CultivationRealm.FETAL_BREATH, "wanderer", "散修", "身法", "basic_breathing", "散修集市", 60),
+            seed("wither_bloom_visualize", "枯荣观想录", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "wanderer", "散修", "枯荣", "clear_origin", "散修集市", 80),
+            seed("nine_breaths_return", "九息归藏诀", CultivationRealm.FETAL_BREATH, CultivationRealm.FETAL_BREATH, null, "散修", "归藏", "basic_breathing", "散修集市", 70),
+            seed("cold_soul_condense", "寒魄凝神篇", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "寒魄门", "寒水", "clear_origin", "宗门兑换", 90),
+            seed("hundred_grass_nourish", "百草养息经", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "药王谷", "药木", "basic_breathing", "宗门兑换", 80),
+            seed("sunfire_temper_body", "炎阳炼体篇", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "赤阳宗", "火体", "basic_breathing", "宗门兑换", 100),
+            seed("flowing_sand_hide", "流砂隐息法", CultivationRealm.FETAL_BREATH, CultivationRealm.FETAL_BREATH, "wanderer", "散修", "土风", "clear_origin", "散修集市", 70),
+            seed("canglang_listening_tide", "沧浪听涛诀", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "沧浪宗", "水势", "clear_origin", "宗门兑换", 90),
+            seed("white_rainbow_qi", "白虹纳气篇", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "剑宗", "剑金", "basic_breathing", "宗门兑换", 100),
+            seed("star_chart_visualize", "星罗观想术", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, "sect", "星衍阁", "星魂", "clear_origin", "宗门兑换", 110),
+            seed("return_void_nourish", "归墟养息经", CultivationRealm.FETAL_BREATH, CultivationRealm.QI_REFINING, null, "太虚遗脉", "归墟", "nine_breaths_return", "太虚奇遇", 0));
+
+    private static final List<CultivationTechnique> EXTENDED = java.util.stream.Stream.concat(EXTENDED_SEEDS.stream(), FETAL_SEEDS.stream())
             .map(CultivationTechniques::fromSeed).toList();
 
     public static List<CultivationTechnique> ALL = List.of(
@@ -209,6 +231,7 @@ public final class CultivationTechniques {
 
     private static CultivationTechnique fromSeed(TechniqueSeed seed) {
         int i = EXTENDED_SEEDS.indexOf(seed);
+        if (i < 0) i = EXTENDED_SEEDS.size() + FETAL_SEEDS.indexOf(seed);
         CultivationTechnique.Aptitude aptitude = CultivationTechnique.Aptitude.values()[i % 4];
         return special(seed.id, seed.name,
                 seed.sect + "所传，道统以" + seed.lineage + "为本，重在紫府立道、金丹定品。",
@@ -229,6 +252,12 @@ public final class CultivationTechniques {
                     seed.lineage, seed.requiredPath == null, emptyToNull(seed.prerequisiteId),
                     seed.acquisition, seed.exchangeCost, 3 + i % 7, 1 + i % 4,
                     i % 5 == 0 ? 6 : 0, i % 7 == 0 ? 8 : 0));
+        }
+        for (TechniqueSeed seed : FETAL_SEEDS) {
+            int i = FETAL_SEEDS.indexOf(seed);
+            profiles.put("xiuxian:" + seed.id, new TechniqueProfile(seed.requiredPath, seed.sect,
+                    seed.lineage, seed.requiredPath == null, emptyToNull(seed.prerequisiteId),
+                    seed.acquisition, seed.exchangeCost, 3 + i % 4, 1 + i % 3, 0, 0));
         }
         profiles.put("xiuxian:basic_breathing", new TechniqueProfile(null, "散修与宗门共传", "根基", true, null, "初始传承", 0, 0, 0, 0, 0));
         profiles.put("xiuxian:clear_origin", new TechniqueProfile(null, "散修与宗门共传", "根基", true, "basic_breathing", "散修集市", 120, 8, 0, 0, 0));
@@ -289,6 +318,15 @@ public final class CultivationTechniques {
                     "formless_roaming", "karma_cleave_blade", "nether_soul_capture",
                     "yellow_spring_crossing", "phoenix_nine_heavens", "heavenly_machination",
                     "mountain_sea_forgetfulness", "red_dust_refine_heart" -> "dao";
+            case "taixu_guiding_breath", "nine_breaths_return", "return_void_nourish" -> "fetal_origin";
+            case "azurewood_nourishing_qi", "hundred_grass_nourish", "wither_bloom_visualize" -> "fetal_wood";
+            case "scarlet_cloud_qi", "sunfire_temper_body" -> "fetal_fire";
+            case "mysterious_water_tide", "cold_soul_condense", "canglang_listening_tide" -> "fetal_water";
+            case "thick_earth_suppress", "flowing_sand_hide" -> "fetal_earth";
+            case "geng_metal_temper_breath", "white_rainbow_qi" -> "fetal_metal";
+            case "wind_listening_breath" -> "fetal_wind";
+            case "thunder_guiding_origin" -> "fetal_thunder";
+            case "moonlight_calm_mind", "star_chart_visualize" -> "fetal_soul";
             default -> "misc";
         };
     }

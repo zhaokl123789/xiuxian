@@ -53,6 +53,27 @@ public final class CultivationSpells {
         add("basic_breathing_pulse", "引气脉冲", "吐纳引气诀专属：将积蓄的初炁推向近敌", 8, 140, 6, 2, 0, 0, CultivationSpell.Effect.DAMAGE, true, "xiuxian:basic_breathing");
         add("clear_origin_insight", "返照明心", "澄源返照专属：看破目标弱点并使其显形", 7, 140, 10, 1, 100, 0, CultivationSpell.Effect.EFFECT, true, "xiuxian:clear_origin");
         add("clear_origin_rebuke", "澄源反照", "澄源返照专属：受击后以清炁反震近敌", 9, 180, 6, 3, 0, 0, CultivationSpell.Effect.DAMAGE, true, "xiuxian:clear_origin");
+        // 新增胎息传承的专属术法：每门至少一门，伤害、护盾和持续时间均保持低阶范围。
+        add("taixu_guiding_breath_return", "引息回元", "太虚引息篇专属：收束散炁，恢复少量真炁", 7, 220, 0, 5, 0, 0, CultivationSpell.Effect.RESTORE_TRUE_QI, false, "xiuxian:taixu_guiding_breath");
+        add("azurewood_nourishing_qi_rejuvenate", "青木回春", "青木养元诀专属：木炁温养伤势", 8, 220, 0, 2, 80, 0, CultivationSpell.Effect.HEAL, false, "xiuxian:azurewood_nourishing_qi");
+        add("scarlet_cloud_qi_burn", "赤霞灼指", "赤霞炼气章专属：一缕赤火灼伤近敌", 8, 180, 8, 3, 0, 0, CultivationSpell.Effect.DAMAGE, true, "xiuxian:scarlet_cloud_qi");
+        add("mysterious_water_tide_guard", "归潮护体", "玄水归潮诀专属：水幕短暂护身", 8, 240, 0, 0, 100, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:mysterious_water_tide");
+        add("thick_earth_suppress_wall", "厚土障", "厚土镇元功专属：凝成薄土壁抵挡一击", 9, 240, 0, 0, 80, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:thick_earth_suppress");
+        add("geng_metal_temper_cut", "庚金裂气", "庚金淬息录专属：金芒划过近敌", 9, 200, 8, 3, 0, 0, CultivationSpell.Effect.DAMAGE, true, "xiuxian:geng_metal_temper_breath");
+        add("wind_listening_breath_step", "逐风步", "风行听息术专属：借风提升片刻身法", 6, 180, 0, 0, 80, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:wind_listening_breath");
+        add("thunder_guiding_origin_spark", "引雷指", "雷引纳元诀专属：微弱雷光令目标失神", 10, 240, 10, 2, 30, 0, CultivationSpell.Effect.EFFECT, true, "xiuxian:thunder_guiding_origin");
+        add("moonlight_calm_mind_clear", "月华定神", "月华静心篇专属：清除自身一层负面状态", 7, 240, 0, 0, 1, 0, CultivationSpell.Effect.CLEANSE, false, "xiuxian:moonlight_calm_mind");
+        add("mysterious_crane_breath_change", "鹤影换气", "玄鹤吐纳法专属：短暂提高移动速度", 6, 200, 0, 0, 80, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:mysterious_crane_breath");
+        add("wither_bloom_visualize_cycle", "枯荣息", "枯荣观想录专属：由枯转荣，恢复少量真炁", 8, 240, 0, 4, 0, 0, CultivationSpell.Effect.RESTORE_TRUE_QI, false, "xiuxian:wither_bloom_visualize");
+        add("nine_breaths_return_guard", "九息归元", "九息归藏诀专属：守息片刻，获得薄弱护盾", 9, 260, 0, 0, 80, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:nine_breaths_return");
+        add("cold_soul_condense_needle", "寒魄指", "寒魄凝神篇专属：寒意迟滞一名近敌", 9, 220, 8, 2, 50, 0, CultivationSpell.Effect.EFFECT, true, "xiuxian:cold_soul_condense");
+        add("hundred_grass_nourish_return", "草木回元", "百草养息经专属：草木精气缓慢疗伤", 8, 240, 0, 2, 80, 0, CultivationSpell.Effect.HEAL, false, "xiuxian:hundred_grass_nourish");
+        add("sunfire_temper_body_shock", "炎阳震", "炎阳炼体篇专属：近身阳劲击退敌人", 9, 220, 6, 2, 0, 0, CultivationSpell.Effect.PUSH, true, "xiuxian:sunfire_temper_body");
+        add("flowing_sand_hide_step", "流砂遁", "流砂隐息法专属：土风护体，短暂减轻伤害", 8, 240, 0, 0, 80, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:flowing_sand_hide");
+        add("canglang_listening_tide_resist", "听涛卸力", "沧浪听涛诀专属：借水势化开下一次冲击", 9, 240, 0, 0, 80, 0, CultivationSpell.Effect.EFFECT, false, "xiuxian:canglang_listening_tide");
+        add("white_rainbow_qi_thrust", "白虹穿云", "白虹纳气篇专属：凝金成线，刺向近敌", 9, 220, 10, 3, 0, 0, CultivationSpell.Effect.DAMAGE, true, "xiuxian:white_rainbow_qi");
+        add("star_chart_visualize_sense", "星罗识海", "星罗观想术专属：短暂提升感知并显形目标", 8, 240, 10, 0, 100, 0, CultivationSpell.Effect.EFFECT, true, "xiuxian:star_chart_visualize");
+        add("return_void_nourish_origin", "归墟纳元", "归墟养息经专属：低血量时回收少量真炁", 10, 280, 0, 5, 0, 0, CultivationSpell.Effect.RESTORE_TRUE_QI, false, "xiuxian:return_void_nourish");
     }
 
     private CultivationSpells() {}
@@ -66,28 +87,28 @@ public final class CultivationSpells {
     }
 
     private static CultivationSpell.Element elementFor(String id) {
-        if (id.contains("ember") || id.contains("fire") || id.contains("scarlet")) {
+        if (id.contains("ember") || id.contains("fire") || id.contains("scarlet") || id.contains("sunfire")) {
             return CultivationSpell.Element.FIRE;
         }
-        if (id.contains("frost") || id.contains("water") || id.contains("clear_origin")) {
+        if (id.contains("frost") || id.contains("water") || id.contains("clear_origin") || id.contains("canglang")) {
             return CultivationSpell.Element.WATER;
         }
-        if (id.contains("wind") || id.contains("light_body")) {
+        if (id.contains("wind") || id.contains("light_body") || id.contains("sand_hide")) {
             return CultivationSpell.Element.WIND;
         }
-        if (id.contains("stone") || id.contains("earth") || id.contains("qi_breath")) {
+        if (id.contains("stone") || id.contains("earth") || id.contains("qi_breath") || id.contains("thick_earth") || id.contains("flowing_sand")) {
             return CultivationSpell.Element.EARTH;
         }
         if (id.contains("thunder")) {
             return CultivationSpell.Element.THUNDER;
         }
-        if (id.contains("soul") || id.contains("spirit") || id.contains("insight")) {
+        if (id.contains("soul") || id.contains("spirit") || id.contains("insight") || id.contains("moonlight") || id.contains("star_chart")) {
             return CultivationSpell.Element.SOUL;
         }
-        if (id.contains("golden")) {
+        if (id.contains("golden") || id.contains("geng_metal") || id.contains("rainbow_qi")) {
             return CultivationSpell.Element.METAL;
         }
-        if (id.contains("wood") || id.contains("rejuvenation")) {
+        if (id.contains("wood") || id.contains("rejuvenation") || id.contains("grass") || id.contains("wither_bloom")) {
             return CultivationSpell.Element.WOOD;
         }
         return CultivationSpell.Element.NONE;
