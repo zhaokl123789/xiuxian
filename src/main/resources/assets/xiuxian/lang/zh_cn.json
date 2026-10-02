@@ -62,6 +62,7 @@
   "key.xiuxian.profile": "打开修行档案",
   "item.xiuxian.test_breakthrough_pill": "\u6ee1\u4fee\u4e39\uff08\u6d4b\u8bd5\uff09",
   "key.xiuxian.void_walk": "\u592a\u865a\u884c\u65c5\uff0f\u8fd4\u4e16\uff08\u7d2b\u5e9c\uff09",
+  "key.xiuxian.spell_loadout": "\u672f\u6cd5\u88c5\u914d",
   "item.xiuxian.test_fetal_breath_pill": "\u6d4b\u8bd5\uff1a\u80ce\u606f\u5347\u5883\u4e39",
   "item.xiuxian.test_qi_refining_pill": "\u6d4b\u8bd5\uff1a\u70bc\u6c14\u5347\u5883\u4e39",
   "item.xiuxian.test_foundation_pill": "\u6d4b\u8bd5\uff1a\u7b51\u57fa\u5347\u5883\u4e39",
@@ -73,5 +74,15 @@
   "item.xiuxian.manual_iron_body": "\u300a\u7384\u5cb3\u953b\u4f53\u7bc7\u300b",
   "item.xiuxian.manual_void_shadow": "\u300a\u592a\u865a\u9041\u5f71\u7ecf\u300b",
   "item.xiuxian.manual_heavenly_cycle": "\u300a\u5468\u5929\u661f\u6cb3\u5f55\u300b",
-  "item.xiuxian.manual_star_forger": "\u300a\u661f\u9668\u94f8\u9b42\u6cd5\u300b"
+  "item.xiuxian.manual_star_forger": "\u300a\u661f\u9668\u94f8\u9b42\u6cd5\u300b",
+  "item.xiuxian.spell_manual_bright_eyes": "\u300a\u660e\u76ee\u672f\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_frost_needle": "\u300a\u51dd\u971c\u9488\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_wind_blade": "\u300a\u6e05\u98ce\u5203\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_stone_prick": "\u300a\u5730\u8109\u7a81\u523a\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_thunder_spark": "\u300a\u5f15\u96f7\u661f\u706b\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_spirit_bind": "\u300a\u7f1a\u7075\u4e1d\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_soul_shake": "\u300a\u9707\u9b42\u97f3\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_small_rejuvenation": "\u300a\u5c0f\u56de\u6625\u672f\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_true_qi_return": "\u300a\u5f52\u5143\u7eb3\u606f\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.spell_manual_repel_wave": "\u300a\u9707\u6c14\u6ce2\u300b\u672f\u6cd5\u4e66"
 }

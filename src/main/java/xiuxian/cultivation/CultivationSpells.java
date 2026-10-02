@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,16 @@ import xiuxian.network.XiuxianNetwork;
 public final class CultivationSpells {
     private static final Map<String, CultivationSpell> SPELLS = new LinkedHashMap<>();
     private static final Map<UUID, Map<String, Long>> COOLDOWNS = new LinkedHashMap<>();
+    private static final Set<String> AUTOMATIC_SPELL_IDS = Set.of(
+            "xiuxian:qi_breath_guard", "xiuxian:clear_mind", "xiuxian:light_body",
+            "xiuxian:water_breath", "xiuxian:fire_ward", "xiuxian:wooden_nourish",
+            "xiuxian:earth_skin", "xiuxian:golden_breath", "xiuxian:spirit_sense",
+            "xiuxian:ember_bolt");
+    private static final Set<String> SPELLBOOK_SPELL_IDS = Set.of(
+            "xiuxian:bright_eyes", "xiuxian:frost_needle", "xiuxian:wind_blade",
+            "xiuxian:stone_prick", "xiuxian:thunder_spark", "xiuxian:spirit_bind",
+            "xiuxian:soul_shake", "xiuxian:small_rejuvenation", "xiuxian:true_qi_return",
+            "xiuxian:repel_wave");
 
     static {
         // 二十门通用胎息术法：每一门只有一个清晰用途，方便新玩家学习和后续扩展。
@@ -124,7 +135,27 @@ public final class CultivationSpells {
     }
 
     public static List<CultivationSpell> available(CultivationData data) {
-        return SPELLS.values().stream().filter(spell -> spell.availableAt(data)).toList();
+        return SPELLS.values().stream().filter(spell -> isAvailable(data, spell)).toList();
+    }
+
+    public static boolean isAutomaticallyLearned(String rawId) {
+        String id = normalize(rawId);
+        return AUTOMATIC_SPELL_IDS.contains(id);
+    }
+
+    public static boolean requiresSpellbook(String rawId) {
+        String id = normalize(rawId);
+        return SPELLBOOK_SPELL_IDS.contains(id);
+    }
+
+    public static boolean isAvailable(CultivationData data, CultivationSpell spell) {
+        return spell != null && spell.availableAt(data)
+                && (!requiresSpellbook(spell.id()) || data.hasLearnedSpell(spell.id()));
+    }
+
+    private static String normalize(String rawId) {
+        if (rawId == null || rawId.isBlank()) return "";
+        return rawId.contains(":") ? rawId : "xiuxian:" + rawId;
     }
 
     public static String idList(CultivationData data) {
@@ -140,7 +171,7 @@ public final class CultivationSpells {
         CultivationSpell spell = byId(rawId);
         if (data == null || !data.isInitialized()) return CastResult.fail("请先确立修行身份。");
         if (spell == null) return CastResult.fail("未识得这门术法，请使用 /xiuxian spells 查看术法名。");
-        if (!spell.availableAt(data)) {
+        if (!isAvailable(data, spell)) {
             return CastResult.fail("当前境界或运转功法无法施展《" + spell.displayName() + "》。");
         }
         long now = player.level().getGameTime();
@@ -161,6 +192,17 @@ public final class CultivationSpells {
         playerCooldowns.put(spell.id(), now + spell.cooldownTicks());
         XiuxianNetwork.syncCultivation(player, data);
         return CastResult.success("你施展了《" + spell.displayName() + "》：" + spell.description());
+    }
+
+    /** Network shortcut casting must use one of the server-authoritative loadout slots. */
+    public static CastResult castEquipped(ServerPlayer player, String rawId) {
+        CultivationData data = TaixuDimension.recoverTripData(player);
+        CultivationSpell spell = byId(rawId);
+        if (data == null || !data.isInitialized() || spell == null
+                || !data.spellLoadout().contains(spell.id())) {
+            return CastResult.fail("这门术法尚未装入快捷栏。");
+        }
+        return cast(player, spell.id());
     }
 
     private static LivingEntity nearestTarget(ServerPlayer player, int range) {

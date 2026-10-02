@@ -1,5 +1,9 @@
 package xiuxian.client;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import xiuxian.cultivation.CultivationPath;
 import xiuxian.cultivation.CultivationRealm;
 import xiuxian.cultivation.FamilyOrigin;
@@ -31,6 +35,8 @@ public final class CultivationClientState {
     private static int alchemyExperienceToNextLevel = 100;
     private static String immortalFoundation = "";
     private static int majorBreakthroughFailures;
+    private static List<String> spellLoadout = List.of("", "", "", "");
+    private static Set<String> learnedSpellIds = Set.of();
 
     private CultivationClientState() {}
 
@@ -149,6 +155,11 @@ public final class CultivationClientState {
     public static int alchemyExperienceToNextLevel() { return alchemyExperienceToNextLevel; }
     public static String immortalFoundation() { return immortalFoundation; }
     public static int majorBreakthroughFailures() { return majorBreakthroughFailures; }
+    public static List<String> spellLoadout() { return Collections.unmodifiableList(spellLoadout); }
+    public static String spellAt(int slot) {
+        return slot >= 0 && slot < spellLoadout.size() ? spellLoadout.get(slot) : "";
+    }
+    public static Set<String> learnedSpellIds() { return learnedSpellIds; }
 
     public static void update(boolean newInitialized, String familyId, String pathId, String realmId,
                               int newRealmLevel, int newQi, int newBreakthroughCost,
@@ -159,7 +170,8 @@ public final class CultivationClientState {
                               int newTechniqueStudyChance, int newTrueQi, int newTrueQiMaximum,
                               int newAlchemyLevel, int newAlchemyExperience,
                               int newAlchemyExperienceToNextLevel, String newImmortalFoundation,
-                              int newMajorBreakthroughFailures) {
+                              int newMajorBreakthroughFailures, List<String> newSpellLoadout,
+                              Set<String> newLearnedSpellIds) {
         initialized = newInitialized;
         familyOrigin = FamilyOrigin.byId(familyId);
         cultivationPath = CultivationPath.byId(pathId);
@@ -184,6 +196,11 @@ public final class CultivationClientState {
         alchemyExperienceToNextLevel = Math.max(1, newAlchemyExperienceToNextLevel);
         immortalFoundation = newImmortalFoundation == null ? "" : newImmortalFoundation;
         majorBreakthroughFailures = Math.max(0, newMajorBreakthroughFailures);
+        List<String> slots = new ArrayList<>();
+        if (newSpellLoadout != null) slots.addAll(newSpellLoadout);
+        while (slots.size() < 4) slots.add("");
+        spellLoadout = List.copyOf(slots.subList(0, 4));
+        learnedSpellIds = newLearnedSpellIds == null ? Set.of() : Set.copyOf(newLearnedSpellIds);
     }
 
     private static int clampAttribute(int value) {

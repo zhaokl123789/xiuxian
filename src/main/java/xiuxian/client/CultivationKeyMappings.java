@@ -24,6 +24,8 @@ public final class CultivationKeyMappings {
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_K, "key.categories.xiuxian");
     private static final KeyMapping VOID_WALK = new KeyMapping("key.xiuxian.void_walk", KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_V, "key.categories.xiuxian");
+    private static final KeyMapping SPELL_LOADOUT = new KeyMapping("key.xiuxian.spell_loadout", KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_G, "key.categories.xiuxian");
 
     private CultivationKeyMappings() {}
 
@@ -33,6 +35,7 @@ public final class CultivationKeyMappings {
         event.register(BREAKTHROUGH);
         event.register(PROFILE);
         event.register(VOID_WALK);
+        event.register(SPELL_LOADOUT);
         MinecraftForge.EVENT_BUS.addListener(CultivationKeyMappings::onKeyInput);
     }
 
@@ -66,6 +69,11 @@ public final class CultivationKeyMappings {
         while (VOID_WALK.consumeClick()) {
             XiuxianNetwork.requestVoidWalk();
         }
+        while (SPELL_LOADOUT.consumeClick()) {
+            if (CultivationClientState.isInitialized()) {
+                minecraft.setScreen(new xiuxian.client.screen.SpellLoadoutScreen());
+            }
+        }
     }
 
     private static boolean isInterruptKey(Minecraft minecraft, InputEvent.Key event) {
@@ -83,5 +91,6 @@ public final class CultivationKeyMappings {
         while (BREAKTHROUGH.consumeClick()) {}
         while (PROFILE.consumeClick()) {}
         while (VOID_WALK.consumeClick()) {}
+        while (SPELL_LOADOUT.consumeClick()) {}
     }
 }

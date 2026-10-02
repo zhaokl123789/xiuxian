@@ -1,0 +1,4 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": { "layer0": "xiuxian:item/manual_basic_breathing" }
+}

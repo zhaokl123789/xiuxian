@@ -3,6 +3,8 @@ package xiuxian.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import java.util.List;
+import java.util.Set;
 import xiuxian.cultivation.CultivationTechnique;
 import xiuxian.cultivation.CultivationTechniques;
 import xiuxian.cultivation.CultivationRealm;
@@ -34,12 +36,14 @@ public final class ClientScreens {
                                          int techniqueStudyDuration, int techniqueStudyChance,
                                          int trueQi, int trueQiMaximum, int alchemyLevel,
                                          int alchemyExperience, int alchemyExperienceToNextLevel,
-                                         String immortalFoundation, int majorBreakthroughFailures) {
+                                         String immortalFoundation, int majorBreakthroughFailures,
+                                         List<String> spellLoadout, List<String> learnedSpellIds) {
         CultivationClientState.update(initialized, familyId, pathId, realmId, realmLevel, qi,
                 breakthroughCost, techniqueId, meditating, spiritualRoot, constitution, comprehension, fortune,
                 studyingTechniqueId, techniqueStudyTicks, techniqueStudyDuration, techniqueStudyChance,
                 trueQi, trueQiMaximum, alchemyLevel, alchemyExperience, alchemyExperienceToNextLevel,
-                immortalFoundation, majorBreakthroughFailures);
+                immortalFoundation, majorBreakthroughFailures, spellLoadout,
+                learnedSpellIds == null ? Set.of() : Set.copyOf(learnedSpellIds));
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player != null && initialized) {
             CultivationRealm realm = CultivationClientState.realm();
@@ -56,5 +60,9 @@ public final class ClientScreens {
 
     public static void openTechniqueBookScreen(String techniqueId) {
         Minecraft.getInstance().setScreen(new TechniqueBookScreen(techniqueId));
+    }
+
+    public static void openSpellLoadoutScreen() {
+        Minecraft.getInstance().setScreen(new xiuxian.client.screen.SpellLoadoutScreen());
     }
 }

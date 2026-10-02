@@ -9,9 +9,11 @@ import net.minecraftforge.common.util.INBTSerializable;
 import java.util.LinkedHashSet;
 import java.util.Collections;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CultivationData implements INBTSerializable<CompoundTag> {
-    public static final int DATA_VERSION = 9;
+    public static final int DATA_VERSION = 10;
     public static final String STARTING_TECHNIQUE = "xiuxian:basic_breathing";
     public static final int BASE_ATTRIBUTE_MIN = 1;
     public static final int BASE_ATTRIBUTE_MAX = 12;
@@ -22,6 +24,11 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     private CultivationPath cultivationPath = CultivationPath.WANDERER;
     private String techniqueId = STARTING_TECHNIQUE;
     private final Set<String> learnedTechniqueIds = new LinkedHashSet<>();
+    private final Set<String> learnedSpellIds = new LinkedHashSet<>();
+    private final List<String> spellLoadout = new ArrayList<>(List.of(
+            "xiuxian:qi_breath_guard", "xiuxian:clear_mind", "xiuxian:light_body", "xiuxian:ember_bolt"));
+    private static final List<String> DEFAULT_SPELL_LOADOUT = List.of(
+            "xiuxian:qi_breath_guard", "xiuxian:clear_mind", "xiuxian:light_body", "xiuxian:ember_bolt");
     private CultivationRealm realm = CultivationRealm.FETAL_BREATH;
     private int realmLevel = 1;
     private int qi;
@@ -378,6 +385,67 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         return learnedTechniqueIds.contains(id);
     }
 
+    public Set<String> learnedSpellIds() {
+        return Collections.unmodifiableSet(learnedSpellIds);
+    }
+
+    public boolean hasLearnedSpell(String id) {
+        return CultivationSpells.isAutomaticallyLearned(id) || learnedSpellIds.contains(id);
+    }
+
+    public boolean learnSpell(String id) {
+        CultivationSpell spell = CultivationSpells.byId(id);
+        if (spell == null || !CultivationSpells.requiresSpellbook(spell.id()) || !initialized
+                || realm.ordinal() < spell.minimumRealm().ordinal()
+                || realm.ordinal() > spell.maximumRealm().ordinal()) return false;
+        return learnedSpellIds.add(spell.id());
+    }
+
+    public List<String> spellLoadout() {
+        return Collections.unmodifiableList(spellLoadout);
+    }
+
+    public String spellAt(int slot) {
+        return slot >= 0 && slot < spellLoadout.size() ? spellLoadout.get(slot) : "";
+    }
+
+    public boolean equipSpell(int slot, String rawId) {
+        if (slot < 0 || slot >= spellLoadout.size()) return false;
+        String id = rawId == null ? "" : rawId.trim();
+        if (id.isEmpty()) {
+            spellLoadout.set(slot, "");
+            return true;
+        }
+        CultivationSpell spell = CultivationSpells.byId(id);
+        if (spell == null || !CultivationSpells.isAvailable(this, spell)) return false;
+        for (int i = 0; i < spellLoadout.size(); i++) {
+            if (i != slot && spell.id().equals(spellLoadout.get(i))) return false;
+        }
+        spellLoadout.set(slot, spell.id());
+        return true;
+    }
+
+    private void loadDefaultSpellLoadout() {
+        spellLoadout.clear();
+        for (String id : DEFAULT_SPELL_LOADOUT) {
+            spellLoadout.add(CultivationSpells.isAvailable(this, CultivationSpells.byId(id)) ? id : "");
+        }
+    }
+
+    private void sanitizeSpellLoadout() {
+        Set<String> equipped = new LinkedHashSet<>();
+        for (int i = 0; i < spellLoadout.size(); i++) {
+            CultivationSpell spell = CultivationSpells.byId(spellLoadout.get(i));
+            if (spell == null || !CultivationSpells.isAvailable(this, spell) || !equipped.add(spell.id())) {
+                spellLoadout.set(i, "");
+            } else {
+                spellLoadout.set(i, spell.id());
+            }
+        }
+        while (spellLoadout.size() < 4) spellLoadout.add("");
+        while (spellLoadout.size() > 4) spellLoadout.remove(spellLoadout.size() - 1);
+    }
+
     public boolean prerequisiteMissing(CultivationTechnique technique) {
         return technique != null && technique.prerequisiteId() != null
                 && !learnedTechniqueIds.contains("xiuxian:" + technique.prerequisiteId());
@@ -519,9 +587,11 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         boolean startsWithManual = familyOrigin.receivesStartingManual(cultivationPath);
         this.techniqueId = startsWithManual ? STARTING_TECHNIQUE : "";
         learnedTechniqueIds.clear();
+        learnedSpellIds.clear();
         if (startsWithManual) learnedTechniqueIds.add(STARTING_TECHNIQUE);
         this.realm = CultivationRealm.FETAL_BREATH;
         this.realmLevel = 1;
+        loadDefaultSpellLoadout();
         this.qi = 0;
         this.trueQi = realm.trueQiMaximumAt(realmLevel);
         this.immortalFoundation = "";
@@ -616,6 +686,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
             realmLevel++;
         }
         if (oldRealm != realm) majorBreakthroughFailures = 0;
+        sanitizeSpellLoadout();
         clampTrueQi();
         restoreTrueQi(trueQiMaximum() / 2);
         return new BreakthroughResult(true, majorBreakthrough, chance, 0, 0, 0, false);
@@ -645,6 +716,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         techniqueId = selected.id();
         learnedTechniqueIds.clear();
         learnedTechniqueIds.add(selected.id());
+        learnedSpellIds.clear();
+        loadDefaultSpellLoadout();
         immortalFoundation = target.ordinal() >= CultivationRealm.FOUNDATION_ESTABLISHMENT.ordinal()
                 ? selected.elementalAffinity() : "";
         majorBreakthroughFailures = 0;
@@ -660,6 +733,9 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         cultivationPath = CultivationPath.WANDERER;
         techniqueId = STARTING_TECHNIQUE;
         learnedTechniqueIds.clear();
+        learnedSpellIds.clear();
+        spellLoadout.clear();
+        spellLoadout.addAll(List.of("", "", "", ""));
         realm = CultivationRealm.FETAL_BREATH;
         realmLevel = 1;
         qi = 0;
@@ -694,6 +770,12 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
                 learned.add(StringTag.valueOf(id));
             }
             tag.put("learnedTechniques", learned);
+            ListTag learnedSpells = new ListTag();
+            for (String id : learnedSpellIds) learnedSpells.add(StringTag.valueOf(id));
+            tag.put("learnedSpells", learnedSpells);
+            ListTag loadout = new ListTag();
+            for (String id : spellLoadout) loadout.add(StringTag.valueOf(id));
+            tag.put("spellLoadout", loadout);
             tag.putString("realm", realm.id());
             tag.putInt("realmLevel", realmLevel);
             tag.putInt("qi", qi);
@@ -773,10 +855,31 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         if (!learnedTechniqueIds.contains(techniqueId)) {
             techniqueId = learnedTechniqueIds.stream().findFirst().orElse("");
         }
+        learnedSpellIds.clear();
+        if (tag.contains("learnedSpells", Tag.TAG_LIST)) {
+            ListTag learnedSpells = tag.getList("learnedSpells", Tag.TAG_STRING);
+            for (int i = 0; i < learnedSpells.size(); i++) {
+                String id = learnedSpells.getString(i);
+                if (CultivationSpells.requiresSpellbook(id) && CultivationSpells.byId(id) != null) {
+                    learnedSpellIds.add(CultivationSpells.byId(id).id());
+                }
+            }
+        }
         realm = dataVersion < 5
                 ? migrateLegacyRealm(tag.getString("realm"))
                 : CultivationRealm.byId(tag.getString("realm"));
         realmLevel = Math.max(1, Math.min(realm.levelCount(), tag.getInt("realmLevel")));
+        spellLoadout.clear();
+        if (tag.contains("spellLoadout", Tag.TAG_LIST)) {
+            ListTag loadout = tag.getList("spellLoadout", Tag.TAG_STRING);
+            for (int i = 0; i < 4; i++) {
+                String id = i < loadout.size() ? loadout.getString(i) : "";
+                spellLoadout.add(CultivationSpells.isAvailable(this, CultivationSpells.byId(id)) ? id : "");
+            }
+        } else {
+            loadDefaultSpellLoadout();
+        }
+        sanitizeSpellLoadout();
         qi = Math.max(0, tag.getInt("qi"));
         trueQi = tag.contains("trueQi") ? Math.max(0, tag.getInt("trueQi"))
                 : realm.trueQiMaximumAt(realmLevel);

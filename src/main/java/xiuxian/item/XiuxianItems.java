@@ -12,6 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
 import xiuxian.block.XiuxianBlocks;
 import xiuxian.cultivation.CultivationTechniques;
 import xiuxian.cultivation.CultivationRealm;
+import xiuxian.cultivation.CultivationSpells;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -126,6 +127,21 @@ public final class XiuxianItems {
     public static final RegistryObject<Item> VOID_SHADOW_MANUAL = manual("manual_void_shadow", CultivationTechniques.VOID_SHADOW);
     public static final RegistryObject<Item> HEAVENLY_CYCLE_MANUAL = manual("manual_heavenly_cycle", CultivationTechniques.HEAVENLY_CYCLE);
     public static final RegistryObject<Item> STAR_FORGER_MANUAL = manual("manual_star_forger", CultivationTechniques.STAR_FORGER);
+    public static final RegistryObject<Item> BRIGHT_EYES_SPELL_MANUAL = spellManual("spell_manual_bright_eyes", "xiuxian:bright_eyes");
+    public static final RegistryObject<Item> FROST_NEEDLE_SPELL_MANUAL = spellManual("spell_manual_frost_needle", "xiuxian:frost_needle");
+    public static final RegistryObject<Item> WIND_BLADE_SPELL_MANUAL = spellManual("spell_manual_wind_blade", "xiuxian:wind_blade");
+    public static final RegistryObject<Item> STONE_PRICK_SPELL_MANUAL = spellManual("spell_manual_stone_prick", "xiuxian:stone_prick");
+    public static final RegistryObject<Item> THUNDER_SPARK_SPELL_MANUAL = spellManual("spell_manual_thunder_spark", "xiuxian:thunder_spark");
+    public static final RegistryObject<Item> SPIRIT_BIND_SPELL_MANUAL = spellManual("spell_manual_spirit_bind", "xiuxian:spirit_bind");
+    public static final RegistryObject<Item> SOUL_SHAKE_SPELL_MANUAL = spellManual("spell_manual_soul_shake", "xiuxian:soul_shake");
+    public static final RegistryObject<Item> SMALL_REJUVENATION_SPELL_MANUAL = spellManual("spell_manual_small_rejuvenation", "xiuxian:small_rejuvenation");
+    public static final RegistryObject<Item> TRUE_QI_RETURN_SPELL_MANUAL = spellManual("spell_manual_true_qi_return", "xiuxian:true_qi_return");
+    public static final RegistryObject<Item> REPEL_WAVE_SPELL_MANUAL = spellManual("spell_manual_repel_wave", "xiuxian:repel_wave");
+    public static final List<RegistryObject<Item>> SPELL_MANUALS = List.of(
+            BRIGHT_EYES_SPELL_MANUAL, FROST_NEEDLE_SPELL_MANUAL, WIND_BLADE_SPELL_MANUAL,
+            STONE_PRICK_SPELL_MANUAL, THUNDER_SPARK_SPELL_MANUAL, SPIRIT_BIND_SPELL_MANUAL,
+            SOUL_SHAKE_SPELL_MANUAL, SMALL_REJUVENATION_SPELL_MANUAL, TRUE_QI_RETURN_SPELL_MANUAL,
+            REPEL_WAVE_SPELL_MANUAL);
     private static final Set<String> LEGACY_MANUAL_IDS = Set.of(
             "xiuxian:basic_breathing", "xiuxian:clear_origin", "xiuxian:wuwei_breath",
             "xiuxian:embrace_one", "xiuxian:valley_spirit", "xiuxian:water_virtue",
@@ -219,11 +235,16 @@ public final class XiuxianItems {
             event.accept(ALCHEMY_FURNACE_HEAVEN_ITEM);
         } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             CULTIVATION_MANUALS.forEach(event::accept);
+            SPELL_MANUALS.forEach(event::accept);
         }
     }
 
     private static RegistryObject<Item> manual(String id, xiuxian.cultivation.CultivationTechnique technique) {
         return ITEMS.register(id, () -> new TechniqueManualItem(technique.id()));
+    }
+
+    private static RegistryObject<Item> spellManual(String id, String spellId) {
+        return ITEMS.register(id, () -> new SpellManualItem(spellId));
     }
 
     private static RegistryObject<Item> ingredient(String id) {
