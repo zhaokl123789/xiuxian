@@ -2,6 +2,7 @@ package xiuxian.client.screen;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -24,10 +25,11 @@ public final class SpellLoadoutScreen extends Screen {
     private int panelLeft, panelTop, panelWidth, panelHeight;
     private int slotsLeft, slotsTop, slotsWidth, listLeft, listTop, listWidth;
     private int detailLeft, detailWidth, contentBottom, detailTop, detailHeight;
-    private int scroll, detailScroll, selectedSlot, selectedSpell = -1, draggingSpell = -1;
+    private int scroll, slotScroll, detailScroll, selectedSlot, selectedSpell = -1, draggingSpell = -1;
     private double dragX, dragY;
     private boolean dragging, compactLayout;
     private List<CultivationSpell> visibleSpells = List.of();
+    private String availableSpellsStateKey = "";
 
     public SpellLoadoutScreen() { super(Component.literal("\u672f\u6cd5\u88c5\u914d")); }
 
@@ -44,7 +46,10 @@ public final class SpellLoadoutScreen extends Screen {
         // Keep the three panes inside the panel at every GUI scale.  The old
         // fixed minimums could make listWidth negative on a scaled window,
         // moving the detail text over the slot pane.
-        compactLayout = panelWidth < 860;
+        // At the normal 2x Minecraft GUI scale this is still wide enough for
+        // three columns.  The previous 1000px breakpoint forced a bottom
+        // detail panel on ordinary 960px screens, hiding most of the list.
+        compactLayout = panelWidth < 760;
         int innerWidth = Math.max(180, panelWidth - 36);
         int gap = 16;
         if (compactLayout) {
@@ -53,9 +58,12 @@ public final class SpellLoadoutScreen extends Screen {
             listWidth = Math.max(120, innerWidth - slotsWidth - gap);
             detailLeft = panelLeft + 18;
             detailWidth = innerWidth;
-            detailHeight = Math.min(178, Math.max(120, panelHeight / 3));
+            int desiredDetailHeight = Math.min(160, Math.max(84, panelHeight / 3));
+            int firstRowBottom = listTop + 54 + cardGap();
+            int maxDetailHeight = panelTop + panelHeight - 18 - firstRowBottom - 10;
+            detailHeight = Math.min(desiredDetailHeight, Math.max(84, maxDetailHeight));
             detailTop = panelTop + panelHeight - detailHeight - 18;
-            contentBottom = Math.max(slotsTop + 36, detailTop - 10);
+            contentBottom = Math.max(firstRowBottom, detailTop - 10);
         } else {
             int available = Math.max(420, innerWidth - gap * 2);
             slotsWidth = Math.max(180, Math.min(270, available * 24 / 100));
@@ -81,17 +89,25 @@ public final class SpellLoadoutScreen extends Screen {
             detailHeight = Math.max(120, panelHeight - 78);
             contentBottom = panelTop + panelHeight - 18;
         }
-        visibleSpells = availableSpells();
+        refreshAvailableSpells();
         scroll = Math.min(scroll, maxScroll());
         detailScroll = Math.max(0, detailScroll);
         selectedSlot = Math.max(0, Math.min(CultivationClientState.spellSlotCount() - 1, selectedSlot));
+        slotScroll = Math.min(slotScroll, maxSlotScroll());
     }
 
     private List<CultivationSpell> availableSpells() {
         List<CultivationSpell> result = new ArrayList<>();
         for (CultivationSpell spell : CultivationSpells.all()) {
+            // Technique-bound spells are granted by the active lineage. They
+            // are not spellbook rewards, so filtering only learnedSpellIds
+            // made them disappear from this client screen after switching
+            // techniques even though the server accepted them.
+            boolean techniqueGranted = spell.requiredTechniqueId() != null
+                    && spell.requiredTechniqueId().equals(CultivationClientState.techniqueId());
             boolean learned = CultivationSpells.isAutomaticallyLearned(spell.id())
-                    || CultivationClientState.learnedSpellIds().contains(spell.id());
+                    || CultivationClientState.learnedSpellIds().contains(spell.id())
+                    || techniqueGranted;
             boolean realm = CultivationClientState.realm().ordinal() >= spell.minimumRealm().ordinal()
                     && CultivationClientState.realm().ordinal() <= spell.maximumRealm().ordinal();
             boolean technique = spell.requiredTechniqueId() == null
@@ -101,21 +117,45 @@ public final class SpellLoadoutScreen extends Screen {
         return List.copyOf(result);
     }
 
-    private int cardHeight() { return 58; }
+    /** Refresh the catalogue after a server sync without requiring a screen reopen. */
+    private void refreshAvailableSpells() {
+        String stateKey = CultivationClientState.techniqueId() + "|"
+                + CultivationClientState.realm().id() + "|"
+                + CultivationClientState.learnedSpellIds().hashCode();
+        if (!stateKey.equals(availableSpellsStateKey)) {
+            availableSpellsStateKey = stateKey;
+            visibleSpells = availableSpells();
+            // A technique switch can replace several cards while keeping the
+            // same list length. Clear the detail selection so it never shows
+            // the previous lineage's spell after a sync.
+            selectedSpell = -1;
+            scroll = Math.min(scroll, maxScroll());
+        }
+    }
+
+    private int cardHeight() { return compactLayout ? 54 : 58; }
     private int cardGap() { return 8; }
-    private int cardColumns() { return listWidth >= 330 ? 2 : 1; }
+    private int cardColumns() { return !compactLayout && listWidth >= 330 ? 2 : 1; }
     private int visibleRows() { return Math.max(1, (contentBottom - listTop) / (cardHeight() + cardGap())); }
     private int maxScroll() {
         int rows = (visibleSpells.size() + cardColumns() - 1) / cardColumns();
         return Math.max(0, rows - visibleRows());
     }
+    private int slotGap() { return compactLayout ? 4 : 7; }
     private int slotHeight() {
-        return Math.max(30, Math.min(44,
-                (contentBottom - slotsTop) / Math.max(1, CultivationClientState.spellSlotCount()) - 7));
+        int count = Math.max(1, CultivationClientState.spellSlotCount());
+        int available = Math.max(1, contentBottom - slotsTop);
+        return Math.max(20, Math.min(44, (available + slotGap()) / count - slotGap()));
+    }
+    private int visibleSlotRows() {
+        return Math.max(1, (contentBottom - slotsTop + slotGap()) / (slotHeight() + slotGap()));
+    }
+    private int maxSlotScroll() {
+        return Math.max(0, CultivationClientState.spellSlotCount() - visibleSlotRows());
     }
     private int[] slotRect(int slot) {
         int h = slotHeight();
-        return new int[] {slotsLeft, slotsTop + slot * (h + 7), slotsWidth, h};
+        return new int[] {slotsLeft, slotsTop + (slot - slotScroll) * (h + slotGap()), slotsWidth, h};
     }
     private int[] cardRect(int index) {
         int cols = cardColumns();
@@ -129,6 +169,7 @@ public final class SpellLoadoutScreen extends Screen {
         return x >= r[0] && x <= r[0] + r[2] && y >= r[1] && y <= r[1] + r[3];
     }
     private int slotAt(double x, double y) {
+        if (x < slotsLeft - 8 || x > slotsLeft + slotsWidth + 8 || y < slotsTop || y > contentBottom) return -1;
         for (int i = 0; i < CultivationClientState.spellSlotCount(); i++) {
             if (inside(x, y, slotRect(i))) return i;
         }
@@ -158,6 +199,7 @@ public final class SpellLoadoutScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        refreshAvailableSpells();
         renderBackground(graphics);
         graphics.fill(0, 0, width, height, 0xA807100D);
         graphics.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + panelHeight, PANEL);
@@ -165,12 +207,12 @@ public final class SpellLoadoutScreen extends Screen {
         graphics.fill(panelLeft, panelTop + panelHeight - 3, panelLeft + panelWidth, panelTop + panelHeight, GOLD);
         graphics.drawCenteredString(font, "\u7075\u53f0\u672f\u6cd5\u88c5\u914d", width / 2, panelTop + 13, GOLD);
         graphics.drawCenteredString(font,
-                "\u5de6\u952e\u62d6\u62fd\u672f\u6cd5\u5230\u5feb\u6377\u69fd\uff0c\u53f3\u952e\u6e05\u7a7a\u69fd\u4f4d\uff0c\u6eda\u8f6e\u67e5\u770b\u5217\u8868",
+                "\u62d6\u62fd\u672f\u6cd5\u5230\u5feb\u6377\u69fd  \u00b7  \u53f3\u952e\u6e05\u7a7a  \u00b7  \u6eda\u8f6e\u5207\u6362\u9875\u9762",
                 width / 2, panelTop + 31, MUTED);
         graphics.fill(slotsLeft - 8, panelTop + 60, slotsLeft + slotsWidth + 8, contentBottom, PANEL_DARK);
         graphics.fill(listLeft - 8, panelTop + 60, listLeft + listWidth + 8, contentBottom, PANEL_DARK);
         graphics.fill(detailLeft, detailTop, detailLeft + detailWidth, detailTop + detailHeight, PANEL_LIGHT);
-        graphics.drawString(font, "\u5feb\u6377\u69fd\u4f4d  \u00b7  "
+        graphics.drawString(font, "\u5feb\u6377\u69fd  \u00b7  "
                 + CultivationClientState.spellSlotCount() + " \u4e2a", slotsLeft, panelTop + 67, TEXT, false);
         graphics.drawString(font, "\u5907\u9009\u672f\u6cd5  \u00b7  "
                 + visibleSpells.size() + " \u95e8", listLeft, panelTop + 67, TEXT, false);
@@ -178,14 +220,26 @@ public final class SpellLoadoutScreen extends Screen {
                 detailLeft + 12, panelTop + 67, TEXT, false);
         graphics.drawString(font, "Esc \u8fd4\u56de", panelLeft + panelWidth - 68,
                 panelTop + panelHeight - 12, MUTED, false);
+        graphics.enableScissor(slotsLeft - 8, slotsTop, slotsLeft + slotsWidth + 8, contentBottom);
         for (int slot = 0; slot < CultivationClientState.spellSlotCount(); slot++) {
+            int[] r = slotRect(slot);
+            if (r[1] + r[3] <= slotsTop || r[1] >= contentBottom) continue;
             renderSlot(graphics, slot, mouseX, mouseY);
         }
+        graphics.disableScissor();
+        graphics.enableScissor(listLeft - 8, listTop, listLeft + listWidth + 8, contentBottom);
         for (int i = 0; i < visibleSpells.size(); i++) {
             int[] r = cardRect(i);
-            if (r[1] < listTop || r[1] + r[3] > contentBottom) continue;
+            if (r[1] + r[3] <= listTop || r[1] >= contentBottom) continue;
             renderCard(graphics, i, r, mouseX, mouseY);
         }
+        if (visibleSpells.isEmpty()) {
+            graphics.drawCenteredString(font, "尚无可用术法", listLeft + listWidth / 2,
+                    listTop + 18, MUTED);
+            graphics.drawCenteredString(font, "习得术法或修习对应功法后显现", listLeft + listWidth / 2,
+                    listTop + 34, MUTED);
+        }
+        graphics.disableScissor();
         if (compactLayout) graphics.drawString(font, "\u672f\u6cd5\u8be6\u60c5",
                 detailLeft + 12, detailTop + 6, TEXT, false);
         renderDetails(graphics);
@@ -244,16 +298,20 @@ public final class SpellLoadoutScreen extends Screen {
             return;
         }
         graphics.drawString(font, selected.displayName(), x, y, GOLD, false);
-        graphics.drawString(font, "\u5c5e\u6027\uff1a" + selected.element().displayName(), x, y + 22, TEXT, false);
-        graphics.drawString(font, "\u6d88\u8017\uff1a" + selected.trueQiCost() + " \u771f\u6c14", x, y + 39, TEXT, false);
-        graphics.drawString(font, "\u51b7\u5374\uff1a" + Math.max(1, selected.cooldownTicks() / 20)
-                + " \u79d2", x, y + 56, TEXT, false);
-        graphics.drawString(font, "\u8303\u56f4\uff1a" + selected.range() + " \u7c73  \u00b7  "
-                + selected.usage(), x, y + 73, TEXT, false);
+        graphics.drawString(font, "\u5c5e\u6027\uff1a" + selected.element().displayName()
+                + "  \u00b7  \u9002\u914d\uff1a" + selected.minimumRealm().displayName()
+                + "\u81f3" + selected.maximumRealm().displayName(), x, y + 22, TEXT, false);
+        graphics.drawString(font, "\u6d88\u8017\uff1a" + selected.trueQiCost() + " \u771f\u6c14  \u00b7  \u51b7\u5374\uff1a"
+                + Math.max(1, selected.cooldownTicks() / 20) + " \u79d2", x, y + 39, TEXT, false);
+        graphics.drawString(font, "\u65bd\u6cd5\uff1a" + selected.usage() + "  \u00b7  \u8303\u56f4\uff1a"
+                + selected.range() + " \u7c73", x, y + 56, TEXT, false);
+        graphics.drawString(font, "\u6548\u679c\uff1a" + effectSummary(selected), x, y + 75, GREEN, false);
         graphics.drawString(font, CultivationSpells.affinitySummary(CultivationClientState.techniqueId(), selected),
-                x, y + 90, GREEN, false);
-        int lineY = y + 111;
+                x, y + 94, GREEN, false);
+        int lineY = y + 116;
         int maxLineY = sourceY - 12;
+        graphics.drawString(font, "\u65bd\u6cd5\u8981\u8bc0", x, lineY, GOLD, false);
+        lineY += 17;
         for (FormattedCharSequence line : font.split(Component.literal(selected.description()),
                 Math.max(100, detailWidth - 28))) {
             if (lineY > maxLineY) break;
@@ -264,6 +322,34 @@ public final class SpellLoadoutScreen extends Screen {
                 ? "\u6765\u6e90\uff1a\u5883\u754c\u81ea\u609f" : "\u6765\u6e90\uff1a\u672f\u6cd5\u4e66\u6216\u5947\u9047",
                 x, sourceY, GREEN, false);
         graphics.disableScissor();
+    }
+
+    private String effectSummary(CultivationSpell spell) {
+        int seconds = Math.max(1, spell.durationTicks() / 20);
+        String amount = String.format(Locale.ROOT, "%.1f", spell.magnitude());
+        return switch (spell.effect()) {
+            case DAMAGE -> "对目标造成约 " + amount + " 点法术伤害";
+            case HEAL -> "恢复约 " + amount + " 点气血";
+            case RESTORE_TRUE_QI -> "恢复约 " + amount + " 点真气";
+            case CLEANSE -> "清除自身负面状态";
+            case PUSH -> "将近处目标击退";
+            case EFFECT -> effectName(spell) + "，持续 " + seconds + " 秒";
+        };
+    }
+
+    private String effectName(CultivationSpell spell) {
+        String id = spell.id();
+        if (id.contains("bright_eyes")) return "获得夜视";
+        if (id.contains("water_breath")) return "获得水下呼吸";
+        if (id.contains("fire_ward")) return "获得火焰抗性";
+        if (id.contains("light_body") || id.contains("breath_step")) return "提升移动速度";
+        if (id.contains("wooden_nourish")) return "获得生命恢复";
+        if (id.contains("earth_skin") || id.contains("golden_breath") || id.contains("guard")) return "获得伤害减免";
+        if (id.contains("frost") || id.contains("bind") || id.contains("cold_soul")) return "使目标迟滞";
+        if (id.contains("thunder")) return "使目标短暂失神";
+        if (id.contains("soul")) return "削弱目标力量";
+        if (id.contains("sense") || id.contains("insight")) return "显形附近生灵";
+        return "施加对应属性增益";
     }
 
     private int elementColor(CultivationSpell spell) {
@@ -320,6 +406,11 @@ public final class SpellLoadoutScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (mouseX >= slotsLeft - 8 && mouseX <= slotsLeft + slotsWidth + 8
+                && mouseY >= slotsTop && mouseY <= contentBottom) {
+            slotScroll = Math.max(0, Math.min(maxSlotScroll(), slotScroll - (int) Math.signum(delta)));
+            return true;
+        }
         if (mouseX >= listLeft - 8 && mouseX <= listLeft + listWidth + 8
                 && mouseY >= listTop && mouseY <= contentBottom) {
             scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta)));

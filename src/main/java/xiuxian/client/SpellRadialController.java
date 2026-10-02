@@ -132,50 +132,62 @@ public final class SpellRadialController {
         if (!canUse(minecraft)) return;
         updateSelection(minecraft);
         GuiGraphics graphics = event.getGuiGraphics();
-        int cx = minecraft.getWindow().getGuiScaledWidth() / 2;
-        int cy = minecraft.getWindow().getGuiScaledHeight() / 2;
+        int width = minecraft.getWindow().getGuiScaledWidth();
+        int height = minecraft.getWindow().getGuiScaledHeight();
+        int cx = width / 2;
+        int cy = height / 2 - 6;
         int slotCount = Math.max(1, CultivationClientState.spellSlotCount());
-        graphics.fill(cx - 154, cy - 154, cx + 154, cy + 154, 0x50101712);
-        graphics.renderOutline(cx - 152, cy - 152, 304, 304, 0xAA9C7B42);
-        graphics.renderOutline(cx - 138, cy - 138, 276, 276, 0x66566D5B);
-        graphics.renderOutline(cx - 116, cy - 116, 232, 232, 0x66566D5B);
-        graphics.fill(cx - 40, cy - 40, cx + 40, cy + 40, 0xE016211D);
-        graphics.renderOutline(cx - 40, cy - 40, 80, 80, 0xFFE0B968);
-        graphics.renderOutline(cx - 34, cy - 34, 68, 68, 0x886D9D7A);
-        graphics.drawCenteredString(minecraft.font, "\u7075\u8f6e", cx, cy - 5, 0xFFE8D8AF);
-        graphics.drawCenteredString(minecraft.font, "\u62d6\u66f3\u9009\u6cd5", cx, cy + 10, 0xFF9EB0A1);
-        double radius = 118.0D;
+
+        // A quiet veil keeps the selector readable without freezing or moving
+        // the world camera.  The selector itself stays in screen space.
+        graphics.fill(0, 0, width, height, 0x7A06100D);
+        int panel = Math.min(360, Math.min(width - 28, height - 42));
+        int left = cx - panel / 2;
+        int top = cy - panel / 2;
+        graphics.fill(left, top, left + panel, top + panel, 0xB914211C);
+        graphics.renderOutline(left, top, panel, panel, 0xD3C8A05A);
+        graphics.renderOutline(left + 8, top + 8, panel - 16, panel - 16, 0x665B806A);
+        graphics.renderOutline(left + 22, top + 22, panel - 44, panel - 44, 0x554D6D5C);
+        graphics.drawCenteredString(minecraft.font, "\u7075\u8f6e  \u00b7  \u9009\u62e9\u672f\u6cd5", cx, top + 14, 0xFFE4C77E);
+
+        int hubSize = 94;
+        graphics.fill(cx - hubSize / 2, cy - hubSize / 2, cx + hubSize / 2, cy + hubSize / 2, 0xE0182B24);
+        graphics.renderOutline(cx - hubSize / 2, cy - hubSize / 2, hubSize, hubSize, 0xFFE0B968);
+        graphics.renderOutline(cx - hubSize / 2 + 6, cy - hubSize / 2 + 6, hubSize - 12, hubSize - 12, 0x667EAF8D);
+        graphics.drawCenteredString(minecraft.font, "\u6309\u4f4f\u4e2d\u952e", cx, cy - 10, 0xFFE8E0CC);
+        graphics.drawCenteredString(minecraft.font, "\u79fb\u52a8\u9f20\u6807\u9009\u62e9", cx, cy + 7, 0xFF9EB0A1);
+
+        double radius = Math.min(132.0D, panel * 0.39D);
         double step = Math.PI * 2.0D / slotCount;
-        int nodeWidth = slotCount >= 8 ? 74 : 86;
-        int nodeHeight = 38;
+        int nodeWidth = slotCount >= 8 ? 92 : 112;
+        int nodeHeight = 48;
         for (int i = 0; i < slotCount; i++) {
             double theta = -Math.PI / 2.0D + i * step;
             int nodeX = (int) Math.round(cx + Math.cos(theta) * radius) - nodeWidth / 2;
             int nodeY = (int) Math.round(cy + Math.sin(theta) * radius) - nodeHeight / 2;
             CultivationSpell spell = CultivationSpells.byId(CultivationClientState.spellAt(i));
             int accent = spell == null ? 0xFF667A65 : elementColor(spell);
-            int color = i == selectedSlot ? (accent & 0x00FFFFFF) | 0xE0000000 : 0xC5202D28;
-            int drawX = i == selectedSlot ? nodeX - 3 : nodeX;
-            int drawY = i == selectedSlot ? nodeY - 3 : nodeY;
-            int drawW = i == selectedSlot ? nodeWidth + 6 : nodeWidth;
-            int drawH = i == selectedSlot ? nodeHeight + 6 : nodeHeight;
-            graphics.fill(drawX, drawY, drawX + drawW, drawY + drawH, color);
-            graphics.renderOutline(drawX, drawY, drawW, drawH, i == selectedSlot ? accent : 0xAA667A65);
+            boolean selected = i == selectedSlot;
+            int drawX = selected ? nodeX - 5 : nodeX;
+            int drawY = selected ? nodeY - 5 : nodeY;
+            int drawW = selected ? nodeWidth + 10 : nodeWidth;
+            int drawH = selected ? nodeHeight + 10 : nodeHeight;
+            graphics.fill(drawX, drawY, drawX + drawW, drawY + drawH,
+                    selected ? ((accent & 0x00FFFFFF) | 0xE015211C) : 0xD21A2923);
+            graphics.renderOutline(drawX, drawY, drawW, drawH, selected ? accent : 0xA067806E);
+            if (selected) graphics.renderOutline(drawX - 3, drawY - 3, drawW + 6, drawH + 6, 0x557ED09D);
             String name = spell == null ? "\u7a7a\u69fd" : spell.displayName();
             graphics.drawCenteredString(minecraft.font, String.format("%02d  %s", i + 1, name),
-                    drawX + drawW / 2, drawY + 7, 0xFFE5DDCA);
-            graphics.drawCenteredString(minecraft.font, spell == null ? "" : spell.element().displayName(),
-                    drawX + drawW / 2, drawY + 22, accent);
+                    drawX + drawW / 2, drawY + 9, 0xFFE8E0CC);
+            graphics.drawCenteredString(minecraft.font, spell == null ? "\u672a\u88c5\u914d" :
+                    spell.element().displayName() + "  \u00b7  " + spell.trueQiCost() + " \u771f\u6c14",
+                    drawX + drawW / 2, drawY + 26, spell == null ? 0xFF829187 : accent);
         }
         CultivationSpell selected = CultivationSpells.byId(CultivationClientState.spellAt(selectedSlot));
         if (selected != null) {
-            graphics.drawCenteredString(minecraft.font,
-                    selected.displayName() + "  " + selected.trueQiCost() + "\u771f\u6c14",
-                    cx, cy + 49, elementColor(selected));
+            graphics.drawCenteredString(minecraft.font, selected.displayName(), cx, top + panel - 34, elementColor(selected));
         }
-        graphics.drawCenteredString(minecraft.font,
-                "\u957f\u6309\u4e2d\u952e\u9009\u62e9  \u00b7  \u677e\u5f00\u65bd\u6cd5  \u00b7  \u6eda\u8f6e\u5207\u6362",
-                cx, cy + 67, 0xFF9EB0A1);
+        graphics.drawCenteredString(minecraft.font, "\u77ed\u6309\u4e2d\u952e\u65bd\u6cd5  \u00b7  \u957f\u6309\u8fdb\u5165\u7075\u8f6e  \u00b7  \u6eda\u8f6e\u53ef\u5207\u6362", cx, top + panel - 18, 0xFF9EB0A1);
     }
 
     private static int elementColor(CultivationSpell spell) {

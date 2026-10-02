@@ -135,6 +135,19 @@ public final class CultivationSpells {
         return List.copyOf(SPELLS.values());
     }
 
+    /**
+     * Returns every spell bound to a manual, including locked spellbook and
+     * encounter rewards.  The technique book uses this catalogue so players
+     * can plan a lineage before they have found the corresponding spell.
+     */
+    public static List<CultivationSpell> techniqueSpells(String techniqueId) {
+        String normalized = normalize(techniqueId);
+        if (normalized.isBlank()) return List.of();
+        return SPELLS.values().stream()
+                .filter(spell -> normalized.equals(normalize(spell.requiredTechniqueId())))
+                .toList();
+    }
+
     public static List<CultivationSpell> available(CultivationData data) {
         return SPELLS.values().stream().filter(spell -> isAvailable(data, spell)).toList();
     }

@@ -8,6 +8,8 @@ import net.minecraft.util.FormattedCharSequence;
 import xiuxian.client.CultivationClientState;
 import xiuxian.cultivation.CultivationTechnique;
 import xiuxian.cultivation.CultivationTechniques;
+import xiuxian.cultivation.CultivationSpell;
+import xiuxian.cultivation.CultivationSpells;
 
 public final class TechniqueBookScreen extends Screen {
     private static final int GOLD = 0xFFD4B46A;
@@ -71,6 +73,7 @@ public final class TechniqueBookScreen extends Screen {
                     + "\uff1b\u8fd0\u8f6c\u51cf\u76ca\uff1a\u5410\u7eb3 -" + technique.drawbackMeditationPercent() + "%"
                     + "\uff0c\u771f\u7081\u6062\u590d\u4ee3\u4ef7 " + technique.drawbackTrueQiCostPercent() + "%";
             y = drawSection(graphics, "\u529f\u6cd5\u8054\u7cfb", relation, y + 5);
+            y = drawTechniqueSpells(graphics, technique, y + 5);
             String inheritance = "\u9002\u4fee\u5883\u754c\uff1a" + technique.realmRangeLabel()
                     + "\uff1b\u53c2\u609f\u96be\u5ea6\uff1a" + technique.learningDifficulty() + "/10 \u00b7 "
                     + technique.learningDifficultyLabel()
@@ -99,6 +102,47 @@ public final class TechniqueBookScreen extends Screen {
             lineY += 11;
         }
         return lineY;
+    }
+
+    private int drawTechniqueSpells(GuiGraphics graphics, CultivationTechnique technique, int y) {
+        graphics.drawString(font, "\u529f\u6cd5\u4e13\u5c5e\u672f\u6cd5\uff08\u80ce\u606f\uff09", panelX + 20, y, GOLD, false);
+        List<CultivationSpell> spells = CultivationSpells.techniqueSpells(technique.id());
+        if (spells.isEmpty()) {
+            graphics.drawString(font, "\u5f53\u524d\u529f\u6cd5\u6682\u65e0\u80ce\u606f\u4e13\u5c5e\u672f\u6cd5\u3002", panelX + 20, y + 13,
+                    0xFFE2DCCB, false);
+            return y + 26;
+        }
+        int lineY = y + 13;
+        for (CultivationSpell spell : spells) {
+            String source = CultivationSpells.isAutomaticallyLearned(spell.id())
+                    ? "\u5883\u754c\u81ea\u609f" : "\u672f\u6cd5\u4e66\u6216\u5947\u9047\u83b7\u5f97";
+            String body = "《" + spell.displayName() + "》  " + spell.element().displayName()
+                    + "  ·  消耗 " + spell.trueQiCost() + " 真气  ·  " + spell.usage()
+                    + "  ·  效果：" + effectSummary(spell) + "  ·  来源：" + source;
+            for (FormattedCharSequence line : font.split(Component.literal(body), panelWidth - 40)) {
+                graphics.drawString(font, line, panelX + 20, lineY, 0xFFE2DCCB, false);
+                lineY += 11;
+            }
+            for (FormattedCharSequence line : font.split(Component.literal("术诀：" + spell.description()), panelWidth - 40)) {
+                graphics.drawString(font, line, panelX + 30, lineY, 0xFFAAC6B5, false);
+                lineY += 11;
+            }
+            lineY += 3;
+        }
+        return lineY;
+    }
+
+    private String effectSummary(CultivationSpell spell) {
+        String amount = String.format(java.util.Locale.ROOT, "%.1f", spell.magnitude());
+        int seconds = Math.max(1, spell.durationTicks() / 20);
+        return switch (spell.effect()) {
+            case DAMAGE -> "造成约 " + amount + " 点法术伤害";
+            case HEAL -> "恢复约 " + amount + " 点气血";
+            case RESTORE_TRUE_QI -> "恢复约 " + amount + " 点真气";
+            case CLEANSE -> "清除自身负面状态";
+            case PUSH -> "将近处目标击退";
+            case EFFECT -> "施加属性效果，持续 " + seconds + " 秒";
+        };
     }
 
     @Override
