@@ -410,7 +410,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
     }
 
     public boolean equipSpell(int slot, String rawId) {
-        if (slot < 0 || slot >= spellLoadout.size()) return false;
+        if (slot < 0 || slot >= realm.spellSlotCount() || slot >= spellLoadout.size()) return false;
         String id = rawId == null ? "" : rawId.trim();
         if (id.isEmpty()) {
             spellLoadout.set(slot, "");
@@ -430,6 +430,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         for (String id : DEFAULT_SPELL_LOADOUT) {
             spellLoadout.add(CultivationSpells.isAvailable(this, CultivationSpells.byId(id)) ? id : "");
         }
+        while (spellLoadout.size() < realm.spellSlotCount()) spellLoadout.add("");
     }
 
     private void sanitizeSpellLoadout() {
@@ -442,8 +443,8 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
                 spellLoadout.set(i, spell.id());
             }
         }
-        while (spellLoadout.size() < 4) spellLoadout.add("");
-        while (spellLoadout.size() > 4) spellLoadout.remove(spellLoadout.size() - 1);
+        while (spellLoadout.size() < realm.spellSlotCount()) spellLoadout.add("");
+        while (spellLoadout.size() > realm.spellSlotCount()) spellLoadout.remove(spellLoadout.size() - 1);
     }
 
     public boolean prerequisiteMissing(CultivationTechnique technique) {
@@ -872,7 +873,7 @@ public class CultivationData implements INBTSerializable<CompoundTag> {
         spellLoadout.clear();
         if (tag.contains("spellLoadout", Tag.TAG_LIST)) {
             ListTag loadout = tag.getList("spellLoadout", Tag.TAG_STRING);
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < realm.spellSlotCount(); i++) {
                 String id = i < loadout.size() ? loadout.getString(i) : "";
                 spellLoadout.add(CultivationSpells.isAvailable(this, CultivationSpells.byId(id)) ? id : "");
             }

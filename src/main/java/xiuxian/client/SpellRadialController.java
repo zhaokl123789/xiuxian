@@ -54,7 +54,8 @@ public final class SpellRadialController {
     @SubscribeEvent
     public static void onScroll(InputEvent.MouseScrollingEvent event) {
         if (!open) return;
-        selectedSlot = Math.floorMod(selectedSlot - (int) Math.signum(event.getScrollDelta()), 4);
+        int slotCount = Math.max(1, CultivationClientState.spellSlotCount());
+        selectedSlot = Math.floorMod(selectedSlot - (int) Math.signum(event.getScrollDelta()), slotCount);
         event.setCanceled(true);
     }
 
@@ -67,7 +68,9 @@ public final class SpellRadialController {
         double dy = mouseY - height / 2.0D;
         if (dx * dx + dy * dy < 900.0D) return;
         double angle = Math.atan2(dy, dx) + Math.PI / 2.0D;
-        selectedSlot = Math.floorMod((int) Math.floor((angle + Math.PI / 4.0D) / (Math.PI / 2.0D)), 4);
+        int slotCount = Math.max(1, CultivationClientState.spellSlotCount());
+        selectedSlot = Math.floorMod((int) Math.floor((angle + Math.PI / slotCount)
+                / (Math.PI * 2.0D / slotCount)), slotCount);
     }
 
     @SubscribeEvent
@@ -79,23 +82,37 @@ public final class SpellRadialController {
         GuiGraphics graphics = event.getGuiGraphics();
         int cx = minecraft.getWindow().getGuiScaledWidth() / 2;
         int cy = minecraft.getWindow().getGuiScaledHeight() / 2;
-        graphics.fill(cx - 132, cy - 132, cx + 132, cy + 132, 0x40101712);
-        graphics.renderOutline(cx - 130, cy - 130, 260, 260, 0xAA9C7B42);
-        graphics.renderOutline(cx - 102, cy - 102, 204, 204, 0x66566D5B);
-        graphics.fill(cx - 36, cy - 36, cx + 36, cy + 36, 0xE016211D);
-        graphics.renderOutline(cx - 36, cy - 36, 72, 72, 0xFFE0B968);
-        graphics.drawCenteredString(minecraft.font, "\u7075", cx, cy - 5, 0xFFE8D8AF);
-        int[][] positions = {{cx - 42, cy - 112}, {cx + 70, cy - 18}, {cx - 42, cy + 94}, {cx - 154, cy - 18}};
-        for (int i = 0; i < 4; i++) {
+        int slotCount = Math.max(1, CultivationClientState.spellSlotCount());
+        graphics.fill(cx - 154, cy - 154, cx + 154, cy + 154, 0x50101712);
+        graphics.renderOutline(cx - 152, cy - 152, 304, 304, 0xAA9C7B42);
+        graphics.renderOutline(cx - 138, cy - 138, 276, 276, 0x66566D5B);
+        graphics.renderOutline(cx - 116, cy - 116, 232, 232, 0x66566D5B);
+        graphics.fill(cx - 40, cy - 40, cx + 40, cy + 40, 0xE016211D);
+        graphics.renderOutline(cx - 40, cy - 40, 80, 80, 0xFFE0B968);
+        graphics.renderOutline(cx - 34, cy - 34, 68, 68, 0x886D9D7A);
+        graphics.drawCenteredString(minecraft.font, "\u7075\u8f6e", cx, cy - 5, 0xFFE8D8AF);
+        graphics.drawCenteredString(minecraft.font, "\u62d6\u66f3\u9009\u6cd5", cx, cy + 10, 0xFF9EB0A1);
+        double radius = 118.0D;
+        double step = Math.PI * 2.0D / slotCount;
+        int nodeWidth = slotCount >= 8 ? 74 : 86;
+        int nodeHeight = 38;
+        for (int i = 0; i < slotCount; i++) {
+            double theta = -Math.PI / 2.0D + i * step;
+            int nodeX = (int) Math.round(cx + Math.cos(theta) * radius) - nodeWidth / 2;
+            int nodeY = (int) Math.round(cy + Math.sin(theta) * radius) - nodeHeight / 2;
             CultivationSpell spell = CultivationSpells.byId(CultivationClientState.spellAt(i));
             int accent = spell == null ? 0xFF667A65 : elementColor(spell);
-            int color = i == selectedSlot ? (accent & 0x00FFFFFF) | 0xE0000000 : 0xB5202D28;
-            graphics.fill(positions[i][0], positions[i][1], positions[i][0] + 84, positions[i][1] + 34, color);
-            graphics.renderOutline(positions[i][0], positions[i][1], 84, 34, i == selectedSlot ? accent : 0xAA667A65);
+            int color = i == selectedSlot ? (accent & 0x00FFFFFF) | 0xE0000000 : 0xC5202D28;
+            int drawX = i == selectedSlot ? nodeX - 3 : nodeX;
+            int drawY = i == selectedSlot ? nodeY - 3 : nodeY;
+            int drawW = i == selectedSlot ? nodeWidth + 6 : nodeWidth;
+            int drawH = i == selectedSlot ? nodeHeight + 6 : nodeHeight;
+            graphics.fill(drawX, drawY, drawX + drawW, drawY + drawH, color);
+            graphics.renderOutline(drawX, drawY, drawW, drawH, i == selectedSlot ? accent : 0xAA667A65);
             String name = spell == null ? "\u7a7a\u69fd" : spell.displayName();
-            graphics.drawCenteredString(minecraft.font, name, positions[i][0] + 42, positions[i][1] + 7, 0xFFE5DDCA);
+            graphics.drawCenteredString(minecraft.font, String.format("%02d  %s", i + 1, name), drawX + drawW / 2, drawY + 7, 0xFFE5DDCA);
             graphics.drawCenteredString(minecraft.font, spell == null ? "" : spell.element().displayName(),
-                    positions[i][0] + 42, positions[i][1] + 20, accent);
+                    drawX + drawW / 2, drawY + 22, accent);
         }
         CultivationSpell selected = CultivationSpells.byId(CultivationClientState.spellAt(selectedSlot));
         if (selected != null) {
@@ -103,6 +120,7 @@ public final class SpellRadialController {
                     Component.literal(selected.displayName() + "  " + selected.trueQiCost() + "\u771f\u6c14"),
                     cx, cy + 49, elementColor(selected));
         }
+        graphics.drawCenteredString(minecraft.font, "\u957f\u6309\u4e2d\u952e\u9009\u62e9 · \u677e\u5f00\u65bd\u6cd5 · \u6eda\u8f6e\u5207\u6362", cx, cy + 67, 0xFF9EB0A1);
     }
 
     private static int elementColor(CultivationSpell spell) {

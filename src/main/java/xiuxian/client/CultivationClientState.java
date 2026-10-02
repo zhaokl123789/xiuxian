@@ -160,6 +160,7 @@ public final class CultivationClientState {
         return slot >= 0 && slot < spellLoadout.size() ? spellLoadout.get(slot) : "";
     }
     public static Set<String> learnedSpellIds() { return learnedSpellIds; }
+    public static int spellSlotCount() { return realm.spellSlotCount(); }
 
     public static void update(boolean newInitialized, String familyId, String pathId, String realmId,
                               int newRealmLevel, int newQi, int newBreakthroughCost,
@@ -198,8 +199,9 @@ public final class CultivationClientState {
         majorBreakthroughFailures = Math.max(0, newMajorBreakthroughFailures);
         List<String> slots = new ArrayList<>();
         if (newSpellLoadout != null) slots.addAll(newSpellLoadout);
-        while (slots.size() < 4) slots.add("");
-        spellLoadout = List.copyOf(slots.subList(0, 4));
+        int slotCount = realm.spellSlotCount();
+        while (slots.size() < slotCount) slots.add("");
+        spellLoadout = List.copyOf(slots.subList(0, slotCount));
         learnedSpellIds = newLearnedSpellIds == null ? Set.of() : Set.copyOf(newLearnedSpellIds);
     }
 

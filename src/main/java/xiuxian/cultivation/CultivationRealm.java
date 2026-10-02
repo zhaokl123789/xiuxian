@@ -46,6 +46,18 @@ public enum CultivationRealm {
         return levelCount;
     }
 
+    /** Number of quick-cast slots unlocked by this major realm. */
+    public int spellSlotCount() {
+        return switch (this) {
+            case FETAL_BREATH -> 4;
+            case QI_REFINING -> 5;
+            case FOUNDATION_ESTABLISHMENT -> 6;
+            case PURPLE_MANSION -> 7;
+            case GOLDEN_CORE -> 8;
+            case DAO_TAI -> 9;
+        };
+    }
+
     public int completedBreakthroughs(int level) {
         int completed = 0;
         for (CultivationRealm previous : values()) {

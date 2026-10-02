@@ -3,8 +3,6 @@ package xiuxian.client.screen;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -13,50 +11,42 @@ import xiuxian.cultivation.CultivationSpell;
 import xiuxian.cultivation.CultivationSpells;
 import xiuxian.network.XiuxianNetwork;
 
-/** A compact loadout board: choose a slot, then click a spell card to equip it immediately. */
+/** Drag-and-drop spell board. Rendering is kept in one surface so controls cannot overlap. */
 public final class SpellLoadoutScreen extends Screen {
-    private static final int PANEL = 0xF21B2821;
-    private static final int PANEL_ALT = 0xD927382F;
+    private static final int PANEL = 0xF21A2420;
+    private static final int PANEL_DARK = 0xD915201C;
+    private static final int PANEL_LIGHT = 0xD92A3930;
     private static final int GOLD = 0xFFE0B968;
-    private static final int TEXT = 0xFFE6DDC7;
+    private static final int TEXT = 0xFFE8E0CC;
     private static final int MUTED = 0xFF9EB0A1;
-    private int panelLeft;
-    private int panelTop;
-    private int panelWidth;
-    private int panelHeight;
-    private int selectedSlot;
-    private int selectedSpell = -1;
-    private int scroll;
+    private static final int GREEN = 0xFF8FCDA4;
+
+    private int panelLeft, panelTop, panelWidth, panelHeight;
+    private int slotsLeft, slotsTop, slotsWidth, listLeft, listTop, listWidth, detailLeft, detailWidth;
+    private int scroll, selectedSlot, selectedSpell = -1, draggingSpell = -1;
+    private double dragX, dragY;
+    private boolean dragging;
     private List<CultivationSpell> visibleSpells = List.of();
 
-    public SpellLoadoutScreen() {
-        super(Component.literal("\u672f\u6cd5\u88c5\u914d"));
-    }
+    public SpellLoadoutScreen() { super(Component.literal("术法装配")); }
 
     @Override
     protected void init() {
-        panelWidth = Math.min(900, width - 20);
-        panelHeight = Math.min(500, height - 20);
+        panelWidth = Math.min(1120, Math.max(300, width - 24));
+        panelHeight = Math.min(650, Math.max(260, height - 24));
         panelLeft = (width - panelWidth) / 2;
         panelTop = (height - panelHeight) / 2;
+        slotsLeft = panelLeft + 18;
+        slotsTop = panelTop + 83;
+        slotsWidth = Math.min(280, Math.max(170, panelWidth / 4));
+        listLeft = slotsLeft + slotsWidth + 16;
+        listTop = slotsTop;
+        listWidth = Math.min(430, Math.max(230, panelWidth / 3));
+        detailLeft = listLeft + listWidth + 16;
+        detailWidth = Math.max(170, panelLeft + panelWidth - detailLeft - 18);
         visibleSpells = availableSpells();
-
-        int slotsLeft = panelLeft + 18;
-        for (int slot = 0; slot < 4; slot++) {
-            addRenderableWidget(new SlotButton(slotsLeft, panelTop + 64 + slot * 57, 214, 46, slot));
-        }
-
-        int listLeft = panelLeft + 248;
-        int listTop = panelTop + 62;
-        int listWidth = Math.max(210, Math.min(300, panelWidth / 3));
-        int rows = Math.max(1, (panelHeight - 116) / 34);
-        int start = Math.min(scroll, Math.max(0, visibleSpells.size() - rows));
-        for (int i = start; i < Math.min(visibleSpells.size(), start + rows); i++) {
-            addRenderableWidget(new SpellButton(listLeft, listTop + (i - start) * 34, listWidth, 28, i));
-        }
-
-        addRenderableWidget(new ClearButton(slotsLeft, panelTop + panelHeight - 45, 214, 27));
-        addRenderableWidget(new CloseButton(panelLeft + panelWidth - 82, panelTop + panelHeight - 32, 64, 22));
+        scroll = Math.min(scroll, maxScroll());
+        selectedSlot = Math.max(0, Math.min(CultivationClientState.spellSlotCount() - 1, selectedSlot));
     }
 
     private List<CultivationSpell> availableSpells() {
@@ -73,172 +63,180 @@ public final class SpellLoadoutScreen extends Screen {
         return List.copyOf(result);
     }
 
-    private void equip(int spellIndex) {
-        if (spellIndex < 0 || spellIndex >= visibleSpells.size()) return;
+    private int cardHeight() { return 58; }
+    private int cardGap() { return 8; }
+    private int cardColumns() { return listWidth >= 330 ? 2 : 1; }
+    private int visibleRows() { return Math.max(1, (panelHeight - 113) / (cardHeight() + cardGap())); }
+    private int maxScroll() {
+        int rows = (visibleSpells.size() + cardColumns() - 1) / cardColumns();
+        return Math.max(0, rows - visibleRows());
+    }
+    private int slotHeight() { return Math.max(30, Math.min(44, (panelHeight - 145) / Math.max(1, CultivationClientState.spellSlotCount()) - 7)); }
+    private int[] slotRect(int slot) {
+        int h = slotHeight();
+        return new int[] {slotsLeft, slotsTop + slot * (h + 7), slotsWidth, h};
+    }
+    private int[] cardRect(int index) {
+        int cols = cardColumns();
+        int cardWidth = (listWidth - (cols - 1) * cardGap()) / cols;
+        int row = index / cols - scroll;
+        int col = index % cols;
+        return new int[] {listLeft + col * (cardWidth + cardGap()), listTop + row * (cardHeight() + cardGap()), cardWidth, cardHeight()};
+    }
+    private boolean inside(double x, double y, int[] r) { return x >= r[0] && x <= r[0] + r[2] && y >= r[1] && y <= r[1] + r[3]; }
+    private int slotAt(double x, double y) {
+        for (int i = 0; i < CultivationClientState.spellSlotCount(); i++) if (inside(x, y, slotRect(i))) return i;
+        return -1;
+    }
+    private int cardAt(double x, double y) {
+        int rows = visibleRows();
+        for (int i = 0; i < visibleSpells.size(); i++) {
+            int row = i / cardColumns() - scroll;
+            if (row >= 0 && row < rows && inside(x, y, cardRect(i))) return i;
+        }
+        return -1;
+    }
+    private void equip(int slot, int spellIndex) {
+        if (slot < 0 || spellIndex < 0 || spellIndex >= visibleSpells.size()) return;
+        selectedSlot = slot;
         selectedSpell = spellIndex;
-        XiuxianNetwork.requestEquipSpell(selectedSlot, visibleSpells.get(spellIndex).id());
+        XiuxianNetwork.requestEquipSpell(slot, visibleSpells.get(spellIndex).id());
     }
-
-    private void clearSlot() {
-        XiuxianNetwork.requestEquipSpell(selectedSlot, "");
-    }
-
+    private void clearSlot(int slot) { if (slot >= 0) XiuxianNetwork.requestEquipSpell(slot, ""); }
     private String slotLabel(int slot) {
-        String id = CultivationClientState.spellAt(slot);
-        CultivationSpell spell = CultivationSpells.byId(id);
-        return spell == null ? "\u7a7a\u69fd" : spell.displayName();
-    }
-
-    private void rebuild() {
-        clearWidgets();
-        init();
+        CultivationSpell spell = CultivationSpells.byId(CultivationClientState.spellAt(slot));
+        return spell == null ? "空槽" : spell.displayName();
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         renderBackground(graphics);
-        graphics.fill(0, 0, width, height, 0x9A07100C);
+        graphics.fill(0, 0, width, height, 0xA807100D);
         graphics.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + panelHeight, PANEL);
         graphics.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + 3, GOLD);
         graphics.fill(panelLeft, panelTop + panelHeight - 3, panelLeft + panelWidth, panelTop + panelHeight, GOLD);
-        graphics.drawCenteredString(font, "\u592a\u865a\u672f\u6cd5\u8c31", width / 2, panelTop + 14, GOLD);
-        graphics.drawCenteredString(font, "\u9009\u62e9\u5feb\u6377\u69fd\uff0c\u70b9\u51fb\u672f\u6cd5\u5361\u5373\u53ef\u88c5\u5165", width / 2, panelTop + 32, MUTED);
-
-        int slotsLeft = panelLeft + 18;
-        int listLeft = panelLeft + 248;
-        int listWidth = Math.max(210, Math.min(300, panelWidth / 3));
-        int detailLeft = listLeft + listWidth + 18;
-        graphics.fill(slotsLeft, panelTop + 49, slotsLeft + 214, panelTop + panelHeight - 56, 0xB816211B);
-        graphics.fill(listLeft - 8, panelTop + 49, listLeft + listWidth + 8, panelTop + panelHeight - 56, 0xB816211B);
-        graphics.fill(detailLeft, panelTop + 49, panelLeft + panelWidth - 18, panelTop + panelHeight - 56, PANEL_ALT);
-        graphics.drawString(font, "\u5feb\u6377\u69fd", slotsLeft + 12, panelTop + 55, TEXT, false);
-        graphics.drawString(font, "\u53ef\u7528\u672f\u6cd5", listLeft + 4, panelTop + 55, TEXT, false);
-        graphics.drawString(font, "\u672f\u6cd5\u8be6\u89e3", detailLeft + 12, panelTop + 55, TEXT, false);
-
-        CultivationSpell selected = selectedSpell >= 0 && selectedSpell < visibleSpells.size()
-                ? visibleSpells.get(selectedSpell) : null;
-        if (selected == null) {
-            graphics.drawString(font, "\u70b9\u51fb\u4e2d\u95f4\u672f\u6cd5\u5361\u88c5\u5165\u5f53\u524d\u69fd\u4f4d", detailLeft + 12, panelTop + 82, MUTED, false);
-        } else {
-            int x = detailLeft + 12;
-            int y = panelTop + 82;
-            graphics.drawString(font, selected.displayName(), x, y, GOLD, false);
-            graphics.drawString(font, "\u5c5e\u6027\uff1a" + selected.element().displayName(), x, y + 20, TEXT, false);
-            graphics.drawString(font, "\u6d88\u8017\uff1a" + selected.trueQiCost() + " \u771f\u6c14", x, y + 37, TEXT, false);
-            graphics.drawString(font, "\u51b7\u5374\uff1a" + Math.max(1, selected.cooldownTicks() / 20) + " \u79d2", x, y + 54, TEXT, false);
-            graphics.drawString(font, "\u8303\u56f4\uff1a" + selected.range() + " \u683c  \u65bd\u6cd5\uff1a" + selected.usage(), x, y + 71, TEXT, false);
-            int lineY = y + 98;
-            for (FormattedCharSequence line : font.split(Component.literal(selected.description()), panelLeft + panelWidth - detailLeft - 42)) {
-                graphics.drawString(font, line, x, lineY, MUTED, false);
-                lineY += 13;
-            }
-            graphics.drawString(font, CultivationSpells.isAutomaticallyLearned(selected.id())
-                    ? "\u83b7\u53d6\uff1a\u80ce\u606f\u5165\u5883\u81ea\u609f" : "\u83b7\u53d6\uff1a\u5947\u9047\u672f\u6cd5\u4e66", x, panelTop + panelHeight - 76, 0xFF9BCBA4, false);
+        graphics.drawCenteredString(font, "太虚术法谱", width / 2, panelTop + 13, GOLD);
+        graphics.drawCenteredString(font, "按住术法卡拖入槽位；右键槽位清空；滚轮浏览备选术法", width / 2, panelTop + 31, MUTED);
+        int contentBottom = panelTop + panelHeight - 18;
+        graphics.fill(slotsLeft - 8, panelTop + 60, slotsLeft + slotsWidth + 8, contentBottom, PANEL_DARK);
+        graphics.fill(listLeft - 8, panelTop + 60, listLeft + listWidth + 8, contentBottom, PANEL_DARK);
+        graphics.fill(detailLeft, panelTop + 60, detailLeft + detailWidth, contentBottom, PANEL_LIGHT);
+        graphics.drawString(font, "快捷槽位  ·  " + CultivationClientState.spellSlotCount() + " 格", slotsLeft, panelTop + 67, TEXT, false);
+        graphics.drawString(font, "备选术法  ·  " + visibleSpells.size() + " 门", listLeft, panelTop + 67, TEXT, false);
+        graphics.drawString(font, "术法详情", detailLeft + 12, panelTop + 67, TEXT, false);
+        graphics.drawString(font, "Esc 返回", panelLeft + panelWidth - 68, panelTop + panelHeight - 12, MUTED, false);
+        for (int slot = 0; slot < CultivationClientState.spellSlotCount(); slot++) renderSlot(graphics, slot, mouseX, mouseY);
+        for (int i = 0; i < visibleSpells.size(); i++) {
+            int[] r = cardRect(i);
+            if (r[1] < listTop || r[1] + r[3] > contentBottom) continue;
+            renderCard(graphics, i, r, mouseX, mouseY);
         }
-        super.render(graphics, mouseX, mouseY, partialTick);
+        renderDetails(graphics);
+        if (dragging && draggingSpell >= 0 && draggingSpell < visibleSpells.size()) {
+            CultivationSpell spell = visibleSpells.get(draggingSpell);
+            int w = Math.min(210, Math.max(120, font.width(spell.displayName()) + 38));
+            graphics.fill((int) dragX - w / 2, (int) dragY - 18, (int) dragX + w / 2, (int) dragY + 18, 0xF02A473B);
+            graphics.renderOutline((int) dragX - w / 2, (int) dragY - 18, w, 36, GOLD);
+            graphics.drawCenteredString(font, spell.displayName(), (int) dragX, (int) dragY - 4, TEXT);
+            graphics.drawCenteredString(font, "拖入槽位", (int) dragX, (int) dragY + 9, MUTED);
+        }
+    }
+
+    private void renderSlot(GuiGraphics graphics, int slot, int mouseX, int mouseY) {
+        int[] r = slotRect(slot);
+        boolean selected = selectedSlot == slot;
+        boolean hovered = inside(mouseX, mouseY, r);
+        int fill = selected ? 0xE08C6B3E : hovered ? 0xE0526A55 : 0xC41F2B26;
+        graphics.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], fill);
+        graphics.renderOutline(r[0], r[1], r[2], r[3], selected ? GOLD : 0xFF667A65);
+        graphics.drawString(font, String.format("%02d", slot + 1), r[0] + 9, r[1] + (r[3] - 8) / 2, GOLD, false);
+        graphics.drawString(font, slotLabel(slot), r[0] + 42, r[1] + (r[3] - 8) / 2, TEXT, false);
+        if (selected) graphics.drawString(font, "当前", r[0] + r[2] - 35, r[1] + (r[3] - 8) / 2, MUTED, false);
+    }
+
+    private void renderCard(GuiGraphics graphics, int index, int[] r, int mouseX, int mouseY) {
+        CultivationSpell spell = visibleSpells.get(index);
+        boolean hovered = inside(mouseX, mouseY, r);
+        boolean selected = selectedSpell == index;
+        int fill = selected ? 0xE08C6B3E : hovered ? 0xE0526A55 : 0xC42A3930;
+        graphics.fill(r[0], r[1], r[0] + r[2], r[1] + r[3], fill);
+        graphics.renderOutline(r[0], r[1], r[2], r[3], selected ? GOLD : 0xFF667A65);
+        graphics.drawString(font, spell.displayName(), r[0] + 10, r[1] + 8, TEXT, false);
+        graphics.drawString(font, spell.element().displayName() + "  ·  " + spell.trueQiCost() + " 真气", r[0] + 10, r[1] + 24, elementColor(spell), false);
+        graphics.drawString(font, spell.usage(), r[0] + 10, r[1] + 40, MUTED, false);
+    }
+
+    private void renderDetails(GuiGraphics graphics) {
+        CultivationSpell selected = selectedSpell >= 0 && selectedSpell < visibleSpells.size() ? visibleSpells.get(selectedSpell) : null;
+        int x = detailLeft + 12;
+        int y = panelTop + 91;
+        if (selected == null) {
+            graphics.drawString(font, "拖拽一门术法到左侧槽位", x, y, MUTED, false);
+            graphics.drawString(font, "选中后可在此查看施法参数", x, y + 18, MUTED, false);
+            return;
+        }
+        graphics.drawString(font, selected.displayName(), x, y, GOLD, false);
+        graphics.drawString(font, "属性：" + selected.element().displayName(), x, y + 22, TEXT, false);
+        graphics.drawString(font, "消耗：" + selected.trueQiCost() + " 真气", x, y + 39, TEXT, false);
+        graphics.drawString(font, "冷却：" + Math.max(1, selected.cooldownTicks() / 20) + " 秒", x, y + 56, TEXT, false);
+        graphics.drawString(font, "范围：" + selected.range() + " 格  ·  " + selected.usage(), x, y + 73, TEXT, false);
+        int lineY = y + 101;
+        for (FormattedCharSequence line : font.split(Component.literal(selected.description()), Math.max(100, detailWidth - 28))) {
+            graphics.drawString(font, line, x, lineY, MUTED, false);
+            lineY += 13;
+        }
+        graphics.drawString(font, CultivationSpells.isAutomaticallyLearned(selected.id()) ? "来源：入境自悟" : "来源：奇遇术法书", x, panelTop + panelHeight - 38, GREEN, false);
+    }
+
+    private int elementColor(CultivationSpell spell) {
+        return switch (spell.element()) {
+            case METAL -> 0xFFE5E8D2; case WOOD -> 0xFF8FD39A; case WATER -> 0xFF73C7E7;
+            case FIRE -> 0xFFFF9A5C; case EARTH -> 0xFFD9B276; case WIND -> 0xFFB4E1C1;
+            case THUNDER -> 0xFFE9E277; case SOUL -> 0xFFC9A6FF; default -> 0xFFB7C9BC;
+        };
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        int rows = Math.max(1, (panelHeight - 116) / 34);
-        int max = Math.max(0, visibleSpells.size() - rows);
-        scroll = Math.max(0, Math.min(max, scroll - (int) Math.signum(delta)));
-        rebuild();
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 1) {
+            int slot = slotAt(mouseX, mouseY);
+            if (slot >= 0) { selectedSlot = slot; clearSlot(slot); return true; }
+        }
+        if (button != 0) return super.mouseClicked(mouseX, mouseY, button);
+        int slot = slotAt(mouseX, mouseY);
+        if (slot >= 0) { selectedSlot = slot; return true; }
+        int card = cardAt(mouseX, mouseY);
+        if (card >= 0) {
+            selectedSpell = card; draggingSpell = card; dragging = true; dragX = mouseX; dragY = mouseY; return true;
+        }
+        if (mouseX >= panelLeft + panelWidth - 92 && mouseY >= panelTop + panelHeight - 38) { onClose(); return true; }
         return true;
     }
 
     @Override
-    public boolean isPauseScreen() {
-        return false;
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (button == 0 && dragging) { this.dragX = mouseX; this.dragY = mouseY; return true; }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
-    private abstract class RuneButton extends AbstractButton {
-        RuneButton(int x, int y, int width, int height, Component message) {
-            super(x, y, width, height, message);
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && dragging) {
+            int slot = slotAt(mouseX, mouseY);
+            if (slot >= 0) equip(slot, draggingSpell);
+            dragging = false; draggingSpell = -1; return true;
         }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int fill = isHoveredOrFocused() ? 0xE0526A55 : 0xD12A3930;
-            graphics.fill(getX(), getY(), getX() + width, getY() + height, fill);
-            graphics.renderOutline(getX(), getY(), width, height, isFocused() ? GOLD : 0xFF667A65);
-            graphics.drawCenteredString(font, getMessage(), getX() + width / 2,
-                    getY() + (height - 8) / 2, TEXT);
-        }
-
-        @Override
-        protected void updateWidgetNarration(NarrationElementOutput output) {
-            defaultButtonNarrationText(output);
-        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    private final class SlotButton extends RuneButton {
-        private final int slot;
-
-        SlotButton(int x, int y, int width, int height, int slot) {
-            super(x, y, width, height, Component.literal((slot + 1) + "  " + slotLabel(slot)));
-            this.slot = slot;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (mouseX >= listLeft - 8 && mouseX <= listLeft + listWidth + 8) {
+            scroll = Math.max(0, Math.min(maxScroll(), scroll - (int) Math.signum(delta))); return true;
         }
-
-        @Override
-        public void onPress() {
-            selectedSlot = slot;
-        }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int fill = selectedSlot == slot ? 0xE08C6B3E : (isHoveredOrFocused() ? 0xE0526A55 : 0xD12A3930);
-            graphics.fill(getX(), getY(), getX() + width, getY() + height, fill);
-            graphics.renderOutline(getX(), getY(), width, height, selectedSlot == slot ? GOLD : 0xFF667A65);
-            graphics.drawString(font, (slot + 1) + "", getX() + 12, getY() + 16, GOLD, false);
-            graphics.drawString(font, slotLabel(slot), getX() + 38, getY() + 16, TEXT, false);
-        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
-    private final class SpellButton extends RuneButton {
-        private final int index;
-
-        SpellButton(int x, int y, int width, int height, int index) {
-            super(x, y, width, height, Component.literal(visibleSpells.get(index).displayName()));
-            this.index = index;
-        }
-
-        @Override
-        public void onPress() {
-            equip(index);
-        }
-
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            int fill = selectedSpell == index ? 0xE08C6B3E : (isHoveredOrFocused() ? 0xE0526A55 : 0xD12A3930);
-            graphics.fill(getX(), getY(), getX() + width, getY() + height, fill);
-            graphics.renderOutline(getX(), getY(), width, height, selectedSpell == index ? GOLD : 0xFF667A65);
-            CultivationSpell spell = visibleSpells.get(index);
-            graphics.drawString(font, spell.displayName(), getX() + 10, getY() + 5, TEXT, false);
-            graphics.drawString(font, spell.element().displayName() + "  " + spell.trueQiCost() + "\u771f\u6c14",
-                    getX() + 10, getY() + 16, MUTED, false);
-        }
-    }
-
-    private final class ClearButton extends RuneButton {
-        ClearButton(int x, int y, int width, int height) {
-            super(x, y, width, height, Component.literal("\u6e05\u7a7a\u9009\u4e2d\u69fd\u4f4d"));
-        }
-
-        @Override
-        public void onPress() {
-            clearSlot();
-        }
-    }
-
-    private final class CloseButton extends RuneButton {
-        CloseButton(int x, int y, int width, int height) {
-            super(x, y, width, height, Component.literal("\u8fd4\u56de"));
-        }
-
-        @Override
-        public void onPress() {
-            onClose();
-        }
-    }
+    @Override
+    public boolean isPauseScreen() { return false; }
 }
