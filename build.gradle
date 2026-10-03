@@ -19,6 +19,17 @@ minecraft {
     mappings channel: 'official', version: '1.20.1'
     copyIdeResources = true
     runs {
+        gameTestServer {
+            workingDirectory project.file('run/luoxia-gametest')
+            property 'forge.enabledGameTestNamespaces', 'forge,xiuxian'
+            args '--world', 'world-' + System.currentTimeMillis()
+            mods {
+                "xiuxian" {
+                    source sourceSets.main
+                    source sourceSets.test
+                }
+            }
+        }
         client {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'registe_events'
@@ -40,6 +51,27 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.4.10'
 
 
+}
+
+tasks.register('luoxiaVerify', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'xiuxian.sect.LuoxiaGeometryVerification'
+    workingDir = projectDir
+    maxHeapSize = '2G'
+}
+
+tasks.register('prepareLuoxiaGameTestFixture', Copy) {
+    from('src/test/resources/gameteststructures') {
+        into 'gameteststructures'
+    }
+    from 'src/test/resources/luoxia-server.properties'
+    rename 'luoxia-server.properties', 'server.properties'
+    into 'run/luoxia-gametest'
+}
+
+tasks.matching { it.name == 'prepareRunGameTestServer' }.configureEach {
+    dependsOn tasks.named('prepareLuoxiaGameTestFixture')
 }
 
 tasks.named('processResources', ProcessResources).configure {
