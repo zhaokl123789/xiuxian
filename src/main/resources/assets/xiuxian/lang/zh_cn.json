@@ -84,5 +84,14 @@
   "item.xiuxian.spell_manual_soul_shake": "\u300a\u9707\u9b42\u97f3\u300b\u672f\u6cd5\u4e66",
   "item.xiuxian.spell_manual_small_rejuvenation": "\u300a\u5c0f\u56de\u6625\u672f\u300b\u672f\u6cd5\u4e66",
   "item.xiuxian.spell_manual_true_qi_return": "\u300a\u5f52\u5143\u7eb3\u606f\u300b\u672f\u6cd5\u4e66",
-  "item.xiuxian.spell_manual_repel_wave": "\u300a\u9707\u6c14\u6ce2\u300b\u672f\u6cd5\u4e66"
+  "item.xiuxian.spell_manual_repel_wave": "\u300a\u9707\u6c14\u6ce2\u300b\u672f\u6cd5\u4e66",
+  "item.xiuxian.luoxia_construction_decree": "落霞宗营建令",
+  "tooltip.xiuxian.luoxia_construction_decree.place": "管理员创造模式：右键地面，在北侧营建落霞宗",
+  "tooltip.xiuxian.luoxia_construction_decree.control": "右键查进度；潜行右键暂停、续建或前往山门",
+  "tooltip.xiuxian.luoxia_construction_decree.bounds": "范围321×385；替换地形；基准Y须-52..97",
+  "message.xiuxian.luoxia_decree.ground": "首次营建请右键地面顶面，基准 Y 须在 -52 至 97",
+  "message.xiuxian.luoxia_decree.creative": "落霞宗营建令仅供创造模式验收使用。",
+  "message.xiuxian.luoxia_decree.permission": "营建令需要管理员权限（等级 2）。",
+  "message.xiuxian.luoxia_decree.overworld": "落霞宗外部只能在现世营建或验收。",
+  "message.xiuxian.luoxia_decree.started": "营建已启动，山门在点击位置北侧约 12 格。右键查进度，潜行右键暂停或继续。"
 }

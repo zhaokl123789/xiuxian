@@ -22,6 +22,9 @@ import java.util.Set;
 public final class XiuxianItems {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "xiuxian");
 
+    public static final RegistryObject<Item> LUOXIA_CONSTRUCTION_DECREE = ITEMS.register("luoxia_construction_decree",
+            LuoxiaConstructionDecreeItem::new);
+
     public static final RegistryObject<Item> QI_GATHERING_PILL = ITEMS.register("qi_gathering_pill",
             () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), 20));
     public static final RegistryObject<Item> MID_QI_GATHERING_PILL = ITEMS.register("mid_qi_gathering_pill",
@@ -234,6 +237,7 @@ public final class XiuxianItems {
             event.accept(ALCHEMY_FURNACE_EARTH_ITEM);
             event.accept(ALCHEMY_FURNACE_HEAVEN_ITEM);
         } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+            event.accept(LUOXIA_CONSTRUCTION_DECREE);
             CULTIVATION_MANUALS.forEach(event::accept);
             SPELL_MANUALS.forEach(event::accept);
         }

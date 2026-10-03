@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "xiuxian:item/luoxia_construction_decree"
+  }
+}

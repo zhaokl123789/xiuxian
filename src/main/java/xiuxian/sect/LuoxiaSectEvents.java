@@ -1,6 +1,7 @@
 package xiuxian.sect;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -18,6 +19,46 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = "xiuxian")
 public final class LuoxiaSectEvents {
     private LuoxiaSectEvents() {}
+
+    public static int useDecree(ServerPlayer player, @Nullable BlockPos ground) {
+        CommandSourceStack source = player.createCommandSourceStack();
+        if (!player.isCreative()) {
+            source.sendFailure(Component.translatable("message.xiuxian.luoxia_decree.creative"));
+            return 0;
+        }
+        if (!player.hasPermissions(2)) {
+            source.sendFailure(Component.translatable("message.xiuxian.luoxia_decree.permission"));
+            return 0;
+        }
+        if (player.level().dimension() != Level.OVERWORLD) {
+            source.sendFailure(Component.translatable("message.xiuxian.luoxia_decree.overworld"));
+            return 0;
+        }
+        ServerLevel level = player.serverLevel();
+        LuoxiaSiteData data = LuoxiaSiteData.get(level);
+        if (data.origin != null && data.phase != LuoxiaSiteData.Phase.PLANNED) {
+            if (!player.isShiftKeyDown()) return status(source);
+            if (data.phase == LuoxiaSiteData.Phase.COMPLETE) {
+                try {
+                    return visit(source, 0, 1, 108);
+                } catch (CommandSyntaxException failure) {
+                    source.sendFailure(Component.literal(failure.getMessage()));
+                    return 0;
+                }
+            }
+            return data.paused ? resume(source) : pause(source);
+        }
+        if (ground == null) {
+            status(source);
+            player.sendSystemMessage(Component.translatable("message.xiuxian.luoxia_decree.ground"));
+            return 1;
+        }
+        // Put the user eight blocks south of the reserved area; the entrance is twelve blocks north.
+        BlockPos origin = ground.offset(0, 0, -(LuoxiaBlueprint.MAX_Z + 8));
+        if (plan(source, origin) != 1 || build(source) != 1) return 0;
+        player.sendSystemMessage(Component.translatable("message.xiuxian.luoxia_decree.started"));
+        return 1;
+    }
 
     @SubscribeEvent
     public static void commands(RegisterCommandsEvent event) {

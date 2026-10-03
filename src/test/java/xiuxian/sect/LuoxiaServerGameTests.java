@@ -9,10 +9,16 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.server.players.ServerOpListEntry;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
@@ -20,6 +26,8 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +41,7 @@ import xiuxian.cultivation.CultivationData;
 import xiuxian.cultivation.CultivationPath;
 import xiuxian.cultivation.CultivationRealm;
 import xiuxian.cultivation.FamilyOrigin;
+import xiuxian.item.XiuxianItems;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -53,6 +62,7 @@ public final class LuoxiaServerGameTests {
     private static final TicketType<ChunkPos> FLUID_OBSERVATION_TICKET = TicketType.create(
             "xiuxian_luoxia_fluid_test", Comparator.comparingLong(ChunkPos::toLong), 400);
     private static final Map<ServerLevel, FluidObservation> FLUID_OBSERVATIONS = new IdentityHashMap<>();
+    private static final Map<ServerLevel, GameProfile> DECREE_TEST_OPERATORS = new IdentityHashMap<>();
     private static final int[][] WATERFALLS = {{-86, -105}, {91, -186}, {-138, -107}, {141, -183}};
 
     private LuoxiaServerGameTests() {}
@@ -60,6 +70,16 @@ public final class LuoxiaServerGameTests {
     @GameTest(templateNamespace = "forge", template = "empty", timeoutTicks = TIMEOUT_TICKS, batch = "luoxia")
     public static void fullConstruction(GameTestHelper helper) {
         ServerLevel level = helper.getLevel().getServer().overworld();
+        try {
+            runFullConstruction(helper, level);
+        } catch (RuntimeException | Error failure) {
+            closeFluidObservation(level);
+            removeDecreeTestOperator(level);
+            throw failure;
+        }
+    }
+
+    private static void runFullConstruction(GameTestHelper helper, ServerLevel level) {
         LuoxiaSiteData initialSite = LuoxiaSiteData.get(level);
         helper.assertTrue(initialSite.origin == null, "Run this test in a fresh GameTest world; an existing sect is protected");
         FakePlayer observer = FakePlayerFactory.get(level, new GameProfile(
@@ -86,9 +106,8 @@ public final class LuoxiaServerGameTests {
         helper.assertTrue(initialSite.origin == null, "A Nether command planned an overworld building");
         expectCommand(helper, source, "build", 0);
         verifyRejectedWrite(helper, level, initialSite);
-        expectCommand(helper, source, "plan 4096 64 4096", 1);
-        helper.assertTrue(ORIGIN.equals(initialSite.origin) && initialSite.phase == LuoxiaSiteData.Phase.PLANNED,
-                "Plan command did not persist the intended origin");
+        observer.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(XiuxianItems.LUOXIA_CONSTRUCTION_DECREE.get()));
+        verifyDecreeRejections(helper, level, nether, observer, initialSite);
 
         BlockPos protectedChest = ORIGIN.offset(LuoxiaBlueprint.MIN_X + 1, 0, LuoxiaBlueprint.MIN_Z + 1);
         level.setBlock(protectedChest, Blocks.CHEST.defaultBlockState(), 3);
@@ -97,13 +116,33 @@ public final class LuoxiaServerGameTests {
         chest.setItem(0, new ItemStack(Items.DIAMOND));
         BlockPos sentinel = ORIGIN.offset(LuoxiaBlueprint.MIN_X - 1, 64, LuoxiaBlueprint.MIN_Z);
         level.setBlock(sentinel, Blocks.GOLD_BLOCK.defaultBlockState(), 3);
-        expectCommand(helper, source, "build", 1);
-        expectCommand(helper, source, "pause", 1);
-        helper.assertTrue(initialSite.paused && !initialSite.active(), "Pause command did not stop the job");
-        expectCommand(helper, source, "resume", 1);
+        BlockPos decreeGround = ORIGIN.offset(0, 0, 120);
+        useDecreeOn(helper, observer, decreeGround, Direction.UP, false, true);
+        helper.assertTrue(ORIGIN.equals(initialSite.origin) && initialSite.phase == LuoxiaSiteData.Phase.SURVEY
+                        && initialSite.active() && initialSite.changedBlocks == 0,
+                "The decree did not start survey at the origin 120 blocks north of the clicked ground");
+        CompoundTag startedSite = initialSite.save(new CompoundTag()).copy();
+        useDecreeInAir(helper, observer, false, true);
+        useDecreeOn(helper, observer, decreeGround.offset(32, 0, 32), Direction.UP, false, true);
+        ItemStack decree = observer.getMainHandItem();
+        observer.getCooldowns().removeCooldown(decree.getItem());
+        InteractionResult chestFirstUse = decree.onItemUseFirst(new UseOnContext(observer, InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(protectedChest).relative(Direction.UP, 0.5),
+                        Direction.UP, protectedChest, false)));
+        verifyDecreeResult(helper, observer, decree, 1, chestFirstUse, true);
+        helper.assertTrue(initialSite.save(new CompoundTag()).equals(startedSite),
+                "A repeated ordinary decree click changed or restarted the construction site");
+        useDecreeInAir(helper, observer, true, true);
+        helper.assertTrue(initialSite.paused && !initialSite.active(), "Sneaking with the decree did not pause the job");
+        verifyDecreeCooldown(helper, observer, initialSite);
+        useDecreeInAir(helper, observer, false, true);
+        helper.assertTrue(initialSite.paused, "An ordinary decree click resumed a paused job");
+        useDecreeInAir(helper, observer, true, true);
+        helper.assertTrue(!initialSite.paused && initialSite.active(), "Sneaking with the decree did not resume the job");
         identityUnchanged(helper, cultivation, identity);
         helper.assertTrue(observer.getMaxHealth() == initialMaxHealth && observer.getHealth() == initialHealth,
-                "Planning/build commands changed Purple Mansion health");
+                "Decree interactions changed Purple Mansion health");
+        System.out.println("Luoxia server test: real decree interactions started construction and safely queried/paused/resumed it");
 
         int[] stage = {0};
         long[] pauseTick = {-1};
@@ -112,7 +151,10 @@ public final class LuoxiaServerGameTests {
         int[] pausedOperation = {0};
         long started = System.nanoTime();
         LuoxiaSiteData.Phase[] previous = {initialSite.phase};
-        helper.runAtTickTime(TIMEOUT_TICKS - 1L, () -> closeFluidObservation(level));
+        helper.runAtTickTime(TIMEOUT_TICKS - 1L, () -> {
+            closeFluidObservation(level);
+            removeDecreeTestOperator(level);
+        });
         helper.onEachTick(() -> {
             try {
                 LuoxiaSiteData site = LuoxiaSiteData.get(level);
@@ -129,13 +171,13 @@ public final class LuoxiaServerGameTests {
                             "Survey damaged the protected chest or its inventory");
                     helper.assertTrue(!site.problem.isEmpty(), "Survey pause omitted the protection reason");
                     level.setBlock(protectedChest, Blocks.AIR.defaultBlockState(), 3);
-                    expectCommand(helper, source, "resume", 1);
+                    useDecreeInAir(helper, observer, true, true);
                     stage[0] = 1;
                     System.out.println("Luoxia server test: protected chest preserved; survey resumed");
                 } else if (stage[0] == 1) {
                     helper.assertTrue(!site.paused, "Construction unexpectedly paused: " + site.problem);
                     if (site.phase != LuoxiaSiteData.Phase.TERRAIN || site.changedBlocks == 0) return;
-                    expectCommand(helper, source, "pause", 1);
+                    useDecreeInAir(helper, observer, true, true);
                     pausedChunk[0] = site.chunkIndex;
                     pausedOperation[0] = site.operationIndex;
                     pausedCell[0] = site.cellIndex;
@@ -150,6 +192,7 @@ public final class LuoxiaServerGameTests {
                     invalidCursor.putLong("Cell", Long.MAX_VALUE);
                     LuoxiaSiteData invalid = LuoxiaSiteData.load(invalidCursor);
                     level.getDataStorage().set("xiuxian_luoxia", invalid);
+                    useDecreeInAir(helper, observer, true, false);
                     expectCommand(helper, source, "resume", 0);
                     helper.assertTrue(invalid.paused && invalid.cellIndex == Long.MAX_VALUE,
                             "Resume accepted an out-of-range saved cursor");
@@ -162,7 +205,7 @@ public final class LuoxiaServerGameTests {
                     helper.assertTrue(site.paused && site.cellIndex == pausedCell[0] && site.chunkIndex == pausedChunk[0]
                                     && site.operationIndex == pausedOperation[0], "A paused construction cursor advanced");
                     if (helper.getTick() < pauseTick[0] + 10) return;
-                    expectCommand(helper, source, "resume", 1);
+                    useDecreeInAir(helper, observer, true, true);
                     identityUnchanged(helper, cultivation, identity);
                     helper.assertTrue(observer.getMaxHealth() == initialMaxHealth && observer.getHealth() == initialHealth,
                             "Construction reset Purple Mansion health");
@@ -180,6 +223,15 @@ public final class LuoxiaServerGameTests {
                     expectCommand(helper, source, "plan 8192 64 8192", 0);
                     helper.assertTrue(ORIGIN.equals(site.origin) && site.phase == LuoxiaSiteData.Phase.COMPLETE,
                             "A completed sect was overwritten by a repeated command");
+                    CompoundTag completedSite = site.save(new CompoundTag()).copy();
+                    useDecreeInAir(helper, observer, false, true);
+                    useDecreeOn(helper, observer, decreeGround, Direction.UP, false, true);
+                    useDecreeInAir(helper, observer, true, true);
+                    helper.assertTrue(site.save(new CompoundTag()).equals(completedSite),
+                            "Completed-site decree queries or entrance visits changed the construction data");
+                    identityUnchanged(helper, cultivation, identity);
+                    helper.assertTrue(observer.getMaxHealth() == initialMaxHealth && observer.getHealth() == initialHealth,
+                            "Completed-site decree interactions reset Purple Mansion health");
                     beginFluidObservation(level);
                     stage[0] = 4;
                     System.out.println("Luoxia server test: construction complete; loading fluid-ticking observation chunks");
@@ -196,6 +248,7 @@ public final class LuoxiaServerGameTests {
                     verifyLiveGeometry(helper, level);
                     verifyFluids(helper, level);
                     closeFluidObservation(level);
+                    removeDecreeTestOperator(level);
                     System.out.printf("Luoxia REAL FORGE SERVER PASS: origin=%s changed=%d ticks=%d elapsed=%.2fs%n",
                             ORIGIN.toShortString(), site.changedBlocks, helper.getTick(),
                             (System.nanoTime() - started) / 1_000_000_000.0);
@@ -204,6 +257,7 @@ public final class LuoxiaServerGameTests {
                 }
             } catch (RuntimeException | Error failure) {
                 closeFluidObservation(level);
+                removeDecreeTestOperator(level);
                 throw failure;
             }
         });
@@ -214,6 +268,117 @@ public final class LuoxiaServerGameTests {
         for (FluidObservation observation : new ArrayList<>(FLUID_OBSERVATIONS.values())) {
             if (observation.level.getServer() == event.getServer()) observation.close();
         }
+        for (ServerLevel level : new ArrayList<>(DECREE_TEST_OPERATORS.keySet())) {
+            if (level.getServer() == event.getServer()) removeDecreeTestOperator(level);
+        }
+    }
+
+    private static void removeDecreeTestOperator(ServerLevel level) {
+        GameProfile profile = DECREE_TEST_OPERATORS.remove(level);
+        if (profile != null) level.getServer().getPlayerList().getOps().remove(profile);
+    }
+
+    private static void verifyDecreeRejections(GameTestHelper helper, ServerLevel level, ServerLevel nether,
+                                              FakePlayer player, LuoxiaSiteData site) {
+        BlockPos ground = ORIGIN.offset(0, 0, 120);
+        level.setBlock(ground, Blocks.STONE.defaultBlockState(), 3);
+        CompoundTag emptySite = site.save(new CompoundTag()).copy();
+        player.setGameMode(GameType.SURVIVAL);
+        useDecreeOn(helper, player, ground, Direction.UP, false, false);
+        helper.assertTrue(site.save(new CompoundTag()).equals(emptySite), "A survival decree interaction changed the site");
+
+        player.setGameMode(GameType.CREATIVE);
+        helper.assertTrue(player.isCreative() && !player.hasPermissions(2),
+                "The unprivileged creative decree fixture already has operator permission");
+        useDecreeOn(helper, player, ground, Direction.UP, false, false);
+        helper.assertTrue(site.save(new CompoundTag()).equals(emptySite), "An unprivileged creative decree interaction changed the site");
+
+        GameProfile profile = player.getGameProfile();
+        DECREE_TEST_OPERATORS.put(level, profile);
+        // GameTestServer grants ordinary operators level zero; this test fixture needs the production level-two permission.
+        level.getServer().getPlayerList().getOps().add(new ServerOpListEntry(profile, 2, false));
+        helper.assertTrue(player.hasPermissions(2), "The decree operator fixture could not obtain level-two permission");
+        useDecreeInAir(helper, player, false, true);
+        useDecreeInAir(helper, player, true, true);
+        useDecreeOn(helper, player, ground, Direction.EAST, false, true);
+        helper.assertTrue(site.save(new CompoundTag()).equals(emptySite), "Air or side-face decree queries started construction");
+
+        for (int y : new int[]{200, -64}) {
+            BlockPos invalidGround = new BlockPos(ground.getX(), y, ground.getZ());
+            level.setBlock(invalidGround, Blocks.STONE.defaultBlockState(), 3);
+            useDecreeOn(helper, player, invalidGround, Direction.UP, false, false);
+            helper.assertTrue(site.save(new CompoundTag()).equals(emptySite), "A decree at invalid height changed the site");
+        }
+        player.setServerLevel(nether);
+        try {
+            nether.setBlock(ground, Blocks.STONE.defaultBlockState(), 3);
+            useDecreeOn(helper, player, ground, Direction.UP, false, false);
+            useDecreeInAir(helper, player, false, false);
+            helper.assertTrue(site.save(new CompoundTag()).equals(emptySite), "A Nether decree interaction changed the overworld site");
+        } finally {
+            player.setServerLevel(level);
+        }
+        System.out.println("Luoxia server test: decree survival, non-operator, invalid-height and Nether rejection PASS; air/side queries did not build");
+    }
+
+    private static void useDecreeOn(GameTestHelper helper, FakePlayer player, BlockPos ground,
+                                    Direction face, boolean sneaking, boolean accepted) {
+        ItemStack stack = player.getMainHandItem();
+        int count = stack.getCount();
+        player.getCooldowns().removeCooldown(stack.getItem());
+        player.setShiftKeyDown(sneaking);
+        try {
+            UseOnContext context = new UseOnContext(player, InteractionHand.MAIN_HAND,
+                    new BlockHitResult(Vec3.atCenterOf(ground).relative(face, 0.5), face, ground, false));
+            InteractionResult result = stack.useOn(context);
+            verifyDecreeResult(helper, player, stack, count, result, accepted);
+        } finally {
+            player.setShiftKeyDown(false);
+        }
+    }
+
+    private static void useDecreeInAir(GameTestHelper helper, FakePlayer player, boolean sneaking, boolean accepted) {
+        ItemStack stack = player.getMainHandItem();
+        int count = stack.getCount();
+        player.getCooldowns().removeCooldown(stack.getItem());
+        player.setShiftKeyDown(sneaking);
+        try {
+            InteractionResultHolder<ItemStack> result = stack.use(player.level(), player, InteractionHand.MAIN_HAND);
+            verifyDecreeResult(helper, player, stack, count, result.getResult(), accepted);
+            helper.assertTrue(result.getObject() == stack, "Decree air use replaced the held item stack");
+        } finally {
+            player.setShiftKeyDown(false);
+        }
+    }
+
+    private static void verifyDecreeResult(GameTestHelper helper, FakePlayer player, ItemStack stack, int count,
+                                          InteractionResult result, boolean accepted) {
+        helper.assertTrue(result.consumesAction() == accepted,
+                "Decree interaction returned " + result + " instead of " + (accepted ? "accepting" : "rejecting") + " the action");
+        helper.assertTrue(player.getMainHandItem() == stack && stack.getCount() == count
+                        && stack.is(XiuxianItems.LUOXIA_CONSTRUCTION_DECREE.get()),
+                "Decree interaction consumed or replaced the held decree");
+        helper.assertTrue(player.getCooldowns().isOnCooldown(stack.getItem()) == accepted,
+                "Decree interaction did not apply cooldown only to successful use");
+    }
+
+    private static void verifyDecreeCooldown(GameTestHelper helper, FakePlayer player, LuoxiaSiteData site) {
+        ItemStack stack = player.getMainHandItem();
+        CompoundTag pausedSite = site.save(new CompoundTag()).copy();
+        player.setShiftKeyDown(true);
+        try {
+            InteractionResultHolder<ItemStack> repeated = stack.use(player.level(), player, InteractionHand.MAIN_HAND);
+            verifyDecreeResult(helper, player, stack, 1, repeated.getResult(), true);
+            helper.assertTrue(site.save(new CompoundTag()).equals(pausedSite),
+                    "A repeated sneaking click during cooldown toggled the job again");
+        } finally {
+            player.setShiftKeyDown(false);
+        }
+        for (int tick = 0; tick < 19; tick++) player.getCooldowns().tick();
+        helper.assertTrue(player.getCooldowns().isOnCooldown(stack.getItem()), "The decree cooldown expired before twenty ticks");
+        player.getCooldowns().tick();
+        helper.assertTrue(!player.getCooldowns().isOnCooldown(stack.getItem()), "The decree cooldown lasted longer than twenty ticks");
+        System.out.println("Luoxia server test: decree first-use handling and twenty-tick repeat suppression PASS");
     }
 
     private static void beginFluidObservation(ServerLevel level) {
