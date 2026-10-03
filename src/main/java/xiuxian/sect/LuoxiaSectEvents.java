@@ -46,7 +46,7 @@ public final class LuoxiaSectEvents {
                     return 0;
                 }
             }
-            return data.paused ? resume(source) : pause(source);
+            return data.paused ? resume(source, true) : pause(source);
         }
         if (ground == null) {
             status(source);
@@ -55,7 +55,7 @@ public final class LuoxiaSectEvents {
         }
         // Put the user eight blocks south of the reserved area; the entrance is twelve blocks north.
         BlockPos origin = ground.offset(0, 0, -(LuoxiaBlueprint.MAX_Z + 8));
-        if (plan(source, origin) != 1 || build(source) != 1) return 0;
+        if (plan(source, origin) != 1 || build(source, true) != 1) return 0;
         player.sendSystemMessage(Component.translatable("message.xiuxian.luoxia_decree.started"));
         return 1;
     }
@@ -70,9 +70,11 @@ public final class LuoxiaSectEvents {
                         .executes(ctx -> plan(ctx.getSource(), ctx.getSource().getPlayerOrException().blockPosition().below()))
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(ctx -> plan(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "pos")))))
-                .then(Commands.literal("build").requires(s -> s.hasPermission(2)).executes(ctx -> build(ctx.getSource())))
+                .then(Commands.literal("build").requires(s -> s.hasPermission(2)).executes(ctx -> build(ctx.getSource()))
+                        .then(Commands.literal("force").executes(ctx -> build(ctx.getSource(), true))))
                 .then(Commands.literal("pause").requires(s -> s.hasPermission(2)).executes(ctx -> pause(ctx.getSource())))
-                .then(Commands.literal("resume").requires(s -> s.hasPermission(2)).executes(ctx -> resume(ctx.getSource())))
+                .then(Commands.literal("resume").requires(s -> s.hasPermission(2)).executes(ctx -> resume(ctx.getSource()))
+                        .then(Commands.literal("force").executes(ctx -> resume(ctx.getSource(), true))))
                 .then(Commands.literal("visit").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("entrance").executes(ctx -> visit(ctx.getSource(), 0, 1, 108)))
                         .then(Commands.literal("court").executes(ctx -> visit(ctx.getSource(), 0, 85, -103)))
@@ -97,8 +99,8 @@ public final class LuoxiaSectEvents {
                 && !(data.phase == LuoxiaSiteData.Phase.SURVEY && data.changedBlocks == 0)) {
             return fail(source, "此存档已经有落霞宗施工记录。可定位、暂停或续建，不会重复覆盖建造。");
         }
-        if (origin.getY() + LuoxiaBlueprint.MIN_Y < level.getMinBuildHeight()
-                || origin.getY() + LuoxiaBlueprint.MAX_Y >= level.getMaxBuildHeight()) {
+        if ((long) origin.getY() + LuoxiaBlueprint.MIN_Y < level.getMinBuildHeight()
+                || (long) origin.getY() + LuoxiaBlueprint.MAX_Y >= level.getMaxBuildHeight()) {
             return fail(source, "选址超出世界高度。现世基准层 Y 须在 -52 至 97 之间，建议选择低地 Y=64。");
         }
         for (int x : new int[] {LuoxiaBlueprint.MIN_X, LuoxiaBlueprint.MAX_X}) {
@@ -112,6 +114,7 @@ public final class LuoxiaSectEvents {
         data.origin = origin.immutable();
         data.phase = LuoxiaSiteData.Phase.PLANNED;
         data.paused = false;
+        data.forceClearing = false;
         data.problem = "";
         data.version = LuoxiaBlueprint.VERSION;
         data.chunkIndex = data.operationIndex = 0;
@@ -122,17 +125,22 @@ public final class LuoxiaSectEvents {
         source.sendSuccess(() -> Component.literal("落霞宗选址已记录，面朝北方。范围：" + from + " 至 " + to
                 + "，约 " + LuoxiaConstruction.chunkCount(origin) + " 个区块。\n"
                 + "执行 /xiuxian luoxia build 将替换范围内地形。请在专用测试存档或无建筑的低地施工，离开施工范围。"
-                + "建造前会检查箱子等方块实体；可在开工前再次 plan 调整位置。"), true);
+                + "普通命令会保护箱子等设施；营建令或 build force 会清除范围内设施及库存。可在开工前再次 plan 调整位置。"), true);
         return 1;
     }
 
     private static int build(CommandSourceStack source) {
+        return build(source, false);
+    }
+
+    private static int build(CommandSourceStack source, boolean force) {
         LuoxiaSiteData data = LuoxiaSiteData.get(source.getServer().overworld());
         if (data.origin == null) return fail(source, "请先用 /xiuxian luoxia plan x y z 选址并查看替换范围。");
         if (data.phase != LuoxiaSiteData.Phase.PLANNED) return fail(source, "此处已有施工记录。暂停后使用 resume 续建。");
         if (data.paused || !data.problem.isEmpty() || data.version != LuoxiaBlueprint.VERSION || !data.validCursor()) {
             return fail(source, "\u9009\u5740\u8bb0\u5f55\u5f02\u5e38\u6216\u7248\u672c\u4e0d\u5339\u914d\uff0c\u8bf7\u91cd\u65b0 plan \u540e\u518d\u5f00\u5de5\u3002");
         }
+        if (force) enableForceClearing(source, data);
         data.phase = LuoxiaSiteData.Phase.SURVEY;
         data.setDirty();
         source.sendSuccess(() -> Component.literal("落霞宗开始检查场地，随后分批塑山、建殿和引水。"
@@ -152,6 +160,10 @@ public final class LuoxiaSectEvents {
     }
 
     private static int resume(CommandSourceStack source) {
+        return resume(source, false);
+    }
+
+    private static int resume(CommandSourceStack source, boolean force) {
         LuoxiaSiteData data = LuoxiaSiteData.get(source.getServer().overworld());
         if (!data.paused || data.origin == null) return fail(source, "没有需要续建的落霞宗施工。");
         if (data.phase == LuoxiaSiteData.Phase.PLANNED || data.phase == LuoxiaSiteData.Phase.COMPLETE) {
@@ -159,11 +171,19 @@ public final class LuoxiaSectEvents {
         }
         if (data.version != LuoxiaBlueprint.VERSION) return fail(source, "施工记录与建筑版本不一致，不能直接续建。");
         if (!data.validCursor()) return fail(source, "施工游标无效，不能直接续建，请检查存档备份。");
+        if (force) enableForceClearing(source, data);
         data.paused = false;
         data.problem = "";
         data.setDirty();
         source.sendSuccess(() -> Component.literal("落霞宗施工已恢复，将从保存的位置继续。"), true);
         return 1;
+    }
+
+    private static void enableForceClearing(CommandSourceStack source, LuoxiaSiteData data) {
+        if (data.forceClearing) return;
+        data.forceClearing = true;
+        data.setDirty();
+        source.sendSuccess(() -> Component.translatable("message.xiuxian.luoxia_decree.force"), true);
     }
 
     private static int status(CommandSourceStack source) {
@@ -181,6 +201,7 @@ public final class LuoxiaSectEvents {
             case COMPLETE -> "外部建造完成";
         };
         source.sendSuccess(() -> Component.literal("落霞宗：" + stage + (data.paused ? "（已暂停）" : "")
+                + "。清场：" + (data.forceClearing ? "强制移除设施及库存" : "保护设施")
                 + "。基准：" + LuoxiaConstruction.coordinates(data.origin)
                 + (data.phase == LuoxiaSiteData.Phase.PLANNED || data.phase == LuoxiaSiteData.Phase.COMPLETE ? ""
                 : "。当前阶段区块：" + data.chunkIndex + "/" + LuoxiaConstruction.chunkCount(data.origin))

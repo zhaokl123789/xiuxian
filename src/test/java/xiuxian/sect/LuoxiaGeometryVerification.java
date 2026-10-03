@@ -212,38 +212,49 @@ public final class LuoxiaGeometryVerification {
         BlockPos origin = new BlockPos(-480_007, 72, 345_619);
         for (LuoxiaSiteData.Phase phase : LuoxiaSiteData.Phase.values()) {
             for (boolean paused : new boolean[]{false, true}) {
-                LuoxiaSiteData original = new LuoxiaSiteData();
-                original.origin = origin;
-                original.phase = phase;
-                original.paused = paused;
-                original.chunkIndex = phase == LuoxiaSiteData.Phase.PLANNED || phase == LuoxiaSiteData.Phase.COMPLETE ? 0 : 307;
-                original.operationIndex = 0;
-                original.cellIndex = 0;
-                original.changedBlocks = 5_600_000_031L;
-                original.problem = "preserved reason";
-                LuoxiaSiteData restored = LuoxiaSiteData.load(original.save(new CompoundTag()));
-                require(origin.equals(restored.origin) && restored.phase == phase && restored.paused == paused,
-                        "Saved site identity/phase/pause state did not survive reload");
-                require(restored.chunkIndex == original.chunkIndex && restored.operationIndex == 0
-                                && restored.cellIndex == 0 && restored.changedBlocks == 5_600_000_031L && restored.validCursor(),
-                        "Saved construction cursor did not survive reload");
-                require(restored.version == original.version && restored.problem.equals(original.problem),
-                        "Saved version/pause reason did not survive reload");
-                boolean active = !paused && phase != LuoxiaSiteData.Phase.PLANNED && phase != LuoxiaSiteData.Phase.COMPLETE;
-                require(restored.active() == active, "Restored site incorrectly resumes a planned/completed/paused job");
+                for (boolean forceClearing : new boolean[]{false, true}) {
+                    LuoxiaSiteData original = new LuoxiaSiteData();
+                    original.origin = origin;
+                    original.phase = phase;
+                    original.paused = paused;
+                    original.forceClearing = forceClearing;
+                    original.chunkIndex = phase == LuoxiaSiteData.Phase.PLANNED || phase == LuoxiaSiteData.Phase.COMPLETE ? 0 : 307;
+                    original.operationIndex = 0;
+                    original.cellIndex = 0;
+                    original.changedBlocks = 5_600_000_031L;
+                    original.problem = "preserved reason";
+                    LuoxiaSiteData restored = LuoxiaSiteData.load(original.save(new CompoundTag()));
+                    require(origin.equals(restored.origin) && restored.phase == phase && restored.paused == paused,
+                            "Saved site identity/phase/pause state did not survive reload");
+                    require(restored.chunkIndex == original.chunkIndex && restored.operationIndex == 0
+                                    && restored.cellIndex == 0 && restored.changedBlocks == 5_600_000_031L && restored.validCursor(),
+                            "Saved construction cursor did not survive reload");
+                    require(restored.version == original.version && restored.problem.equals(original.problem),
+                            "Saved version/pause reason did not survive reload");
+                    require(restored.forceClearing == forceClearing,
+                            "Saved clearing mode did not survive reload");
+                    boolean active = !paused && phase != LuoxiaSiteData.Phase.PLANNED && phase != LuoxiaSiteData.Phase.COMPLETE;
+                    require(restored.active() == active, "Restored site incorrectly resumes a planned/completed/paused job");
+                }
             }
         }
         LuoxiaSiteData data = new LuoxiaSiteData();
         data.origin = origin;
         data.phase = LuoxiaSiteData.Phase.SURVEY;
+        data.forceClearing = true;
         data.chunkIndex = 77;
         data.operationIndex = 11;
         data.cellIndex = 12003;
         data.changedBlocks = 700;
         data.nextPhase();
         require(data.phase == LuoxiaSiteData.Phase.TERRAIN && data.chunkIndex == 0 && data.operationIndex == 0
-                        && data.cellIndex == 0 && data.changedBlocks == 700 && origin.equals(data.origin),
+                        && data.cellIndex == 0 && data.changedBlocks == 700 && origin.equals(data.origin) && data.forceClearing,
                 "Phase transition failed to reset work cursor while preserving site/progress");
+        CompoundTag legacy = data.save(new CompoundTag());
+        legacy.remove("ForceClearing");
+        LuoxiaSiteData restoredLegacy = LuoxiaSiteData.load(legacy);
+        require(!restoredLegacy.forceClearing && restoredLegacy.validCursor() && !restoredLegacy.paused,
+                "A legacy record without a clearing-mode key should remain protected and resumable");
         CompoundTag unknownPhase = data.save(new CompoundTag());
         unknownPhase.putString("Phase", "unrecognized-phase");
         LuoxiaSiteData corrupt = LuoxiaSiteData.load(unknownPhase);
@@ -273,7 +284,7 @@ public final class LuoxiaGeometryVerification {
             }
             require(LuoxiaConstruction.chunkCount(shifted) == expected, "Chunk coverage is incorrect at a shifted origin");
         }
-        System.out.println("PASS: NBT phase/cursor/pause persistence, positive/negative cursor bounds, clipped volumes, chunk coverage");
+        System.out.println("PASS: NBT phase/cursor/pause/clearing-mode persistence, legacy-safe default, cursor bounds, clipped volumes, chunk coverage");
     }
 
     private static void verifyCursorLimits() {

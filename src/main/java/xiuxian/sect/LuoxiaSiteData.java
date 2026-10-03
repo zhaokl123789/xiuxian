@@ -10,6 +10,7 @@ final class LuoxiaSiteData extends SavedData {
     BlockPos origin;
     Phase phase = Phase.PLANNED;
     boolean paused;
+    boolean forceClearing;
     int version = LuoxiaBlueprint.VERSION;
     int chunkIndex;
     int operationIndex;
@@ -31,6 +32,7 @@ final class LuoxiaSiteData extends SavedData {
             data.problem = "施工记录阶段无效，请检查存档备份。";
         }
         data.paused |= tag.getBoolean("Paused");
+        data.forceClearing = tag.getBoolean("ForceClearing");
         data.version = tag.getInt("Version");
         data.chunkIndex = tag.getInt("Chunk");
         data.operationIndex = tag.getInt("Operation");
@@ -51,6 +53,7 @@ final class LuoxiaSiteData extends SavedData {
         if (origin != null) tag.putLong("Origin", origin.asLong());
         tag.putString("Phase", phase.name());
         tag.putBoolean("Paused", paused);
+        tag.putBoolean("ForceClearing", forceClearing);
         tag.putInt("Version", version);
         tag.putInt("Chunk", chunkIndex);
         tag.putInt("Operation", operationIndex);

@@ -7,9 +7,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.TicketType;
+import net.minecraft.world.Clearable;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 
@@ -64,11 +66,13 @@ final class LuoxiaConstruction {
             LevelChunk loaded = job.load(level, chunk);
             if (loaded == null) break;
             if (data.phase == LuoxiaSiteData.Phase.SURVEY) {
-                for (BlockPos protectedPos : loaded.getBlockEntitiesPos()) {
-                    if (job.contains(protectedPos)) {
-                        pause(level, data, "建造范围内有方块实体，已保护并暂停：" + coordinates(protectedPos)
-                                + "。请重新选址，或移走此处设施后 resume。");
-                        return;
+                if (!data.forceClearing) {
+                    for (BlockPos protectedPos : loaded.getBlockEntitiesPos()) {
+                        if (job.contains(protectedPos)) {
+                            pause(level, data, "建造范围内有方块实体，已保护并暂停：" + coordinates(protectedPos)
+                                    + "。潜行使用营建令可强制清场续建，或移走设施后 resume。");
+                            return;
+                        }
                     }
                 }
                 data.chunkIndex++;
@@ -128,10 +132,20 @@ final class LuoxiaConstruction {
                 desired = op.state();
             }
             if (!level.getBlockState(pos).equals(desired)) {
-                if (level.getBlockEntity(pos) != null) {
-                    pause(level, data, "施工位置出现方块实体，已暂停并保留：" + coordinates(pos)
-                            + "。移走后可 resume。");
+                if (level.isOutsideBuildHeight(pos) || !level.getWorldBorder().isWithinBounds(pos)) {
+                    pause(level, data, "施工位置超出建造高度或世界边界，已保留进度并暂停：" + coordinates(pos));
                     return;
+                }
+                BlockEntity obstacle = level.getBlockEntity(pos);
+                if (obstacle != null) {
+                    if (!data.forceClearing) {
+                        pause(level, data, "施工位置出现方块实体，已暂停并保留：" + coordinates(pos)
+                                + "。潜行使用营建令可强制清场续建，或移走设施后 resume。");
+                        return;
+                    }
+                    // Remove inventories before block callbacks run, avoiding a flood of dropped items.
+                    Clearable.tryClear(obstacle);
+                    level.removeBlockEntity(pos);
                 }
                 if (!level.setBlock(pos, desired, Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
                     pause(level, data, "方块写入失败，已保留施工位置并暂停：" + coordinates(pos) + "。请检查场地后再继续。");
