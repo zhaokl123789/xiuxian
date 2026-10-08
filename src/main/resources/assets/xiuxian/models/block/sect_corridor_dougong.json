@@ -1,0 +1,237 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "bronze": "xiuxian:block/oriental_sect_corridor_dougong_bronze",
+    "gold": "xiuxian:block/oriental_sect_corridor_dougong_gold",
+    "motif": "xiuxian:block/oriental_sect_corridor_dougong_motif",
+    "wood": "xiuxian:block/oriental_sect_corridor_dougong_wood",
+    "particle": "xiuxian:block/oriental_sect_corridor_dougong_bronze"
+  },
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        5,
+        0,
+        5
+      ],
+      "to": [
+        11,
+        5,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        5,
+        4
+      ],
+      "to": [
+        14,
+        8,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        8,
+        6
+      ],
+      "to": [
+        16,
+        11,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        11,
+        0
+      ],
+      "to": [
+        6,
+        14,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        11,
+        0
+      ],
+      "to": [
+        13,
+        14,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        14,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#wood"
+        },
+        "south": {
+          "texture": "#wood"
+        },
+        "east": {
+          "texture": "#wood"
+        },
+        "west": {
+          "texture": "#wood"
+        },
+        "up": {
+          "texture": "#wood"
+        },
+        "down": {
+          "texture": "#wood"
+        }
+      }
+    },
+    {
+      "from": [
+        2.4,
+        8.45,
+        5.9
+      ],
+      "to": [
+        13.6,
+        10.55,
+        6.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#motif"
+        },
+        "south": {
+          "texture": "#motif"
+        },
+        "east": {
+          "texture": "#motif"
+        },
+        "west": {
+          "texture": "#motif"
+        },
+        "up": {
+          "texture": "#motif"
+        },
+        "down": {
+          "texture": "#motif"
+        }
+      }
+    }
+  ]
+}

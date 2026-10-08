@@ -1,0 +1,206 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "bronze": "xiuxian:block/oriental_sect_library_lantern_bronze",
+    "gold": "xiuxian:block/oriental_sect_library_lantern_gold",
+    "motif": "xiuxian:block/oriental_sect_library_lantern_motif",
+    "paper": "xiuxian:block/oriental_sect_library_lantern_paper",
+    "silk": "xiuxian:block/oriental_sect_library_lantern_silk",
+    "particle": "xiuxian:block/oriental_sect_library_lantern_bronze"
+  },
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        7,
+        13,
+        7
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        11,
+        3
+      ],
+      "to": [
+        13,
+        13,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        4,
+        2
+      ],
+      "to": [
+        14,
+        11,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#paper"
+        },
+        "south": {
+          "texture": "#paper"
+        },
+        "east": {
+          "texture": "#paper"
+        },
+        "west": {
+          "texture": "#paper"
+        },
+        "up": {
+          "texture": "#paper"
+        },
+        "down": {
+          "texture": "#paper"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        4
+      ],
+      "to": [
+        12,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        0,
+        7
+      ],
+      "to": [
+        9,
+        2,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#silk"
+        },
+        "south": {
+          "texture": "#silk"
+        },
+        "east": {
+          "texture": "#silk"
+        },
+        "west": {
+          "texture": "#silk"
+        },
+        "up": {
+          "texture": "#silk"
+        },
+        "down": {
+          "texture": "#silk"
+        }
+      }
+    },
+    {
+      "from": [
+        3.8,
+        5.05,
+        1.9
+      ],
+      "to": [
+        12.2,
+        9.95,
+        2.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#motif"
+        },
+        "south": {
+          "texture": "#motif"
+        },
+        "east": {
+          "texture": "#motif"
+        },
+        "west": {
+          "texture": "#motif"
+        },
+        "up": {
+          "texture": "#motif"
+        },
+        "down": {
+          "texture": "#motif"
+        }
+      }
+    }
+  ]
+}

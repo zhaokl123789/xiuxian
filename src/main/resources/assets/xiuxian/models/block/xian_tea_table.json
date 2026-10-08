@@ -1,0 +1,334 @@
+{
+  "textures": {
+    "bamboo": "xiuxian:block/oriental_bamboo",
+    "porcelain": "xiuxian:block/oriental_porcelain",
+    "rosewood": "xiuxian:block/oriental_rosewood",
+    "particle": "xiuxian:block/oriental_rosewood"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        4,
+        7,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        12
+      ],
+      "to": [
+        4,
+        7,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        7,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        0,
+        12
+      ],
+      "to": [
+        14,
+        7,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        7,
+        1
+      ],
+      "to": [
+        16,
+        9,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        9,
+        4
+      ],
+      "to": [
+        11,
+        10,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        10,
+        6
+      ],
+      "to": [
+        8,
+        13,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        11,
+        7
+      ],
+      "to": [
+        10,
+        12,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        10,
+        10
+      ],
+      "to": [
+        5,
+        12,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        10,
+        4
+      ],
+      "to": [
+        12,
+        12,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,playing=false": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 0
+    },
+    "facing=north,playing=true": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 0
+    },
+    "facing=east,playing=false": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 90
+    },
+    "facing=east,playing=true": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 90
+    },
+    "facing=south,playing=false": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 180
+    },
+    "facing=south,playing=true": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 180
+    },
+    "facing=west,playing=false": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 270
+    },
+    "facing=west,playing=true": {
+      "model": "xiuxian:block/sect_morning_bell",
+      "y": 270
+    }
+  }
+}

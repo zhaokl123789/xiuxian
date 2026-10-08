@@ -1,0 +1,174 @@
+{
+  "textures": {
+    "cloud": "xiuxian:block/oriental_cloud",
+    "gold": "xiuxian:block/oriental_gold",
+    "rosewood": "xiuxian:block/oriental_rosewood",
+    "particle": "xiuxian:block/oriental_rosewood"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        2
+      ],
+      "to": [
+        3,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        0,
+        2
+      ],
+      "to": [
+        16,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        13,
+        2
+      ],
+      "to": [
+        13,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        5
+      ],
+      "to": [
+        12,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud"
+        },
+        "south": {
+          "texture": "#cloud"
+        },
+        "east": {
+          "texture": "#cloud"
+        },
+        "west": {
+          "texture": "#cloud"
+        },
+        "up": {
+          "texture": "#cloud"
+        },
+        "down": {
+          "texture": "#cloud"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        4
+      ],
+      "to": [
+        11,
+        11,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

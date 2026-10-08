@@ -1,0 +1,77 @@
+{
+  "textures": {
+    "cloud": "xiuxian:block/oriental_cloud",
+    "rosewood": "xiuxian:block/oriental_rosewood",
+    "particle": "xiuxian:block/oriental_rosewood"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        2,
+        6
+      ],
+      "to": [
+        16,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        3,
+        5
+      ],
+      "to": [
+        15,
+        13,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud"
+        },
+        "south": {
+          "texture": "#cloud"
+        },
+        "east": {
+          "texture": "#cloud"
+        },
+        "west": {
+          "texture": "#cloud"
+        },
+        "up": {
+          "texture": "#cloud"
+        },
+        "down": {
+          "texture": "#cloud"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

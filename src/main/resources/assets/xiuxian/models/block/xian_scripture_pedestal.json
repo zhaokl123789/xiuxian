@@ -1,0 +1,174 @@
+{
+  "textures": {
+    "cloud_stone": "xiuxian:block/oriental_cloud_stone",
+    "jade": "xiuxian:block/oriental_jade",
+    "scrolls": "xiuxian:block/oriental_scrolls",
+    "particle": "xiuxian:block/oriental_jade"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        4
+      ],
+      "to": [
+        12,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        5
+      ],
+      "to": [
+        11,
+        9,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud_stone"
+        },
+        "south": {
+          "texture": "#cloud_stone"
+        },
+        "east": {
+          "texture": "#cloud_stone"
+        },
+        "west": {
+          "texture": "#cloud_stone"
+        },
+        "up": {
+          "texture": "#cloud_stone"
+        },
+        "down": {
+          "texture": "#cloud_stone"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        9,
+        2
+      ],
+      "to": [
+        15,
+        11,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        11,
+        4
+      ],
+      "to": [
+        13,
+        12,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#scrolls"
+        },
+        "south": {
+          "texture": "#scrolls"
+        },
+        "east": {
+          "texture": "#scrolls"
+        },
+        "west": {
+          "texture": "#scrolls"
+        },
+        "up": {
+          "texture": "#scrolls"
+        },
+        "down": {
+          "texture": "#scrolls"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

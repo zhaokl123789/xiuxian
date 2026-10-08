@@ -11,7 +11,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** Ordered, compact volumes; the construction job clips them to one chunk at a time. */
 public final class LuoxiaBlueprint {
-    public static final int VERSION = 1;
+    public static final int VERSION = 3;
+    /**
+     * Additive exterior-detail revision.  Completed sites from revision 1
+     * receive the summit sky-gate on the next construction tick without
+     * rebuilding terrain or touching player placed blocks.
+     */
+    public static final int DETAILS_VERSION = 3;
     public static final int MIN_X = -160, MAX_X = 160;
     public static final int MIN_Z = -272, MAX_Z = 112;
     public static final int MIN_Y = -12, MAX_Y = 222;
@@ -33,6 +39,19 @@ public final class LuoxiaBlueprint {
         LuoxiaArchitecture.addTo(result);
         result.addAscent();
         LuoxiaLandscape.addTo(result);
+        LuoxiaArchitecture.addDetailsTo(result);
+        return result;
+    }
+
+    static LuoxiaBlueprint createDetails() {
+        LuoxiaBlueprint result = new LuoxiaBlueprint();
+        LuoxiaArchitecture.addDetailsTo(result);
+        return result;
+    }
+
+    static LuoxiaBlueprint createSummitGate() {
+        LuoxiaBlueprint result = new LuoxiaBlueprint();
+        LuoxiaArchitecture.addSummitGateTo(result);
         return result;
     }
 

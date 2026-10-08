@@ -1,0 +1,142 @@
+{
+  "textures": {
+    "jindan_gold": "xiuxian:block/oriental_jindan_gold",
+    "jindan_silk": "xiuxian:block/oriental_jindan_silk",
+    "jindan_wood": "xiuxian:block/oriental_jindan_wood",
+    "particle": "xiuxian:block/oriental_jindan_wood"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        2,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_wood"
+        },
+        "south": {
+          "texture": "#jindan_wood"
+        },
+        "east": {
+          "texture": "#jindan_wood"
+        },
+        "west": {
+          "texture": "#jindan_wood"
+        },
+        "up": {
+          "texture": "#jindan_wood"
+        },
+        "down": {
+          "texture": "#jindan_wood"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        2,
+        7
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_wood"
+        },
+        "south": {
+          "texture": "#jindan_wood"
+        },
+        "east": {
+          "texture": "#jindan_wood"
+        },
+        "west": {
+          "texture": "#jindan_wood"
+        },
+        "up": {
+          "texture": "#jindan_wood"
+        },
+        "down": {
+          "texture": "#jindan_wood"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        13,
+        7
+      ],
+      "to": [
+        14,
+        15,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_gold"
+        },
+        "south": {
+          "texture": "#jindan_gold"
+        },
+        "east": {
+          "texture": "#jindan_gold"
+        },
+        "west": {
+          "texture": "#jindan_gold"
+        },
+        "up": {
+          "texture": "#jindan_gold"
+        },
+        "down": {
+          "texture": "#jindan_gold"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        5,
+        6
+      ],
+      "to": [
+        13,
+        13,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_silk"
+        },
+        "south": {
+          "texture": "#jindan_silk"
+        },
+        "east": {
+          "texture": "#jindan_silk"
+        },
+        "west": {
+          "texture": "#jindan_silk"
+        },
+        "up": {
+          "texture": "#jindan_silk"
+        },
+        "down": {
+          "texture": "#jindan_silk"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

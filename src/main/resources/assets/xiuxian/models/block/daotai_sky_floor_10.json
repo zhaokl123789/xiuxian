@@ -1,0 +1,109 @@
+{
+  "textures": {
+    "jade": "xiuxian:block/oriental_jade",
+    "taiji": "xiuxian:block/oriental_taiji",
+    "particle": "xiuxian:block/oriental_taiji"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#taiji"
+        },
+        "south": {
+          "texture": "#taiji"
+        },
+        "east": {
+          "texture": "#taiji"
+        },
+        "west": {
+          "texture": "#taiji"
+        },
+        "up": {
+          "texture": "#taiji"
+        },
+        "down": {
+          "texture": "#taiji"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        2,
+        1
+      ],
+      "to": [
+        15,
+        4,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        4
+      ],
+      "to": [
+        12,
+        5,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#taiji"
+        },
+        "south": {
+          "texture": "#taiji"
+        },
+        "east": {
+          "texture": "#taiji"
+        },
+        "west": {
+          "texture": "#taiji"
+        },
+        "up": {
+          "texture": "#taiji"
+        },
+        "down": {
+          "texture": "#taiji"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

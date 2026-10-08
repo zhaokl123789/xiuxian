@@ -1,0 +1,206 @@
+{
+  "textures": {
+    "jindan_bamboo": "xiuxian:block/oriental_jindan_bamboo",
+    "jindan_leaf": "xiuxian:block/oriental_jindan_leaf",
+    "jindan_porcelain": "xiuxian:block/oriental_jindan_porcelain",
+    "particle": "xiuxian:block/oriental_jindan_porcelain"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        4,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_porcelain"
+        },
+        "south": {
+          "texture": "#jindan_porcelain"
+        },
+        "east": {
+          "texture": "#jindan_porcelain"
+        },
+        "west": {
+          "texture": "#jindan_porcelain"
+        },
+        "up": {
+          "texture": "#jindan_porcelain"
+        },
+        "down": {
+          "texture": "#jindan_porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        5
+      ],
+      "to": [
+        5,
+        16,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_bamboo"
+        },
+        "south": {
+          "texture": "#jindan_bamboo"
+        },
+        "east": {
+          "texture": "#jindan_bamboo"
+        },
+        "west": {
+          "texture": "#jindan_bamboo"
+        },
+        "up": {
+          "texture": "#jindan_bamboo"
+        },
+        "down": {
+          "texture": "#jindan_bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        4,
+        8
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_bamboo"
+        },
+        "south": {
+          "texture": "#jindan_bamboo"
+        },
+        "east": {
+          "texture": "#jindan_bamboo"
+        },
+        "west": {
+          "texture": "#jindan_bamboo"
+        },
+        "up": {
+          "texture": "#jindan_bamboo"
+        },
+        "down": {
+          "texture": "#jindan_bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        4,
+        4
+      ],
+      "to": [
+        12,
+        16,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_bamboo"
+        },
+        "south": {
+          "texture": "#jindan_bamboo"
+        },
+        "east": {
+          "texture": "#jindan_bamboo"
+        },
+        "west": {
+          "texture": "#jindan_bamboo"
+        },
+        "up": {
+          "texture": "#jindan_bamboo"
+        },
+        "down": {
+          "texture": "#jindan_bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        10,
+        4
+      ],
+      "to": [
+        7,
+        11,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_leaf"
+        },
+        "south": {
+          "texture": "#jindan_leaf"
+        },
+        "east": {
+          "texture": "#jindan_leaf"
+        },
+        "west": {
+          "texture": "#jindan_leaf"
+        },
+        "up": {
+          "texture": "#jindan_leaf"
+        },
+        "down": {
+          "texture": "#jindan_leaf"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        13,
+        7
+      ],
+      "to": [
+        13,
+        14,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_leaf"
+        },
+        "south": {
+          "texture": "#jindan_leaf"
+        },
+        "east": {
+          "texture": "#jindan_leaf"
+        },
+        "west": {
+          "texture": "#jindan_leaf"
+        },
+        "up": {
+          "texture": "#jindan_leaf"
+        },
+        "down": {
+          "texture": "#jindan_leaf"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

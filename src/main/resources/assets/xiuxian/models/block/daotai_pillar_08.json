@@ -1,0 +1,142 @@
+{
+  "textures": {
+    "cloud": "xiuxian:block/oriental_cloud",
+    "crystal": "xiuxian:block/oriental_crystal",
+    "dragon": "xiuxian:block/oriental_dragon",
+    "particle": "xiuxian:block/oriental_crystal"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        2,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#crystal"
+        },
+        "south": {
+          "texture": "#crystal"
+        },
+        "east": {
+          "texture": "#crystal"
+        },
+        "west": {
+          "texture": "#crystal"
+        },
+        "up": {
+          "texture": "#crystal"
+        },
+        "down": {
+          "texture": "#crystal"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        13,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dragon"
+        },
+        "south": {
+          "texture": "#dragon"
+        },
+        "east": {
+          "texture": "#dragon"
+        },
+        "west": {
+          "texture": "#dragon"
+        },
+        "up": {
+          "texture": "#dragon"
+        },
+        "down": {
+          "texture": "#dragon"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        13,
+        3
+      ],
+      "to": [
+        13,
+        15,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#crystal"
+        },
+        "south": {
+          "texture": "#crystal"
+        },
+        "east": {
+          "texture": "#crystal"
+        },
+        "west": {
+          "texture": "#crystal"
+        },
+        "up": {
+          "texture": "#crystal"
+        },
+        "down": {
+          "texture": "#crystal"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        15,
+        1
+      ],
+      "to": [
+        15,
+        16,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud"
+        },
+        "south": {
+          "texture": "#cloud"
+        },
+        "east": {
+          "texture": "#cloud"
+        },
+        "west": {
+          "texture": "#cloud"
+        },
+        "up": {
+          "texture": "#cloud"
+        },
+        "down": {
+          "texture": "#cloud"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

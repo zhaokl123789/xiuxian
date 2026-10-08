@@ -1,0 +1,110 @@
+{
+  "textures": {
+    "jindan_copper": "xiuxian:block/oriental_jindan_copper",
+    "jindan_jade": "xiuxian:block/oriental_jindan_jade",
+    "jindan_script": "xiuxian:block/oriental_jindan_script",
+    "particle": "xiuxian:block/oriental_jindan_jade"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        2
+      ],
+      "to": [
+        15,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        5
+      ],
+      "to": [
+        13,
+        15,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_script"
+        },
+        "south": {
+          "texture": "#jindan_script"
+        },
+        "east": {
+          "texture": "#jindan_script"
+        },
+        "west": {
+          "texture": "#jindan_script"
+        },
+        "up": {
+          "texture": "#jindan_script"
+        },
+        "down": {
+          "texture": "#jindan_script"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        15,
+        5
+      ],
+      "to": [
+        12,
+        16,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_copper"
+        },
+        "south": {
+          "texture": "#jindan_copper"
+        },
+        "east": {
+          "texture": "#jindan_copper"
+        },
+        "west": {
+          "texture": "#jindan_copper"
+        },
+        "up": {
+          "texture": "#jindan_copper"
+        },
+        "down": {
+          "texture": "#jindan_copper"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

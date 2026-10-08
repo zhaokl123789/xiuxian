@@ -1,0 +1,237 @@
+{
+  "textures": {
+    "jindan_jade": "xiuxian:block/oriental_jindan_jade",
+    "jindan_water": "xiuxian:block/oriental_jindan_water",
+    "particle": "xiuxian:block/oriental_jindan_jade"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        2,
+        0
+      ],
+      "to": [
+        2,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        14,
+        2,
+        0
+      ],
+      "to": [
+        16,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        2,
+        0
+      ],
+      "to": [
+        14,
+        5,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        2,
+        14
+      ],
+      "to": [
+        14,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        2,
+        2
+      ],
+      "to": [
+        14,
+        3,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_water"
+        },
+        "south": {
+          "texture": "#jindan_water"
+        },
+        "east": {
+          "texture": "#jindan_water"
+        },
+        "west": {
+          "texture": "#jindan_water"
+        },
+        "up": {
+          "texture": "#jindan_water"
+        },
+        "down": {
+          "texture": "#jindan_water"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        3,
+        6
+      ],
+      "to": [
+        10,
+        9,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_jade"
+        },
+        "south": {
+          "texture": "#jindan_jade"
+        },
+        "east": {
+          "texture": "#jindan_jade"
+        },
+        "west": {
+          "texture": "#jindan_jade"
+        },
+        "up": {
+          "texture": "#jindan_jade"
+        },
+        "down": {
+          "texture": "#jindan_jade"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

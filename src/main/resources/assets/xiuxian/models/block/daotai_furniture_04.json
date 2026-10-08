@@ -1,0 +1,110 @@
+{
+  "textures": {
+    "cloud_stone": "xiuxian:block/oriental_cloud_stone",
+    "crystal": "xiuxian:block/oriental_crystal",
+    "porcelain": "xiuxian:block/oriental_porcelain",
+    "particle": "xiuxian:block/oriental_cloud_stone"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        2
+      ],
+      "to": [
+        15,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud_stone"
+        },
+        "south": {
+          "texture": "#cloud_stone"
+        },
+        "east": {
+          "texture": "#cloud_stone"
+        },
+        "west": {
+          "texture": "#cloud_stone"
+        },
+        "up": {
+          "texture": "#cloud_stone"
+        },
+        "down": {
+          "texture": "#cloud_stone"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        12,
+        4
+      ],
+      "to": [
+        12,
+        15,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#crystal"
+        },
+        "south": {
+          "texture": "#crystal"
+        },
+        "east": {
+          "texture": "#crystal"
+        },
+        "west": {
+          "texture": "#crystal"
+        },
+        "up": {
+          "texture": "#crystal"
+        },
+        "down": {
+          "texture": "#crystal"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

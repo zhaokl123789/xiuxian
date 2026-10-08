@@ -5,6 +5,8 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import xiuxian.block.XiuxianBlocks;
+import xiuxian.block.OrientalBlocks;
+import xiuxian.block.SectBlocks;
 import xiuxian.block.XiuxianBlockEntities;
 import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationEvents;
@@ -22,6 +24,8 @@ public class xiuxian {
         TaixuFeatures.register(modEventBus);
         XiuxianNetwork.register();
         XiuxianBlocks.register(modEventBus);
+        OrientalBlocks.register(modEventBus);
+        SectBlocks.register(modEventBus);
         XiuxianBlockEntities.register(modEventBus);
         XiuxianMenus.register(modEventBus);
         XiuxianRecipes.register(modEventBus);

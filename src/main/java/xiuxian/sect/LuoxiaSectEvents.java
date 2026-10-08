@@ -10,8 +10,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -75,6 +78,10 @@ public final class LuoxiaSectEvents {
                 .then(Commands.literal("pause").requires(s -> s.hasPermission(2)).executes(ctx -> pause(ctx.getSource())))
                 .then(Commands.literal("resume").requires(s -> s.hasPermission(2)).executes(ctx -> resume(ctx.getSource()))
                         .then(Commands.literal("force").executes(ctx -> resume(ctx.getSource(), true))))
+                .then(Commands.literal("inner").executes(ctx ->
+                        LuoxiaInnerDimension.enterCommand(ctx.getSource().getPlayerOrException())))
+                .then(Commands.literal("return").executes(ctx ->
+                        LuoxiaInnerDimension.returnCommand(ctx.getSource().getPlayerOrException())))
                 .then(Commands.literal("visit").requires(s -> s.hasPermission(2))
                         .then(Commands.literal("entrance").executes(ctx -> visit(ctx.getSource(), 0, 1, 108)))
                         .then(Commands.literal("court").executes(ctx -> visit(ctx.getSource(), 0, 85, -103)))
@@ -89,6 +96,18 @@ public final class LuoxiaSectEvents {
     @SubscribeEvent
     public static void stopped(ServerStoppedEvent event) {
         LuoxiaConstruction.release(event.getServer().overworld());
+    }
+
+    /** Prevents ordinary hostile mobs from naturally appearing anywhere in the sect site. */
+    @SubscribeEvent
+    public static void naturalMonsterSpawn(MobSpawnEvent.PositionCheck event) {
+        if (event.getSpawnType() != MobSpawnType.NATURAL
+                || event.getEntity().getType().getCategory() != MobCategory.MONSTER) return;
+        ServerLevel level = event.getLevel().getLevel();
+        if (level.dimension() != Level.OVERWORLD) return;
+        if (LuoxiaSiteData.get(level).protectsNaturalSpawnsAt(event.getEntity().blockPosition())) {
+            event.setResult(net.minecraftforge.eventbus.api.Event.Result.DENY);
+        }
     }
 
     private static int plan(CommandSourceStack source, BlockPos origin) {
@@ -224,6 +243,9 @@ public final class LuoxiaSectEvents {
         ServerLevel level = source.getServer().overworld();
         LuoxiaSiteData data = LuoxiaSiteData.get(level);
         if (data.origin == null || data.phase != LuoxiaSiteData.Phase.COMPLETE) return fail(source, "请等待外部建筑完成后再前往观察点。");
+        if (z == LuoxiaInnerDimension.SUMMIT_Z || z == LuoxiaInnerDimension.SCENIC_GATE_Z) {
+            LuoxiaConstruction.ensureSummitGate(level, data.origin);
+        }
         BlockPos target = data.origin.offset(x, y, z);
         player.teleportTo(level, target.getX() + 0.5, target.getY(), target.getZ() + 0.5, 180, 0);
         return 1;

@@ -1,0 +1,206 @@
+{
+  "textures": {
+    "jindan_copper": "xiuxian:block/oriental_jindan_copper",
+    "jindan_obsidian": "xiuxian:block/oriental_jindan_obsidian",
+    "jindan_orange_fire": "xiuxian:block/oriental_jindan_orange_fire",
+    "particle": "xiuxian:block/oriental_jindan_obsidian"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_obsidian"
+        },
+        "south": {
+          "texture": "#jindan_obsidian"
+        },
+        "east": {
+          "texture": "#jindan_obsidian"
+        },
+        "west": {
+          "texture": "#jindan_obsidian"
+        },
+        "up": {
+          "texture": "#jindan_obsidian"
+        },
+        "down": {
+          "texture": "#jindan_obsidian"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        2,
+        0
+      ],
+      "to": [
+        3,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_copper"
+        },
+        "south": {
+          "texture": "#jindan_copper"
+        },
+        "east": {
+          "texture": "#jindan_copper"
+        },
+        "west": {
+          "texture": "#jindan_copper"
+        },
+        "up": {
+          "texture": "#jindan_copper"
+        },
+        "down": {
+          "texture": "#jindan_copper"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        2,
+        0
+      ],
+      "to": [
+        16,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_copper"
+        },
+        "south": {
+          "texture": "#jindan_copper"
+        },
+        "east": {
+          "texture": "#jindan_copper"
+        },
+        "west": {
+          "texture": "#jindan_copper"
+        },
+        "up": {
+          "texture": "#jindan_copper"
+        },
+        "down": {
+          "texture": "#jindan_copper"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        0
+      ],
+      "to": [
+        13,
+        5,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_copper"
+        },
+        "south": {
+          "texture": "#jindan_copper"
+        },
+        "east": {
+          "texture": "#jindan_copper"
+        },
+        "west": {
+          "texture": "#jindan_copper"
+        },
+        "up": {
+          "texture": "#jindan_copper"
+        },
+        "down": {
+          "texture": "#jindan_copper"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        13
+      ],
+      "to": [
+        13,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_copper"
+        },
+        "south": {
+          "texture": "#jindan_copper"
+        },
+        "east": {
+          "texture": "#jindan_copper"
+        },
+        "west": {
+          "texture": "#jindan_copper"
+        },
+        "up": {
+          "texture": "#jindan_copper"
+        },
+        "down": {
+          "texture": "#jindan_copper"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        3,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_orange_fire"
+        },
+        "south": {
+          "texture": "#jindan_orange_fire"
+        },
+        "east": {
+          "texture": "#jindan_orange_fire"
+        },
+        "west": {
+          "texture": "#jindan_orange_fire"
+        },
+        "up": {
+          "texture": "#jindan_orange_fire"
+        },
+        "down": {
+          "texture": "#jindan_orange_fire"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

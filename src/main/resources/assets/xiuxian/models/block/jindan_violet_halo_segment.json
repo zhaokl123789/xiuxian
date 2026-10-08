@@ -1,0 +1,109 @@
+{
+  "textures": {
+    "jindan_stars": "xiuxian:block/oriental_jindan_stars",
+    "jindan_violet_fire": "xiuxian:block/oriental_jindan_violet_fire",
+    "particle": "xiuxian:block/oriental_jindan_violet_fire"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        6,
+        5
+      ],
+      "to": [
+        16,
+        8,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_violet_fire"
+        },
+        "south": {
+          "texture": "#jindan_violet_fire"
+        },
+        "east": {
+          "texture": "#jindan_violet_fire"
+        },
+        "west": {
+          "texture": "#jindan_violet_fire"
+        },
+        "up": {
+          "texture": "#jindan_violet_fire"
+        },
+        "down": {
+          "texture": "#jindan_violet_fire"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        8,
+        6
+      ],
+      "to": [
+        5,
+        9,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_stars"
+        },
+        "south": {
+          "texture": "#jindan_stars"
+        },
+        "east": {
+          "texture": "#jindan_stars"
+        },
+        "west": {
+          "texture": "#jindan_stars"
+        },
+        "up": {
+          "texture": "#jindan_stars"
+        },
+        "down": {
+          "texture": "#jindan_stars"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        8,
+        6
+      ],
+      "to": [
+        16,
+        9,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_stars"
+        },
+        "south": {
+          "texture": "#jindan_stars"
+        },
+        "east": {
+          "texture": "#jindan_stars"
+        },
+        "west": {
+          "texture": "#jindan_stars"
+        },
+        "up": {
+          "texture": "#jindan_stars"
+        },
+        "down": {
+          "texture": "#jindan_stars"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

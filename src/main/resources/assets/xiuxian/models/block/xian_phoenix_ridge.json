@@ -1,0 +1,238 @@
+{
+  "textures": {
+    "gold": "xiuxian:block/oriental_gold",
+    "roof_red": "xiuxian:block/oriental_roof_red",
+    "sunset": "xiuxian:block/oriental_sunset",
+    "particle": "xiuxian:block/oriental_roof_red"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        4
+      ],
+      "to": [
+        16,
+        3,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_red"
+        },
+        "south": {
+          "texture": "#roof_red"
+        },
+        "east": {
+          "texture": "#roof_red"
+        },
+        "west": {
+          "texture": "#roof_red"
+        },
+        "up": {
+          "texture": "#roof_red"
+        },
+        "down": {
+          "texture": "#roof_red"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        3,
+        6
+      ],
+      "to": [
+        16,
+        6,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        6,
+        7
+      ],
+      "to": [
+        3,
+        9.5,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#sunset"
+        },
+        "south": {
+          "texture": "#sunset"
+        },
+        "east": {
+          "texture": "#sunset"
+        },
+        "west": {
+          "texture": "#sunset"
+        },
+        "up": {
+          "texture": "#sunset"
+        },
+        "down": {
+          "texture": "#sunset"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        6,
+        7
+      ],
+      "to": [
+        6,
+        11.0,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#sunset"
+        },
+        "south": {
+          "texture": "#sunset"
+        },
+        "east": {
+          "texture": "#sunset"
+        },
+        "west": {
+          "texture": "#sunset"
+        },
+        "up": {
+          "texture": "#sunset"
+        },
+        "down": {
+          "texture": "#sunset"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        6,
+        7
+      ],
+      "to": [
+        9,
+        12.5,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#sunset"
+        },
+        "south": {
+          "texture": "#sunset"
+        },
+        "east": {
+          "texture": "#sunset"
+        },
+        "west": {
+          "texture": "#sunset"
+        },
+        "up": {
+          "texture": "#sunset"
+        },
+        "down": {
+          "texture": "#sunset"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        6,
+        7
+      ],
+      "to": [
+        12,
+        14.0,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#sunset"
+        },
+        "south": {
+          "texture": "#sunset"
+        },
+        "east": {
+          "texture": "#sunset"
+        },
+        "west": {
+          "texture": "#sunset"
+        },
+        "up": {
+          "texture": "#sunset"
+        },
+        "down": {
+          "texture": "#sunset"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        6,
+        7
+      ],
+      "to": [
+        15,
+        15.5,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#sunset"
+        },
+        "south": {
+          "texture": "#sunset"
+        },
+        "east": {
+          "texture": "#sunset"
+        },
+        "west": {
+          "texture": "#sunset"
+        },
+        "up": {
+          "texture": "#sunset"
+        },
+        "down": {
+          "texture": "#sunset"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "xiuxian:block/oriental_jindan_scorched"
+  }
+}

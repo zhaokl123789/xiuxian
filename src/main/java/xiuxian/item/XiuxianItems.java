@@ -24,6 +24,16 @@ public final class XiuxianItems {
 
     public static final RegistryObject<Item> LUOXIA_CONSTRUCTION_DECREE = ITEMS.register("luoxia_construction_decree",
             LuoxiaConstructionDecreeItem::new);
+    public static final RegistryObject<Item> LUOXIA_INNER_TEST_KEY = ITEMS.register("luoxia_inner_test_key",
+            LuoxiaInnerTestKeyItem::new);
+    public static final RegistryObject<Item> MORTAL_TOWN_INSPECTION_TOKEN = ITEMS.register("mortal_town_inspection_token",
+            MortalTownInspectionItem::new);
+    public static final RegistryObject<Item> DAOTAI_RESIDENCE_INSPECTION_TOKEN = ITEMS.register(
+            "daotai_residence_inspection_token", DaotaiResidenceInspectionItem::new);
+    public static final RegistryObject<Item> JINDAN_RESIDENCE_INSPECTION_TOKEN = ITEMS.register(
+            "jindan_residence_inspection_token", JindanResidenceInspectionItem::new);
+    public static final RegistryObject<Item> SECT_COMPLEX_INSPECTION_TOKEN = ITEMS.register(
+            "sect_complex_inspection_token", SectComplexInspectionItem::new);
 
     public static final RegistryObject<Item> QI_GATHERING_PILL = ITEMS.register("qi_gathering_pill",
             () -> new QiGatheringPillItem(new Item.Properties().stacksTo(16), 20));
@@ -238,6 +248,11 @@ public final class XiuxianItems {
             event.accept(ALCHEMY_FURNACE_HEAVEN_ITEM);
         } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
             event.accept(LUOXIA_CONSTRUCTION_DECREE);
+            event.accept(LUOXIA_INNER_TEST_KEY);
+            event.accept(MORTAL_TOWN_INSPECTION_TOKEN);
+            event.accept(DAOTAI_RESIDENCE_INSPECTION_TOKEN);
+            event.accept(JINDAN_RESIDENCE_INSPECTION_TOKEN);
+            event.accept(SECT_COMPLEX_INSPECTION_TOKEN);
             CULTIVATION_MANUALS.forEach(event::accept);
             SPELL_MANUALS.forEach(event::accept);
         }

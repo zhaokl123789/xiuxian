@@ -1,0 +1,77 @@
+{
+  "textures": {
+    "jindan_moon": "xiuxian:block/oriental_jindan_moon",
+    "jindan_obsidian": "xiuxian:block/oriental_jindan_obsidian",
+    "particle": "xiuxian:block/oriental_jindan_obsidian"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        1,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_obsidian"
+        },
+        "south": {
+          "texture": "#jindan_obsidian"
+        },
+        "east": {
+          "texture": "#jindan_obsidian"
+        },
+        "west": {
+          "texture": "#jindan_obsidian"
+        },
+        "up": {
+          "texture": "#jindan_obsidian"
+        },
+        "down": {
+          "texture": "#jindan_obsidian"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        1,
+        1
+      ],
+      "to": [
+        15,
+        1.5,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_moon"
+        },
+        "south": {
+          "texture": "#jindan_moon"
+        },
+        "east": {
+          "texture": "#jindan_moon"
+        },
+        "west": {
+          "texture": "#jindan_moon"
+        },
+        "up": {
+          "texture": "#jindan_moon"
+        },
+        "down": {
+          "texture": "#jindan_moon"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

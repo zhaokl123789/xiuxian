@@ -1,0 +1,109 @@
+{
+  "textures": {
+    "lotus": "xiuxian:block/oriental_lotus",
+    "silk": "xiuxian:block/oriental_silk",
+    "particle": "xiuxian:block/oriental_silk"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        1
+      ],
+      "to": [
+        13,
+        3,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#silk"
+        },
+        "south": {
+          "texture": "#silk"
+        },
+        "east": {
+          "texture": "#silk"
+        },
+        "west": {
+          "texture": "#silk"
+        },
+        "up": {
+          "texture": "#silk"
+        },
+        "down": {
+          "texture": "#silk"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        0,
+        3
+      ],
+      "to": [
+        15,
+        3,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#silk"
+        },
+        "south": {
+          "texture": "#silk"
+        },
+        "east": {
+          "texture": "#silk"
+        },
+        "west": {
+          "texture": "#silk"
+        },
+        "up": {
+          "texture": "#silk"
+        },
+        "down": {
+          "texture": "#silk"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        3,
+        4
+      ],
+      "to": [
+        12,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#lotus"
+        },
+        "south": {
+          "texture": "#lotus"
+        },
+        "east": {
+          "texture": "#lotus"
+        },
+        "west": {
+          "texture": "#lotus"
+        },
+        "up": {
+          "texture": "#lotus"
+        },
+        "down": {
+          "texture": "#lotus"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

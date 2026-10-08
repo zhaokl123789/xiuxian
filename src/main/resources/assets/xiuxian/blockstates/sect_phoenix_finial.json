@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/sect_phoenix_finial",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "xiuxian:block/sect_phoenix_finial",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/sect_phoenix_finial",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/sect_phoenix_finial",
+      "y": 270
+    }
+  }
+}

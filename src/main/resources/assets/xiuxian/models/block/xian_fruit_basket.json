@@ -1,0 +1,205 @@
+{
+  "textures": {
+    "bamboo": "xiuxian:block/oriental_bamboo",
+    "fruit": "xiuxian:block/oriental_fruit",
+    "particle": "xiuxian:block/oriental_bamboo"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        5,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        5,
+        1
+      ],
+      "to": [
+        15,
+        6,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        6,
+        3
+      ],
+      "to": [
+        6,
+        9,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#fruit"
+        },
+        "south": {
+          "texture": "#fruit"
+        },
+        "east": {
+          "texture": "#fruit"
+        },
+        "west": {
+          "texture": "#fruit"
+        },
+        "up": {
+          "texture": "#fruit"
+        },
+        "down": {
+          "texture": "#fruit"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        6,
+        3
+      ],
+      "to": [
+        11,
+        9,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#fruit"
+        },
+        "south": {
+          "texture": "#fruit"
+        },
+        "east": {
+          "texture": "#fruit"
+        },
+        "west": {
+          "texture": "#fruit"
+        },
+        "up": {
+          "texture": "#fruit"
+        },
+        "down": {
+          "texture": "#fruit"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        6,
+        8
+      ],
+      "to": [
+        6,
+        9,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#fruit"
+        },
+        "south": {
+          "texture": "#fruit"
+        },
+        "east": {
+          "texture": "#fruit"
+        },
+        "west": {
+          "texture": "#fruit"
+        },
+        "up": {
+          "texture": "#fruit"
+        },
+        "down": {
+          "texture": "#fruit"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        6,
+        8
+      ],
+      "to": [
+        11,
+        9,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#fruit"
+        },
+        "south": {
+          "texture": "#fruit"
+        },
+        "east": {
+          "texture": "#fruit"
+        },
+        "west": {
+          "texture": "#fruit"
+        },
+        "up": {
+          "texture": "#fruit"
+        },
+        "down": {
+          "texture": "#fruit"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

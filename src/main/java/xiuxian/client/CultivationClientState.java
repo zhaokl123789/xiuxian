@@ -40,6 +40,13 @@ public final class CultivationClientState {
 
     private CultivationClientState() {}
 
+    public static void reset() {
+        update(false, FamilyOrigin.MORTAL.id(), CultivationPath.WANDERER.id(),
+                CultivationRealm.FETAL_BREATH.id(), 1, 0, 0, "xiuxian:basic_breathing", false,
+                10, 10, 10, 10, "", 0, 0, 0, 0, 0, 1, 0, 100, "", 0,
+                List.of("", "", "", ""), Set.of());
+    }
+
     public static boolean isInitialized() {
         return initialized;
     }

@@ -1,0 +1,270 @@
+{
+  "textures": {
+    "cloud_stone": "xiuxian:block/oriental_cloud_stone",
+    "gold": "xiuxian:block/oriental_gold",
+    "jade": "xiuxian:block/oriental_jade",
+    "particle": "xiuxian:block/oriental_cloud_stone"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud_stone"
+        },
+        "south": {
+          "texture": "#cloud_stone"
+        },
+        "east": {
+          "texture": "#cloud_stone"
+        },
+        "west": {
+          "texture": "#cloud_stone"
+        },
+        "up": {
+          "texture": "#cloud_stone"
+        },
+        "down": {
+          "texture": "#cloud_stone"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        4
+      ],
+      "to": [
+        12,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud_stone"
+        },
+        "south": {
+          "texture": "#cloud_stone"
+        },
+        "east": {
+          "texture": "#cloud_stone"
+        },
+        "west": {
+          "texture": "#cloud_stone"
+        },
+        "up": {
+          "texture": "#cloud_stone"
+        },
+        "down": {
+          "texture": "#cloud_stone"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        8
+      ],
+      "to": [
+        6,
+        9,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        4,
+        8
+      ],
+      "to": [
+        11,
+        9,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        9,
+        5
+      ],
+      "to": [
+        12,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        12,
+        4
+      ],
+      "to": [
+        8,
+        16,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        14,
+        1
+      ],
+      "to": [
+        8,
+        15,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        9,
+        11
+      ],
+      "to": [
+        13,
+        10,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

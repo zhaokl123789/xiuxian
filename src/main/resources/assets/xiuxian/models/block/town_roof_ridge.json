@@ -1,0 +1,109 @@
+{
+  "textures": {
+    "gold": "xiuxian:block/oriental_gold",
+    "roof_blue": "xiuxian:block/oriental_roof_blue",
+    "particle": "xiuxian:block/oriental_roof_blue"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        4
+      ],
+      "to": [
+        16,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_blue"
+        },
+        "south": {
+          "texture": "#roof_blue"
+        },
+        "east": {
+          "texture": "#roof_blue"
+        },
+        "west": {
+          "texture": "#roof_blue"
+        },
+        "up": {
+          "texture": "#roof_blue"
+        },
+        "down": {
+          "texture": "#roof_blue"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        4,
+        6
+      ],
+      "to": [
+        16,
+        9,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        9,
+        7
+      ],
+      "to": [
+        16,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

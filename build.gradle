@@ -21,7 +21,10 @@ minecraft {
     runs {
         gameTestServer {
             workingDirectory project.file('run/luoxia-gametest')
-            property 'forge.enabledGameTestNamespaces', 'forge,xiuxian'
+            property 'forge.enabledGameTestNamespaces', providers.gradleProperty('gameTestNamespaces')
+                    .getOrElse(gradle.startParameter.taskNames.any { it.tokenize(':').last() == 'luoxiaVerify' }
+                            ? 'xiuxian_geometry' : 'forge,xiuxian,xiuxian_startup')
+            property 'xiuxian.verificationRoot', projectDir.absolutePath
             args '--world', 'world-' + System.currentTimeMillis()
             mods {
                 "xiuxian" {
@@ -53,15 +56,17 @@ dependencies {
 
 }
 
-tasks.register('luoxiaVerify', JavaExec) {
-    dependsOn testClasses
-    classpath = sourceSets.test.runtimeClasspath
-    mainClass = 'xiuxian.sect.LuoxiaGeometryVerification'
-    workingDir = projectDir
-    maxHeapSize = '2G'
+tasks.register('luoxiaVerify') {
+    // Actual mod blocks require the Forge registry lifecycle, not vanilla Bootstrap.
+    dependsOn 'runGameTestServer'
 }
 
 tasks.register('prepareLuoxiaGameTestFixture', Copy) {
+    // The destination is also the persistent GameTest working directory;
+    // Minecraft creates worlds, locks and logs there between runs.  Gradle's
+    // output snapshotter cannot safely claim that directory as an exclusive
+    // Copy output, so opt this fixture copy out of state tracking.
+    doNotTrackState('GameTest fixture destination is a persistent Minecraft working directory')
     from('src/test/resources/gameteststructures') {
         into 'gameteststructures'
     }

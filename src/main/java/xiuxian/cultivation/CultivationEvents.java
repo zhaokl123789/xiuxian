@@ -33,14 +33,35 @@ import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import xiuxian.network.XiuxianNetwork;
 import xiuxian.item.XiuxianItems;
+import xiuxian.sect.LuoxiaInnerDimension;
 
 public class CultivationEvents {
     private static final ResourceKey<Level> TAIXU_LEVEL = TaixuDimension.LEVEL;
     private static final float TAIXU_FLYING_SPEED = TaixuDimension.FLYING_SPEED;
     private static final Map<UUID, Integer> DIMENSION_SYNC_TICKS = new HashMap<>();
+
+    @SubscribeEvent
+    public void onServerAboutToStart(ServerAboutToStartEvent event) {
+        TaixuDimension.clearLiveState();
+        DIMENSION_SYNC_TICKS.clear();
+    }
+
+    @SubscribeEvent
+    public void onServerStopped(ServerStoppedEvent event) {
+        TaixuDimension.clearLiveState();
+        DIMENSION_SYNC_TICKS.clear();
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        TaixuDimension.clearPlayerLiveState(event.getEntity().getUUID());
+        DIMENSION_SYNC_TICKS.remove(event.getEntity().getUUID());
+    }
 
     @SubscribeEvent
     public void attachPlayerData(AttachCapabilitiesEvent<Entity> event) {
@@ -65,6 +86,12 @@ public class CultivationEvents {
                             if (event.isWasDeath() && original.isInitialized()
                                     && original.realm().ordinal() >= CultivationRealm.PURPLE_MANSION.ordinal()) {
                                 copy.resetForDeath();
+                                if (event.getOriginal() instanceof ServerPlayer originalPlayer) {
+                                    TaixuDimension.discardCultivationSnapshots(originalPlayer);
+                                }
+                                if (event.getEntity() instanceof ServerPlayer respawnedPlayer) {
+                                    TaixuDimension.discardCultivationSnapshots(respawnedPlayer);
+                                }
                             }
                             if (event.getEntity() instanceof ServerPlayer player && copy.isInitialized()) {
                                 CultivationAttributeEffects.applyAndPreserveHealth(player, copy);
@@ -100,6 +127,9 @@ public class CultivationEvents {
             CultivationAttributeEffects.applyAndPreserveHealth(player, data);
             CultivationAttributeEffects.sync(player);
             DIMENSION_SYNC_TICKS.put(player.getUUID(), 20);
+        } else {
+            CultivationAttributeEffects.remove(player, true);
+            CultivationAttributeEffects.sync(player);
         }
         XiuxianNetwork.syncCultivation(player, data);
         if (!data.isInitialized()) {
@@ -116,6 +146,9 @@ public class CultivationEvents {
                     CultivationAttributeEffects.applyAndPreserveHealth(player, data);
                     CultivationAttributeEffects.sync(player);
                     DIMENSION_SYNC_TICKS.put(player.getUUID(), 20);
+                } else {
+                    CultivationAttributeEffects.remove(player, true);
+                    CultivationAttributeEffects.sync(player);
                 }
                 XiuxianNetwork.syncCultivation(player, data);
                 if (!data.isInitialized()) {
@@ -144,16 +177,18 @@ public class CultivationEvents {
                 }
                 TaixuDimension.returnToWorld(player, data);
             }
-            player.setNoGravity(false);
+            player.setNoGravity(data != null);
             if (!player.isCreative() && !player.isSpectator()
                     && (player.getAbilities().mayfly || player.getAbilities().flying)) {
                 player.getAbilities().mayfly = false;
                 player.getAbilities().flying = false;
                 player.onUpdateAbilities();
             }
-            CultivationAttributeEffects.remove(player);
+            CultivationAttributeEffects.remove(player, data != null);
             if (data != null) {
                 data.stopMeditating();
+                player.setSprinting(false);
+                player.setDeltaMovement(0.0D, 0.0D, 0.0D);
             }
             return;
         }
@@ -265,7 +300,7 @@ public class CultivationEvents {
                                         StringArgumentType.getString(context, "technique")))))
                 .then(Commands.literal("meditate").executes(context -> toggleMeditation(context.getSource())))
                 .then(Commands.literal("breakthrough").executes(context -> breakthrough(context.getSource())))
-                .then(Commands.literal("return").executes(context -> returnFromTaixu(context.getSource())))
+                .then(Commands.literal("return").executes(context -> returnFromAnyDimension(context.getSource())))
                 .executes(context -> {
                     context.getSource().sendSuccess(() -> Component.literal(
                             "命令：/xiuxian identity、/xiuxian status、/xiuxian meditate、/xiuxian breakthrough、/xiuxian return"), false);
@@ -291,6 +326,9 @@ public class CultivationEvents {
         data.begin(family, path, player.getRandom());
         grantStartingKit(player, family, path);
         player.setNoGravity(false);
+        CultivationAttributeEffects.setMeditating(player, false);
+        CultivationAttributeEffects.applyAndPreserveHealth(player, data);
+        CultivationAttributeEffects.sync(player);
         XiuxianNetwork.syncCultivation(player, data);
         String techniqueStatus = data.hasLearnedTechnique()
                 ? "你已习得入门功法《吐纳引气诀》。"
@@ -318,8 +356,13 @@ public class CultivationEvents {
 
     @SubscribeEvent
     public void onUninitializedPlayerBreaksBlock(BlockEvent.BreakEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer player && isChanneling(player)) {
-            interruptChannel(player);
+        if (event.getPlayer() instanceof ServerPlayer player) {
+            CultivationData data = getData(player);
+            if (data != null && !data.isInitialized()) {
+                event.setCanceled(true);
+            } else if (isChanneling(player)) {
+                interruptChannel(player);
+            }
         }
     }
 
@@ -327,7 +370,9 @@ public class CultivationEvents {
     public void onUninitializedPlayerInteracts(PlayerInteractEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             CultivationData data = getData(player);
-            if (data != null && data.isMeditating()) {
+            if (data != null && !data.isInitialized()) {
+                if (event.isCancelable()) event.setCanceled(true);
+            } else if (data != null && data.isMeditating()) {
                 interruptChannel(player);
             }
         }
@@ -335,13 +380,25 @@ public class CultivationEvents {
 
     @SubscribeEvent
     public void onUninitializedPlayerAttacks(AttackEntityEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player && isChanneling(player)) {
-            interruptChannel(player);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            CultivationData data = getData(player);
+            if (data != null && !data.isInitialized()) {
+                event.setCanceled(true);
+            } else if (isChanneling(player)) {
+                interruptChannel(player);
+            }
         }
     }
 
     @SubscribeEvent
     public void onUninitializedPlayerTakesDamage(LivingHurtEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            CultivationData data = getData(player);
+            if (data != null && !data.isInitialized()) {
+                event.setCanceled(true);
+                return;
+            }
+        }
         if (!event.getEntity().level().isClientSide) {
             if (event.getSource().getEntity() instanceof ServerPlayer attacker
                     && event.getEntity() != attacker) {
@@ -411,6 +468,14 @@ public class CultivationEvents {
         }
         TaixuDimension.returnToWorld(player, getData(player));
         return 1;
+    }
+
+    private static int returnFromAnyDimension(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (LuoxiaInnerDimension.isInner(player.level())) {
+            return LuoxiaInnerDimension.returnCommand(player);
+        }
+        return returnFromTaixu(source);
     }
 
     @SubscribeEvent
@@ -836,6 +901,10 @@ public class CultivationEvents {
     }
 
     public static void performVoidWalk(ServerPlayer player) {
+        if (LuoxiaInnerDimension.isInner(player.level())) {
+            LuoxiaInnerDimension.returnToOrigin(player);
+            return;
+        }
         TaixuDimension.toggle(player);
     }
 

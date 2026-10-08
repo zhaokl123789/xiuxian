@@ -44,6 +44,7 @@ public final class CultivationAttributeEffects {
                 ? 0.15D + data.realm().ordinal() * 0.08D : 0.0D;
         changed |= update(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT, "\u4fee\u884c\u5954\u884c",
                 realmMovement, AttributeModifier.Operation.MULTIPLY_TOTAL);
+        clampHealth(player);
         if (changed) {
             sync(player);
         }
@@ -78,6 +79,10 @@ public final class CultivationAttributeEffects {
     }
 
     public static void remove(ServerPlayer player) {
+        remove(player, false);
+    }
+
+    public static void remove(ServerPlayer player, boolean movementLocked) {
         boolean changed = false;
         AttributeInstance health = player.getAttribute(Attributes.MAX_HEALTH);
         if (health != null) {
@@ -91,9 +96,16 @@ public final class CultivationAttributeEffects {
         changed |= remove(player, Attributes.ARMOR, ARMOR_MODIFIER);
         changed |= remove(player, Attributes.MOVEMENT_SPEED, TECHNIQUE_MOVEMENT);
         changed |= remove(player, Attributes.MOVEMENT_SPEED, REALM_MOVEMENT);
-        setMeditating(player, false);
+        setMeditating(player, movementLocked);
+        clampHealth(player);
         if (changed) {
             sync(player);
+        }
+    }
+
+    private static void clampHealth(ServerPlayer player) {
+        if (player.getHealth() > player.getMaxHealth()) {
+            player.setHealth(player.getMaxHealth());
         }
     }
 

@@ -1,0 +1,174 @@
+{
+  "textures": {
+    "banner": "xiuxian:block/oriental_banner",
+    "jade": "xiuxian:block/oriental_jade",
+    "vermilion": "xiuxian:block/oriental_vermilion",
+    "particle": "xiuxian:block/oriental_vermilion"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        2
+      ],
+      "to": [
+        3,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        0,
+        2
+      ],
+      "to": [
+        16,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        13,
+        2
+      ],
+      "to": [
+        13,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        5
+      ],
+      "to": [
+        12,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#banner"
+        },
+        "south": {
+          "texture": "#banner"
+        },
+        "east": {
+          "texture": "#banner"
+        },
+        "west": {
+          "texture": "#banner"
+        },
+        "up": {
+          "texture": "#banner"
+        },
+        "down": {
+          "texture": "#banner"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        4
+      ],
+      "to": [
+        11,
+        11,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

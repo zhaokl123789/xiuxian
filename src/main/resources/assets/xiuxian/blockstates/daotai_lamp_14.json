@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/daotai_lamp_14",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "xiuxian:block/daotai_lamp_14",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/daotai_lamp_14",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/daotai_lamp_14",
+      "y": 270
+    }
+  }
+}

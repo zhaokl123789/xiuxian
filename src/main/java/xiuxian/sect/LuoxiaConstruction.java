@@ -21,11 +21,17 @@ final class LuoxiaConstruction {
     private static final int MAX_WRITES_PER_TICK = 3_072;
     private static final long TICK_BUDGET_NS = 8_000_000L;
     private static final WeakHashMap<ServerLevel, Job> JOBS = new WeakHashMap<>();
+    private static final WeakHashMap<ServerLevel, DetailJob> DETAIL_JOBS = new WeakHashMap<>();
 
     private LuoxiaConstruction() {}
 
     static void tick(ServerLevel level) {
         LuoxiaSiteData data = LuoxiaSiteData.get(level);
+        if (data.phase == LuoxiaSiteData.Phase.COMPLETE && data.origin != null
+                && data.detailsVersion < LuoxiaBlueprint.DETAILS_VERSION) {
+            tickDetails(level, data);
+            return;
+        }
         if (!data.active()) {
             release(level);
             return;
@@ -162,6 +168,94 @@ final class LuoxiaConstruction {
     static void release(ServerLevel level) {
         Job job = JOBS.remove(level);
         if (job != null) job.release(level);
+        DetailJob detailJob = DETAIL_JOBS.remove(level);
+        if (detailJob != null) detailJob.release(level);
+    }
+
+    /**
+     * Synchronously materialize the visible summit marker when a player
+     * reaches the completed site. This covers old COMPLETE saves while their
+     * additive detail cursor is still catching up. Only air is replaced, so a
+     * player's custom decoration always wins; the normal detail job later
+     * records the same blocks and advances the persisted revision.
+     */
+    static void ensureSummitGate(ServerLevel level, BlockPos origin) {
+        if (level == null || origin == null) return;
+        for (LuoxiaBlueprint.Placement op : LuoxiaBlueprint.createSummitGate().placements()) {
+            for (int x = op.minX(); x <= op.maxX(); x++) {
+                for (int y = op.minY(); y <= op.maxY(); y++) {
+                    int worldY = origin.getY() + y;
+                    if (worldY < level.getMinBuildHeight() || worldY >= level.getMaxBuildHeight()) continue;
+                    for (int z = op.minZ(); z <= op.maxZ(); z++) {
+                        BlockPos pos = origin.offset(x, y, z);
+                        if (level.getBlockState(pos).isAir()) {
+                            level.setBlock(pos, op.state(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void tickDetails(ServerLevel level, LuoxiaSiteData data) {
+        DetailJob job = DETAIL_JOBS.computeIfAbsent(level, ignored -> new DetailJob(data.origin));
+        if (!job.origin.equals(data.origin)) {
+            data.paused = true;
+            data.problem = "落霞阁陈设升级位置发生变化，请重新选址。";
+            data.setDirty();
+            release(level);
+            return;
+        }
+        if (data.detailsPlacement > job.operations.size()) {
+            data.paused = true;
+            data.problem = "落霞阁陈设升级游标无效，请重新选址。";
+            data.setDirty();
+            release(level);
+            return;
+        }
+        long started = System.nanoTime();
+        int writes = 0;
+        while (data.detailsPlacement < job.operations.size() && writes < 512
+                && System.nanoTime() - started < TICK_BUDGET_NS) {
+            LuoxiaBlueprint.Placement op = job.operations.get(data.detailsPlacement);
+            int xs = op.maxX() - op.minX() + 1;
+            int ys = op.maxY() - op.minY() + 1;
+            int zs = op.maxZ() - op.minZ() + 1;
+            long total = (long) xs * ys * zs;
+            if (data.detailsCell >= total) {
+                data.detailsPlacement++;
+                data.detailsCell = 0;
+                continue;
+            }
+            int x = data.origin.getX() + op.minX() + (int) (data.detailsCell % xs);
+            int y = data.origin.getY() + op.minY() + (int) (data.detailsCell / xs % ys);
+            int z = data.origin.getZ() + op.minZ() + (int) (data.detailsCell / ((long) xs * ys));
+            BlockPos pos = new BlockPos(x, y, z);
+            ChunkPos chunk = new ChunkPos(pos);
+            if (!chunk.equals(job.workChunk)) {
+                job.release(level);
+                level.getChunkSource().addRegionTicket(TicketType.FORCED, chunk, 0, chunk);
+                job.workChunk = chunk;
+            }
+            if (level.getChunkSource().getChunkNow(chunk.x, chunk.z) == null) break;
+            // The additive upgrade never overwrites player-owned blocks.
+            if (level.getBlockState(pos).isAir()
+                    && level.setBlock(pos, op.state(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE)) {
+                writes++;
+                data.changedBlocks++;
+            }
+            data.detailsCell++;
+        }
+        if (data.detailsPlacement >= job.operations.size()) {
+            data.detailsVersion = LuoxiaBlueprint.DETAILS_VERSION;
+            data.detailsPlacement = 0;
+            data.detailsCell = 0;
+            job.release(level);
+            DETAIL_JOBS.remove(level);
+            level.getServer().getPlayerList().broadcastSystemMessage(Component.literal(
+                    "落霞宗内堂陈设与照明升级完成。"), false);
+        }
+        data.setDirty();
     }
 
     private static void pause(ServerLevel level, LuoxiaSiteData data, String problem) {
@@ -293,6 +387,24 @@ final class LuoxiaConstruction {
             if (workChunk != null) level.getChunkSource().removeRegionTicket(TicketType.FORCED, workChunk, 0, workChunk);
             workChunk = null;
             loadedChunk = null;
+        }
+    }
+
+    private static final class DetailJob {
+        final BlockPos origin;
+        final List<LuoxiaBlueprint.Placement> operations;
+        ChunkPos workChunk;
+
+        DetailJob(BlockPos origin) {
+            this.origin = origin;
+            this.operations = LuoxiaBlueprint.createDetails().placements();
+        }
+
+        void release(ServerLevel level) {
+            if (workChunk != null) {
+                level.getChunkSource().removeRegionTicket(TicketType.FORCED, workChunk, 0, workChunk);
+                workChunk = null;
+            }
         }
     }
 }

@@ -1,0 +1,174 @@
+{
+  "textures": {
+    "cloud_stone": "xiuxian:block/oriental_cloud_stone",
+    "leaves": "xiuxian:block/oriental_leaves",
+    "water_art": "xiuxian:block/oriental_water_art",
+    "particle": "xiuxian:block/oriental_cloud_stone"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        2,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cloud_stone"
+        },
+        "south": {
+          "texture": "#cloud_stone"
+        },
+        "east": {
+          "texture": "#cloud_stone"
+        },
+        "west": {
+          "texture": "#cloud_stone"
+        },
+        "up": {
+          "texture": "#cloud_stone"
+        },
+        "down": {
+          "texture": "#cloud_stone"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        4,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#water_art"
+        },
+        "south": {
+          "texture": "#water_art"
+        },
+        "east": {
+          "texture": "#water_art"
+        },
+        "west": {
+          "texture": "#water_art"
+        },
+        "up": {
+          "texture": "#water_art"
+        },
+        "down": {
+          "texture": "#water_art"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        5
+      ],
+      "to": [
+        11,
+        6,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        6,
+        7
+      ],
+      "to": [
+        9,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        11,
+        4
+      ],
+      "to": [
+        12,
+        13,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

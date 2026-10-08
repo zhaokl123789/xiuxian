@@ -1,0 +1,238 @@
+{
+  "textures": {
+    "leaves": "xiuxian:block/oriental_leaves",
+    "porcelain": "xiuxian:block/oriental_porcelain",
+    "rosewood": "xiuxian:block/oriental_rosewood",
+    "particle": "xiuxian:block/oriental_porcelain"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        3
+      ],
+      "to": [
+        14,
+        3,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        3,
+        4
+      ],
+      "to": [
+        13,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        4,
+        7
+      ],
+      "to": [
+        9,
+        11,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        8,
+        7
+      ],
+      "to": [
+        8,
+        10,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        10,
+        4
+      ],
+      "to": [
+        8,
+        12,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        13,
+        4
+      ],
+      "to": [
+        14,
+        15,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        11,
+        7
+      ],
+      "to": [
+        10,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

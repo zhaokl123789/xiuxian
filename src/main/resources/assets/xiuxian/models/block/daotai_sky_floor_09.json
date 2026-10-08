@@ -1,0 +1,109 @@
+{
+  "textures": {
+    "gold": "xiuxian:block/oriental_gold",
+    "stars": "xiuxian:block/oriental_stars",
+    "particle": "xiuxian:block/oriental_stars"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        2,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#stars"
+        },
+        "south": {
+          "texture": "#stars"
+        },
+        "east": {
+          "texture": "#stars"
+        },
+        "west": {
+          "texture": "#stars"
+        },
+        "up": {
+          "texture": "#stars"
+        },
+        "down": {
+          "texture": "#stars"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        4,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        4
+      ],
+      "to": [
+        12,
+        5,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#stars"
+        },
+        "south": {
+          "texture": "#stars"
+        },
+        "east": {
+          "texture": "#stars"
+        },
+        "west": {
+          "texture": "#stars"
+        },
+        "up": {
+          "texture": "#stars"
+        },
+        "down": {
+          "texture": "#stars"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

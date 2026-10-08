@@ -1,0 +1,174 @@
+{
+  "textures": {
+    "bronze": "xiuxian:block/oriental_bronze",
+    "herbs": "xiuxian:block/oriental_herbs",
+    "taiji": "xiuxian:block/oriental_taiji",
+    "particle": "xiuxian:block/oriental_bronze"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        2,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        4,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#taiji"
+        },
+        "south": {
+          "texture": "#taiji"
+        },
+        "east": {
+          "texture": "#taiji"
+        },
+        "west": {
+          "texture": "#taiji"
+        },
+        "up": {
+          "texture": "#taiji"
+        },
+        "down": {
+          "texture": "#taiji"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        5
+      ],
+      "to": [
+        11,
+        6,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#herbs"
+        },
+        "south": {
+          "texture": "#herbs"
+        },
+        "east": {
+          "texture": "#herbs"
+        },
+        "west": {
+          "texture": "#herbs"
+        },
+        "up": {
+          "texture": "#herbs"
+        },
+        "down": {
+          "texture": "#herbs"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        6,
+        7
+      ],
+      "to": [
+        9,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#herbs"
+        },
+        "south": {
+          "texture": "#herbs"
+        },
+        "east": {
+          "texture": "#herbs"
+        },
+        "west": {
+          "texture": "#herbs"
+        },
+        "up": {
+          "texture": "#herbs"
+        },
+        "down": {
+          "texture": "#herbs"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        11,
+        4
+      ],
+      "to": [
+        12,
+        13,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#herbs"
+        },
+        "south": {
+          "texture": "#herbs"
+        },
+        "east": {
+          "texture": "#herbs"
+        },
+        "west": {
+          "texture": "#herbs"
+        },
+        "up": {
+          "texture": "#herbs"
+        },
+        "down": {
+          "texture": "#herbs"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

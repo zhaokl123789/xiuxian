@@ -1,0 +1,141 @@
+{
+  "textures": {
+    "jindan_core": "xiuxian:block/oriental_jindan_core",
+    "jindan_gold_fire": "xiuxian:block/oriental_jindan_gold_fire",
+    "particle": "xiuxian:block/oriental_jindan_core"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        14,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_core"
+        },
+        "south": {
+          "texture": "#jindan_core"
+        },
+        "east": {
+          "texture": "#jindan_core"
+        },
+        "west": {
+          "texture": "#jindan_core"
+        },
+        "up": {
+          "texture": "#jindan_core"
+        },
+        "down": {
+          "texture": "#jindan_core"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        4,
+        3
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_core"
+        },
+        "south": {
+          "texture": "#jindan_core"
+        },
+        "east": {
+          "texture": "#jindan_core"
+        },
+        "west": {
+          "texture": "#jindan_core"
+        },
+        "up": {
+          "texture": "#jindan_core"
+        },
+        "down": {
+          "texture": "#jindan_core"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        6,
+        6
+      ],
+      "to": [
+        15,
+        10,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_gold_fire"
+        },
+        "south": {
+          "texture": "#jindan_gold_fire"
+        },
+        "east": {
+          "texture": "#jindan_gold_fire"
+        },
+        "west": {
+          "texture": "#jindan_gold_fire"
+        },
+        "up": {
+          "texture": "#jindan_gold_fire"
+        },
+        "down": {
+          "texture": "#jindan_gold_fire"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        6,
+        1
+      ],
+      "to": [
+        10,
+        10,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_gold_fire"
+        },
+        "south": {
+          "texture": "#jindan_gold_fire"
+        },
+        "east": {
+          "texture": "#jindan_gold_fire"
+        },
+        "west": {
+          "texture": "#jindan_gold_fire"
+        },
+        "up": {
+          "texture": "#jindan_gold_fire"
+        },
+        "down": {
+          "texture": "#jindan_gold_fire"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

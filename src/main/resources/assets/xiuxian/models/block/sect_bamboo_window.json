@@ -1,0 +1,333 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "gold": "xiuxian:block/oriental_sect_bamboo_window_gold",
+    "leaf": "xiuxian:block/oriental_sect_bamboo_window_leaf",
+    "motif": "xiuxian:block/oriental_sect_bamboo_window_motif",
+    "red": "xiuxian:block/oriental_sect_bamboo_window_red",
+    "particle": "xiuxian:block/oriental_sect_bamboo_window_red"
+  },
+  "render_type": "minecraft:cutout",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        6
+      ],
+      "to": [
+        2,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#red"
+        },
+        "south": {
+          "texture": "#red"
+        },
+        "east": {
+          "texture": "#red"
+        },
+        "west": {
+          "texture": "#red"
+        },
+        "up": {
+          "texture": "#red"
+        },
+        "down": {
+          "texture": "#red"
+        }
+      }
+    },
+    {
+      "from": [
+        14,
+        0,
+        6
+      ],
+      "to": [
+        16,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#red"
+        },
+        "south": {
+          "texture": "#red"
+        },
+        "east": {
+          "texture": "#red"
+        },
+        "west": {
+          "texture": "#red"
+        },
+        "up": {
+          "texture": "#red"
+        },
+        "down": {
+          "texture": "#red"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        0,
+        6
+      ],
+      "to": [
+        14,
+        2,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        14,
+        6
+      ],
+      "to": [
+        14,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        7
+      ],
+      "to": [
+        4.7,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaf"
+        },
+        "south": {
+          "texture": "#leaf"
+        },
+        "east": {
+          "texture": "#leaf"
+        },
+        "west": {
+          "texture": "#leaf"
+        },
+        "up": {
+          "texture": "#leaf"
+        },
+        "down": {
+          "texture": "#leaf"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        2,
+        7
+      ],
+      "to": [
+        7.7,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaf"
+        },
+        "south": {
+          "texture": "#leaf"
+        },
+        "east": {
+          "texture": "#leaf"
+        },
+        "west": {
+          "texture": "#leaf"
+        },
+        "up": {
+          "texture": "#leaf"
+        },
+        "down": {
+          "texture": "#leaf"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        2,
+        7
+      ],
+      "to": [
+        10.7,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaf"
+        },
+        "south": {
+          "texture": "#leaf"
+        },
+        "east": {
+          "texture": "#leaf"
+        },
+        "west": {
+          "texture": "#leaf"
+        },
+        "up": {
+          "texture": "#leaf"
+        },
+        "down": {
+          "texture": "#leaf"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        6,
+        7
+      ],
+      "to": [
+        14,
+        6.7,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        10,
+        7
+      ],
+      "to": [
+        14,
+        10.7,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        4.105,
+        3.8,
+        6.9
+      ],
+      "to": [
+        4.595,
+        12.2,
+        7.05
+      ],
+      "faces": {
+        "north": {
+          "texture": "#motif"
+        },
+        "south": {
+          "texture": "#motif"
+        },
+        "east": {
+          "texture": "#motif"
+        },
+        "west": {
+          "texture": "#motif"
+        },
+        "up": {
+          "texture": "#motif"
+        },
+        "down": {
+          "texture": "#motif"
+        }
+      }
+    }
+  ]
+}

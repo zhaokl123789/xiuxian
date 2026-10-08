@@ -1,0 +1,335 @@
+{
+  "textures": {
+    "carved_jade": "xiuxian:block/oriental_carved_jade",
+    "glow": "xiuxian:block/oriental_glow",
+    "jade": "xiuxian:block/oriental_jade",
+    "roof_blue": "xiuxian:block/oriental_roof_blue",
+    "particle": "xiuxian:block/oriental_carved_jade"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#carved_jade"
+        },
+        "south": {
+          "texture": "#carved_jade"
+        },
+        "east": {
+          "texture": "#carved_jade"
+        },
+        "west": {
+          "texture": "#carved_jade"
+        },
+        "up": {
+          "texture": "#carved_jade"
+        },
+        "down": {
+          "texture": "#carved_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        5,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        5,
+        3
+      ],
+      "to": [
+        13,
+        7,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#carved_jade"
+        },
+        "south": {
+          "texture": "#carved_jade"
+        },
+        "east": {
+          "texture": "#carved_jade"
+        },
+        "west": {
+          "texture": "#carved_jade"
+        },
+        "up": {
+          "texture": "#carved_jade"
+        },
+        "down": {
+          "texture": "#carved_jade"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        7,
+        5
+      ],
+      "to": [
+        11,
+        12,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#glow"
+        },
+        "south": {
+          "texture": "#glow"
+        },
+        "east": {
+          "texture": "#glow"
+        },
+        "west": {
+          "texture": "#glow"
+        },
+        "up": {
+          "texture": "#glow"
+        },
+        "down": {
+          "texture": "#glow"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        12,
+        2
+      ],
+      "to": [
+        14,
+        14,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_blue"
+        },
+        "south": {
+          "texture": "#roof_blue"
+        },
+        "east": {
+          "texture": "#roof_blue"
+        },
+        "west": {
+          "texture": "#roof_blue"
+        },
+        "up": {
+          "texture": "#roof_blue"
+        },
+        "down": {
+          "texture": "#roof_blue"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        14,
+        4
+      ],
+      "to": [
+        12,
+        16,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_blue"
+        },
+        "south": {
+          "texture": "#roof_blue"
+        },
+        "east": {
+          "texture": "#roof_blue"
+        },
+        "west": {
+          "texture": "#roof_blue"
+        },
+        "up": {
+          "texture": "#roof_blue"
+        },
+        "down": {
+          "texture": "#roof_blue"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        7,
+        3
+      ],
+      "to": [
+        4,
+        12,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        7,
+        12
+      ],
+      "to": [
+        4,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        7,
+        3
+      ],
+      "to": [
+        13,
+        12,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        7,
+        12
+      ],
+      "to": [
+        13,
+        12,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

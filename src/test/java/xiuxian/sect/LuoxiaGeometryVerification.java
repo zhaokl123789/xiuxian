@@ -1,11 +1,9 @@
 package xiuxian.sect;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,16 +38,15 @@ public final class LuoxiaGeometryVerification {
         id(Blocks.AIR.defaultBlockState());
     }
 
-    public static void main(String[] args) throws IOException {
-        SharedConstants.tryDetectVersion();
-        bootstrapGeometry();
+    public static void verifyRegistered(Path root) throws IOException {
         long start = System.nanoTime();
         LuoxiaBlueprint blueprint = LuoxiaBlueprint.create();
         LuoxiaGeometryVerification model = new LuoxiaGeometryVerification();
         model.assemble(blueprint);
         model.verify(blueprint);
+        OrientalBuildingVerification.verify(model.survivingOrientalBlocks(), root);
         verifyPersistence();
-        Path output = Path.of("build", "luoxia-preview");
+        Path output = root.resolve("build/luoxia-preview");
         Files.createDirectories(output);
         model.render(output.resolve("luoxia-isometric.png"), 2240, 1920, 3.35);
         model.renderAxis(output.resolve("luoxia-central-axis.png"));
@@ -59,21 +56,16 @@ public final class LuoxiaGeometryVerification {
         System.out.println("Generated-block previews: " + output.toAbsolutePath());
     }
 
-    private static void bootstrapGeometry() {
-        try {
-            Bootstrap.bootStrap();
-        } catch (ExceptionInInitializerError error) {
-            Throwable cause = error;
-            while (cause.getCause() != null) cause = cause.getCause();
-            // The plain verification JVM has no ModLauncher event transformations. This last
-            // networking hook runs after vanilla block/registry bootstrap and is unused here.
-            if (!(cause instanceof NoSuchMethodException)
-                    || !"net.minecraftforge.network.NetworkEvent.<init>()".equals(cause.getMessage())) {
-                throw error;
-            }
-            require(BuiltInRegistries.BLOCK.size() > 500, "Vanilla block bootstrap did not finish");
-            System.out.println("NOTE: geometry-only JVM omits Forge network hooks; no event/server integration is tested here.");
+    private Map<String, Integer> survivingOrientalBlocks() {
+        Map<String, Integer> counts = new java.util.TreeMap<>();
+        int[] totals = new int[palette.size()];
+        for (short voxel : voxels) totals[voxel]++;
+        for (int id = 1; id < palette.size(); id++) {
+            String name = blockName(palette.get(id));
+            if (totals[id] > 0 && (name.startsWith("xian_") || name.startsWith("town_")))
+                counts.merge(name, totals[id], Integer::sum);
         }
+        return counts;
     }
 
     private short id(BlockState state) {
@@ -153,6 +145,7 @@ public final class LuoxiaGeometryVerification {
                 {0, 134, -169}, {0, 134, -209}, {32, 134, -189}, {-32, 134, -189}}) {
             walkable(door[0], door[1], door[2], "door passage");
         }
+        verifySummitGate(blueprint);
         for (int z = -208; z <= -170; z++) {
             walkable(0, 134, z, "main hall central aisle");
         }
@@ -199,6 +192,42 @@ public final class LuoxiaGeometryVerification {
             require(height <= LuoxiaBlueprint.MAX_Y, "Terrain exceeds build height");
         }
         System.out.println("PASS: construction bounds, ordered operation sampling, continuous ascent, gate passages, hall aisle, roof mass");
+    }
+
+    private void verifySummitGate(LuoxiaBlueprint blueprint) {
+        // The center curtain is the visual affordance players see at the
+        // documented summit point.  It is above the walkable lane, so the
+        // ascent remains valid while the right-click zone stays unambiguous.
+        for (int y = 136; y <= 144; y++) {
+            require(state(0, y, -160).is(Blocks.LIGHT_BLUE_STAINED_GLASS_PANE),
+                    "Summit gate curtain missing at y=" + y);
+        }
+        require(!state(-10, 140, -160).isAir() && !state(10, 140, -160).isAir(),
+                "Summit gate side pillars are missing");
+        require(!state(0, 154, -160).isAir(), "Summit gate crown marker is missing");
+        // The older north arch is also dressed so that players arriving from
+        // the main hall side see a second unmistakable entrance face.
+        for (int y = 136; y <= 144; y++) {
+            require(state(0, y, -217).is(Blocks.LIGHT_BLUE_STAINED_GLASS_PANE),
+                    "North scenic gate curtain missing at y=" + y);
+        }
+        require(!state(-9, 140, -217).isAir() && !state(9, 140, -217).isAir(),
+                "North scenic gate pillars are missing");
+        require(LuoxiaInnerDimension.isSummitGate(new BlockPos(0, 0, 0),
+                        new BlockPos(0, LuoxiaInnerDimension.SUMMIT_Y, LuoxiaInnerDimension.SUMMIT_Z)),
+                "Summit gate interaction predicate rejects its center");
+        require(!LuoxiaInnerDimension.isSummitGate(new BlockPos(0, 0, 0),
+                        new BlockPos(0, LuoxiaInnerDimension.SUMMIT_Y, LuoxiaInnerDimension.SUMMIT_Z - 9)),
+                "Summit gate interaction predicate is too broad");
+        for (int y = 136; y <= 144; y++) {
+            require(state(0, y, LuoxiaInnerDimension.SCENIC_GATE_Z + 3)
+                            .is(Blocks.LIGHT_BLUE_STAINED_GLASS_PANE),
+                    "North scenic gate curtain missing at y=" + y);
+        }
+        require(LuoxiaInnerDimension.isSummitGate(new BlockPos(0, 0, 0),
+                        new BlockPos(0, LuoxiaInnerDimension.SUMMIT_Y,
+                                LuoxiaInnerDimension.SCENIC_GATE_Z)),
+                "North scenic gate interaction predicate rejects its center");
     }
 
     private void walkable(int x, int feetY, int z, String label) {
@@ -256,6 +285,20 @@ public final class LuoxiaGeometryVerification {
         require(!restoredLegacy.forceClearing && restoredLegacy.validCursor() && !restoredLegacy.paused,
                 "A legacy record without a clearing-mode key should remain protected and resumable");
         CompoundTag unknownPhase = data.save(new CompoundTag());
+        for (int oldVersion : new int[]{1, 2}) {
+            CompoundTag old = data.save(new CompoundTag());
+            old.putInt("Version", oldVersion);
+            require(LuoxiaSiteData.load(old).version == oldVersion,
+                    "Legacy construction cursor was migrated to a changed blueprint");
+            old.putString("Phase", "COMPLETE");
+            old.putInt("DetailsVersion", 1);
+            old.putInt("DetailsPlacement", 123);
+            old.putLong("DetailsCell", 7);
+            LuoxiaSiteData completed = LuoxiaSiteData.load(old);
+            require(completed.phase == LuoxiaSiteData.Phase.COMPLETE
+                            && completed.detailsPlacement == 0 && completed.detailsCell == 0,
+                    "Legacy additive detail upgrade retained an incompatible cursor");
+        }
         unknownPhase.putString("Phase", "unrecognized-phase");
         LuoxiaSiteData corrupt = LuoxiaSiteData.load(unknownPhase);
         require(corrupt.paused && !corrupt.active() && !corrupt.problem.isEmpty(), "Unknown phase should stop construction");
@@ -347,6 +390,18 @@ public final class LuoxiaGeometryVerification {
 
     private static int color(BlockState state) {
         String name = blockName(state);
+        if (name.startsWith("xian_") || name.startsWith("town_")) {
+            if (name.contains("sunset")) return 0xba7257;
+            if (name.contains("star") || name.contains("blue_roof")) return 0x25465c;
+            if (name.contains("vermilion") || name.contains("rune") || name.contains("red_roof")) return 0x9b4435;
+            if (name.contains("rosewood") || name.contains("desk") || name.contains("table") || name.contains("shelf")) return 0x5b3430;
+            if (name.contains("lamp") || name.contains("lantern") || name.contains("candle")) return 0xefcd86;
+            if (name.contains("bronze") || name.contains("furnace") || name.contains("bell")) return 0x68764e;
+            if (name.contains("bamboo")) return 0xbbbfa1;
+            if (name.contains("black")) return 0x424a50;
+            if (name.contains("jade") || name.contains("lotus") || name.contains("cloud") || name.contains("dragon")) return 0xb1cbb9;
+            if (name.contains("white") || name.contains("porcelain")) return 0xe2e3d3;
+        }
         if (name.contains("water")) return 0x398fba;
         if (name.contains("leaves")) return name.contains("cherry") ? 0xbf725d : 0x456b42;
         if (name.contains("gold") || name.contains("yellow")) return 0xcbb158;
@@ -424,12 +479,12 @@ public final class LuoxiaGeometryVerification {
         ImageIO.write(image, "png", path.toFile());
     }
 
-    private static int shade(int rgb, double factor) {
+    static int shade(int rgb, double factor) {
         return ((int) (((rgb >> 16) & 255) * factor) << 16)
                 | ((int) (((rgb >> 8) & 255) * factor) << 8) | (int) ((rgb & 255) * factor);
     }
 
-    private static void face(int[] pixels, float[] depth, int width, int height, double ox, double oy,
+    static void face(int[] pixels, float[] depth, int width, int height, double ox, double oy,
                              double scale, int rgb, int[][] corners) {
         double[][] vertices = new double[4][3];
         for (int i = 0; i < 4; i++) {

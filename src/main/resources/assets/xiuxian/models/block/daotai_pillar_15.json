@@ -1,0 +1,142 @@
+{
+  "textures": {
+    "runes": "xiuxian:block/oriental_runes",
+    "sunset": "xiuxian:block/oriental_sunset",
+    "taiji": "xiuxian:block/oriental_taiji",
+    "particle": "xiuxian:block/oriental_runes"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        2,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#runes"
+        },
+        "south": {
+          "texture": "#runes"
+        },
+        "east": {
+          "texture": "#runes"
+        },
+        "west": {
+          "texture": "#runes"
+        },
+        "up": {
+          "texture": "#runes"
+        },
+        "down": {
+          "texture": "#runes"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        2,
+        5
+      ],
+      "to": [
+        11,
+        13,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#sunset"
+        },
+        "south": {
+          "texture": "#sunset"
+        },
+        "east": {
+          "texture": "#sunset"
+        },
+        "west": {
+          "texture": "#sunset"
+        },
+        "up": {
+          "texture": "#sunset"
+        },
+        "down": {
+          "texture": "#sunset"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        13,
+        3
+      ],
+      "to": [
+        13,
+        15,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#runes"
+        },
+        "south": {
+          "texture": "#runes"
+        },
+        "east": {
+          "texture": "#runes"
+        },
+        "west": {
+          "texture": "#runes"
+        },
+        "up": {
+          "texture": "#runes"
+        },
+        "down": {
+          "texture": "#runes"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        15,
+        1
+      ],
+      "to": [
+        15,
+        16,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#taiji"
+        },
+        "south": {
+          "texture": "#taiji"
+        },
+        "east": {
+          "texture": "#taiji"
+        },
+        "west": {
+          "texture": "#taiji"
+        },
+        "up": {
+          "texture": "#taiji"
+        },
+        "down": {
+          "texture": "#taiji"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

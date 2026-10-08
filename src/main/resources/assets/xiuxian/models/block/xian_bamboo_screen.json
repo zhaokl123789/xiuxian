@@ -1,0 +1,333 @@
+{
+  "textures": {
+    "bamboo": "xiuxian:block/oriental_bamboo",
+    "rosewood": "xiuxian:block/oriental_rosewood",
+    "particle": "xiuxian:block/oriental_rosewood"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        6
+      ],
+      "to": [
+        2,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        14,
+        0,
+        6
+      ],
+      "to": [
+        16,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        6
+      ],
+      "to": [
+        14,
+        3,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        14,
+        6
+      ],
+      "to": [
+        14,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        3,
+        7
+      ],
+      "to": [
+        4,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        3,
+        7
+      ],
+      "to": [
+        6,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        3,
+        7
+      ],
+      "to": [
+        8,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        3,
+        7
+      ],
+      "to": [
+        10,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        3,
+        7
+      ],
+      "to": [
+        12,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        3,
+        7
+      ],
+      "to": [
+        14,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

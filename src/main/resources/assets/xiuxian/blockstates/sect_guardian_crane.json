@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/sect_guardian_crane",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "xiuxian:block/sect_guardian_crane",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/sect_guardian_crane",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/sect_guardian_crane",
+      "y": 270
+    }
+  }
+}

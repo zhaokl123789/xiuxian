@@ -1,0 +1,240 @@
+{
+  "textures": {
+    "banner": "xiuxian:block/oriental_banner",
+    "bronze": "xiuxian:block/oriental_bronze",
+    "gold": "xiuxian:block/oriental_gold",
+    "jade": "xiuxian:block/oriental_jade",
+    "vermilion": "xiuxian:block/oriental_vermilion",
+    "particle": "xiuxian:block/oriental_jade"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        2,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        4
+      ],
+      "to": [
+        12,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jade"
+        },
+        "south": {
+          "texture": "#jade"
+        },
+        "east": {
+          "texture": "#jade"
+        },
+        "west": {
+          "texture": "#jade"
+        },
+        "up": {
+          "texture": "#jade"
+        },
+        "down": {
+          "texture": "#jade"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        4,
+        7
+      ],
+      "to": [
+        9,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bronze"
+        },
+        "south": {
+          "texture": "#bronze"
+        },
+        "east": {
+          "texture": "#bronze"
+        },
+        "west": {
+          "texture": "#bronze"
+        },
+        "up": {
+          "texture": "#bronze"
+        },
+        "down": {
+          "texture": "#bronze"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        14,
+        6
+      ],
+      "to": [
+        14,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#gold"
+        },
+        "south": {
+          "texture": "#gold"
+        },
+        "east": {
+          "texture": "#gold"
+        },
+        "west": {
+          "texture": "#gold"
+        },
+        "up": {
+          "texture": "#gold"
+        },
+        "down": {
+          "texture": "#gold"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        5,
+        6
+      ],
+      "to": [
+        13,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#banner"
+        },
+        "south": {
+          "texture": "#banner"
+        },
+        "east": {
+          "texture": "#banner"
+        },
+        "west": {
+          "texture": "#banner"
+        },
+        "up": {
+          "texture": "#banner"
+        },
+        "down": {
+          "texture": "#banner"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        3,
+        6
+      ],
+      "to": [
+        6,
+        5,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        3,
+        6
+      ],
+      "to": [
+        12,
+        5,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

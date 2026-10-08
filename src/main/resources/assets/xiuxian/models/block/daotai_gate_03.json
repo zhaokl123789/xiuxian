@@ -1,0 +1,174 @@
+{
+  "textures": {
+    "bamboo": "xiuxian:block/oriental_bamboo",
+    "dragon": "xiuxian:block/oriental_dragon",
+    "silk": "xiuxian:block/oriental_silk",
+    "particle": "xiuxian:block/oriental_bamboo"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        2
+      ],
+      "to": [
+        3,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        0,
+        2
+      ],
+      "to": [
+        16,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        13,
+        2
+      ],
+      "to": [
+        13,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        2,
+        5
+      ],
+      "to": [
+        12,
+        14,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#silk"
+        },
+        "south": {
+          "texture": "#silk"
+        },
+        "east": {
+          "texture": "#silk"
+        },
+        "west": {
+          "texture": "#silk"
+        },
+        "up": {
+          "texture": "#silk"
+        },
+        "down": {
+          "texture": "#silk"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        4
+      ],
+      "to": [
+        11,
+        11,
+        6
+      ],
+      "faces": {
+        "north": {
+          "texture": "#dragon"
+        },
+        "south": {
+          "texture": "#dragon"
+        },
+        "east": {
+          "texture": "#dragon"
+        },
+        "west": {
+          "texture": "#dragon"
+        },
+        "up": {
+          "texture": "#dragon"
+        },
+        "down": {
+          "texture": "#dragon"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

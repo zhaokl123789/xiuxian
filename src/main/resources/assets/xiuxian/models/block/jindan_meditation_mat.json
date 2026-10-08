@@ -1,0 +1,110 @@
+{
+  "textures": {
+    "jindan_bamboo": "xiuxian:block/oriental_jindan_bamboo",
+    "jindan_core_seal": "xiuxian:block/oriental_jindan_core_seal",
+    "jindan_silk": "xiuxian:block/oriental_jindan_silk",
+    "particle": "xiuxian:block/oriental_jindan_bamboo"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        14,
+        1,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_bamboo"
+        },
+        "south": {
+          "texture": "#jindan_bamboo"
+        },
+        "east": {
+          "texture": "#jindan_bamboo"
+        },
+        "west": {
+          "texture": "#jindan_bamboo"
+        },
+        "up": {
+          "texture": "#jindan_bamboo"
+        },
+        "down": {
+          "texture": "#jindan_bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        1,
+        3
+      ],
+      "to": [
+        13,
+        3,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_silk"
+        },
+        "south": {
+          "texture": "#jindan_silk"
+        },
+        "east": {
+          "texture": "#jindan_silk"
+        },
+        "west": {
+          "texture": "#jindan_silk"
+        },
+        "up": {
+          "texture": "#jindan_silk"
+        },
+        "down": {
+          "texture": "#jindan_silk"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        3,
+        5
+      ],
+      "to": [
+        11,
+        4,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_core_seal"
+        },
+        "south": {
+          "texture": "#jindan_core_seal"
+        },
+        "east": {
+          "texture": "#jindan_core_seal"
+        },
+        "west": {
+          "texture": "#jindan_core_seal"
+        },
+        "up": {
+          "texture": "#jindan_core_seal"
+        },
+        "down": {
+          "texture": "#jindan_core_seal"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

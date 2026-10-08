@@ -1,0 +1,206 @@
+{
+  "textures": {
+    "porcelain": "xiuxian:block/oriental_porcelain",
+    "talisman": "xiuxian:block/oriental_talisman",
+    "vermilion": "xiuxian:block/oriental_vermilion",
+    "particle": "xiuxian:block/oriental_vermilion"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        2
+      ],
+      "to": [
+        4,
+        8,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        0,
+        2
+      ],
+      "to": [
+        15,
+        8,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        0,
+        11
+      ],
+      "to": [
+        4,
+        8,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        0,
+        11
+      ],
+      "to": [
+        15,
+        8,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        8,
+        1
+      ],
+      "to": [
+        16,
+        10,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        10,
+        3
+      ],
+      "to": [
+        13,
+        11,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#talisman"
+        },
+        "south": {
+          "texture": "#talisman"
+        },
+        "east": {
+          "texture": "#talisman"
+        },
+        "west": {
+          "texture": "#talisman"
+        },
+        "up": {
+          "texture": "#talisman"
+        },
+        "down": {
+          "texture": "#talisman"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

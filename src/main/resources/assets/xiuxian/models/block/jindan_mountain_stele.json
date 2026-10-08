@@ -1,0 +1,141 @@
+{
+  "textures": {
+    "jindan_basalt": "xiuxian:block/oriental_jindan_basalt",
+    "jindan_script": "xiuxian:block/oriental_jindan_script",
+    "particle": "xiuxian:block/oriental_jindan_basalt"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        3,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_basalt"
+        },
+        "south": {
+          "texture": "#jindan_basalt"
+        },
+        "east": {
+          "texture": "#jindan_basalt"
+        },
+        "west": {
+          "texture": "#jindan_basalt"
+        },
+        "up": {
+          "texture": "#jindan_basalt"
+        },
+        "down": {
+          "texture": "#jindan_basalt"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        3,
+        4
+      ],
+      "to": [
+        14,
+        13,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_basalt"
+        },
+        "south": {
+          "texture": "#jindan_basalt"
+        },
+        "east": {
+          "texture": "#jindan_basalt"
+        },
+        "west": {
+          "texture": "#jindan_basalt"
+        },
+        "up": {
+          "texture": "#jindan_basalt"
+        },
+        "down": {
+          "texture": "#jindan_basalt"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        13,
+        5
+      ],
+      "to": [
+        12,
+        16,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_basalt"
+        },
+        "south": {
+          "texture": "#jindan_basalt"
+        },
+        "east": {
+          "texture": "#jindan_basalt"
+        },
+        "west": {
+          "texture": "#jindan_basalt"
+        },
+        "up": {
+          "texture": "#jindan_basalt"
+        },
+        "down": {
+          "texture": "#jindan_basalt"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        5,
+        3
+      ],
+      "to": [
+        13,
+        12,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_script"
+        },
+        "south": {
+          "texture": "#jindan_script"
+        },
+        "east": {
+          "texture": "#jindan_script"
+        },
+        "west": {
+          "texture": "#jindan_script"
+        },
+        "up": {
+          "texture": "#jindan_script"
+        },
+        "down": {
+          "texture": "#jindan_script"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

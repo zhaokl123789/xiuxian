@@ -1,0 +1,206 @@
+{
+  "textures": {
+    "jindan_cloud": "xiuxian:block/oriental_jindan_cloud",
+    "jindan_gold": "xiuxian:block/oriental_jindan_gold",
+    "jindan_lacquer": "xiuxian:block/oriental_jindan_lacquer",
+    "particle": "xiuxian:block/oriental_jindan_lacquer"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        4,
+        6
+      ],
+      "to": [
+        16,
+        6,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_lacquer"
+        },
+        "south": {
+          "texture": "#jindan_lacquer"
+        },
+        "east": {
+          "texture": "#jindan_lacquer"
+        },
+        "west": {
+          "texture": "#jindan_lacquer"
+        },
+        "up": {
+          "texture": "#jindan_lacquer"
+        },
+        "down": {
+          "texture": "#jindan_lacquer"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        12,
+        6
+      ],
+      "to": [
+        16,
+        14,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_gold"
+        },
+        "south": {
+          "texture": "#jindan_gold"
+        },
+        "east": {
+          "texture": "#jindan_gold"
+        },
+        "west": {
+          "texture": "#jindan_gold"
+        },
+        "up": {
+          "texture": "#jindan_gold"
+        },
+        "down": {
+          "texture": "#jindan_gold"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        6,
+        7
+      ],
+      "to": [
+        2,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_cloud"
+        },
+        "south": {
+          "texture": "#jindan_cloud"
+        },
+        "east": {
+          "texture": "#jindan_cloud"
+        },
+        "west": {
+          "texture": "#jindan_cloud"
+        },
+        "up": {
+          "texture": "#jindan_cloud"
+        },
+        "down": {
+          "texture": "#jindan_cloud"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        6,
+        7
+      ],
+      "to": [
+        6,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_cloud"
+        },
+        "south": {
+          "texture": "#jindan_cloud"
+        },
+        "east": {
+          "texture": "#jindan_cloud"
+        },
+        "west": {
+          "texture": "#jindan_cloud"
+        },
+        "up": {
+          "texture": "#jindan_cloud"
+        },
+        "down": {
+          "texture": "#jindan_cloud"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        6,
+        7
+      ],
+      "to": [
+        10,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_cloud"
+        },
+        "south": {
+          "texture": "#jindan_cloud"
+        },
+        "east": {
+          "texture": "#jindan_cloud"
+        },
+        "west": {
+          "texture": "#jindan_cloud"
+        },
+        "up": {
+          "texture": "#jindan_cloud"
+        },
+        "down": {
+          "texture": "#jindan_cloud"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        6,
+        7
+      ],
+      "to": [
+        14,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_cloud"
+        },
+        "south": {
+          "texture": "#jindan_cloud"
+        },
+        "east": {
+          "texture": "#jindan_cloud"
+        },
+        "west": {
+          "texture": "#jindan_cloud"
+        },
+        "up": {
+          "texture": "#jindan_cloud"
+        },
+        "down": {
+          "texture": "#jindan_cloud"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

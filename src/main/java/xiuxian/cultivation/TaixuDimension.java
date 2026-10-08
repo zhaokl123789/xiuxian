@@ -356,8 +356,23 @@ public final class TaixuDimension {
 
     public static void clearTripSnapshot(ServerPlayer player) {
         player.getPersistentData().remove(TRIP_SNAPSHOT);
-        LIVE_DATA.remove(player.getUUID());
-        LIVE_STATE.remove(player.getUUID());
+        clearPlayerLiveState(player.getUUID());
+    }
+
+    public static void discardCultivationSnapshots(ServerPlayer player) {
+        clearTripSnapshot(player);
+        player.getPersistentData().remove(CULTIVATION_STATE);
+    }
+
+    public static void clearPlayerLiveState(UUID playerId) {
+        LIVE_DATA.remove(playerId);
+        LIVE_STATE.remove(playerId);
+    }
+
+    public static void clearLiveState() {
+        // Integrated worlds reuse player UUIDs, but their progression is separate.
+        LIVE_DATA.clear();
+        LIVE_STATE.clear();
     }
 
     public static void onDimensionChanged(ServerPlayer player) {

@@ -1,0 +1,175 @@
+{
+  "textures": {
+    "bamboo": "xiuxian:block/oriental_bamboo",
+    "black_brick": "xiuxian:block/oriental_black_brick",
+    "porcelain": "xiuxian:block/oriental_porcelain",
+    "scrolls": "xiuxian:block/oriental_scrolls",
+    "particle": "xiuxian:block/oriental_scrolls"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        4
+      ],
+      "to": [
+        12,
+        1,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#scrolls"
+        },
+        "south": {
+          "texture": "#scrolls"
+        },
+        "east": {
+          "texture": "#scrolls"
+        },
+        "west": {
+          "texture": "#scrolls"
+        },
+        "up": {
+          "texture": "#scrolls"
+        },
+        "down": {
+          "texture": "#scrolls"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        1,
+        5
+      ],
+      "to": [
+        15,
+        3,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#black_brick"
+        },
+        "south": {
+          "texture": "#black_brick"
+        },
+        "east": {
+          "texture": "#black_brick"
+        },
+        "west": {
+          "texture": "#black_brick"
+        },
+        "up": {
+          "texture": "#black_brick"
+        },
+        "down": {
+          "texture": "#black_brick"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        1,
+        2
+      ],
+      "to": [
+        5,
+        5,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        5,
+        3
+      ],
+      "to": [
+        4,
+        11,
+        4
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        1,
+        11
+      ],
+      "to": [
+        14,
+        2,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

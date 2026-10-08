@@ -1,0 +1,141 @@
+{
+  "textures": {
+    "bamboo": "xiuxian:block/oriental_bamboo",
+    "burlap": "xiuxian:block/oriental_burlap",
+    "particle": "xiuxian:block/oriental_burlap"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        9,
+        8,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#burlap"
+        },
+        "south": {
+          "texture": "#burlap"
+        },
+        "east": {
+          "texture": "#burlap"
+        },
+        "west": {
+          "texture": "#burlap"
+        },
+        "up": {
+          "texture": "#burlap"
+        },
+        "down": {
+          "texture": "#burlap"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        8,
+        4
+      ],
+      "to": [
+        7,
+        10,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        0,
+        7
+      ],
+      "to": [
+        16,
+        6,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#burlap"
+        },
+        "south": {
+          "texture": "#burlap"
+        },
+        "east": {
+          "texture": "#burlap"
+        },
+        "west": {
+          "texture": "#burlap"
+        },
+        "up": {
+          "texture": "#burlap"
+        },
+        "down": {
+          "texture": "#burlap"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        6,
+        9
+      ],
+      "to": [
+        14,
+        8,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#bamboo"
+        },
+        "south": {
+          "texture": "#bamboo"
+        },
+        "east": {
+          "texture": "#bamboo"
+        },
+        "west": {
+          "texture": "#bamboo"
+        },
+        "up": {
+          "texture": "#bamboo"
+        },
+        "down": {
+          "texture": "#bamboo"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

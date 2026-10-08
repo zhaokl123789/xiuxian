@@ -1,0 +1,110 @@
+{
+  "textures": {
+    "jindan_cloud": "xiuxian:block/oriental_jindan_cloud",
+    "jindan_gold": "xiuxian:block/oriental_jindan_gold",
+    "jindan_roof": "xiuxian:block/oriental_jindan_roof",
+    "particle": "xiuxian:block/oriental_jindan_roof"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        4
+      ],
+      "to": [
+        16,
+        4,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_roof"
+        },
+        "south": {
+          "texture": "#jindan_roof"
+        },
+        "east": {
+          "texture": "#jindan_roof"
+        },
+        "west": {
+          "texture": "#jindan_roof"
+        },
+        "up": {
+          "texture": "#jindan_roof"
+        },
+        "down": {
+          "texture": "#jindan_roof"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        4,
+        6
+      ],
+      "to": [
+        16,
+        9,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_cloud"
+        },
+        "south": {
+          "texture": "#jindan_cloud"
+        },
+        "east": {
+          "texture": "#jindan_cloud"
+        },
+        "west": {
+          "texture": "#jindan_cloud"
+        },
+        "up": {
+          "texture": "#jindan_cloud"
+        },
+        "down": {
+          "texture": "#jindan_cloud"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        9,
+        7
+      ],
+      "to": [
+        16,
+        12,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_gold"
+        },
+        "south": {
+          "texture": "#jindan_gold"
+        },
+        "east": {
+          "texture": "#jindan_gold"
+        },
+        "west": {
+          "texture": "#jindan_gold"
+        },
+        "up": {
+          "texture": "#jindan_gold"
+        },
+        "down": {
+          "texture": "#jindan_gold"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/jindan_red_pine_bonsai",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "xiuxian:block/jindan_red_pine_bonsai",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/jindan_red_pine_bonsai",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/jindan_red_pine_bonsai",
+      "y": 270
+    }
+  }
+}

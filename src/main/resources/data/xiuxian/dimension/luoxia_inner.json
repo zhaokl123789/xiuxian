@@ -1,0 +1,18 @@
+{
+  "type": "xiuxian:luoxia_inner",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "minecraft:plains",
+      "features": false,
+      "lakes": false,
+      "structure_overrides": [],
+      "layers": [
+        { "height": 1, "block": "minecraft:bedrock" },
+        { "height": 8, "block": "minecraft:deepslate" },
+        { "height": 118, "block": "minecraft:stone" },
+        { "height": 1, "block": "minecraft:grass_block" }
+      ]
+    }
+  }
+}

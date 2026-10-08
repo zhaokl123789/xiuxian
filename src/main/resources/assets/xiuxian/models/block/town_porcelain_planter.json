@@ -1,0 +1,238 @@
+{
+  "textures": {
+    "leaves": "xiuxian:block/oriental_leaves",
+    "porcelain": "xiuxian:block/oriental_porcelain",
+    "rosewood": "xiuxian:block/oriental_rosewood",
+    "particle": "xiuxian:block/oriental_porcelain"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        5,
+        0,
+        5
+      ],
+      "to": [
+        11,
+        2,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        7,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        7,
+        2
+      ],
+      "to": [
+        14,
+        9,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#porcelain"
+        },
+        "south": {
+          "texture": "#porcelain"
+        },
+        "east": {
+          "texture": "#porcelain"
+        },
+        "west": {
+          "texture": "#porcelain"
+        },
+        "up": {
+          "texture": "#porcelain"
+        },
+        "down": {
+          "texture": "#porcelain"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        9,
+        4
+      ],
+      "to": [
+        12,
+        10,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#rosewood"
+        },
+        "south": {
+          "texture": "#rosewood"
+        },
+        "east": {
+          "texture": "#rosewood"
+        },
+        "west": {
+          "texture": "#rosewood"
+        },
+        "up": {
+          "texture": "#rosewood"
+        },
+        "down": {
+          "texture": "#rosewood"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        10,
+        7
+      ],
+      "to": [
+        9,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        12,
+        6
+      ],
+      "to": [
+        12,
+        14,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        14,
+        5
+      ],
+      "to": [
+        10,
+        16,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#leaves"
+        },
+        "south": {
+          "texture": "#leaves"
+        },
+        "east": {
+          "texture": "#leaves"
+        },
+        "west": {
+          "texture": "#leaves"
+        },
+        "up": {
+          "texture": "#leaves"
+        },
+        "down": {
+          "texture": "#leaves"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

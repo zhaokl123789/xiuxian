@@ -1,0 +1,77 @@
+{
+  "textures": {
+    "jindan_obsidian": "xiuxian:block/oriental_jindan_obsidian",
+    "jindan_tribulation": "xiuxian:block/oriental_jindan_tribulation",
+    "particle": "xiuxian:block/oriental_jindan_obsidian"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        1,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_obsidian"
+        },
+        "south": {
+          "texture": "#jindan_obsidian"
+        },
+        "east": {
+          "texture": "#jindan_obsidian"
+        },
+        "west": {
+          "texture": "#jindan_obsidian"
+        },
+        "up": {
+          "texture": "#jindan_obsidian"
+        },
+        "down": {
+          "texture": "#jindan_obsidian"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        1,
+        1
+      ],
+      "to": [
+        15,
+        1.5,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_tribulation"
+        },
+        "south": {
+          "texture": "#jindan_tribulation"
+        },
+        "east": {
+          "texture": "#jindan_tribulation"
+        },
+        "west": {
+          "texture": "#jindan_tribulation"
+        },
+        "up": {
+          "texture": "#jindan_tribulation"
+        },
+        "down": {
+          "texture": "#jindan_tribulation"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

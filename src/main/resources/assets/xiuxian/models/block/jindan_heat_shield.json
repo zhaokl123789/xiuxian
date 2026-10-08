@@ -1,0 +1,142 @@
+{
+  "textures": {
+    "jindan_guard": "xiuxian:block/oriental_jindan_guard",
+    "jindan_iron": "xiuxian:block/oriental_jindan_iron",
+    "jindan_obsidian": "xiuxian:block/oriental_jindan_obsidian",
+    "particle": "xiuxian:block/oriental_jindan_iron"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        4
+      ],
+      "to": [
+        4,
+        16,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_iron"
+        },
+        "south": {
+          "texture": "#jindan_iron"
+        },
+        "east": {
+          "texture": "#jindan_iron"
+        },
+        "west": {
+          "texture": "#jindan_iron"
+        },
+        "up": {
+          "texture": "#jindan_iron"
+        },
+        "down": {
+          "texture": "#jindan_iron"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        0,
+        4
+      ],
+      "to": [
+        14,
+        16,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_iron"
+        },
+        "south": {
+          "texture": "#jindan_iron"
+        },
+        "east": {
+          "texture": "#jindan_iron"
+        },
+        "west": {
+          "texture": "#jindan_iron"
+        },
+        "up": {
+          "texture": "#jindan_iron"
+        },
+        "down": {
+          "texture": "#jindan_iron"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        3,
+        7
+      ],
+      "to": [
+        12,
+        15,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_obsidian"
+        },
+        "south": {
+          "texture": "#jindan_obsidian"
+        },
+        "east": {
+          "texture": "#jindan_obsidian"
+        },
+        "west": {
+          "texture": "#jindan_obsidian"
+        },
+        "up": {
+          "texture": "#jindan_obsidian"
+        },
+        "down": {
+          "texture": "#jindan_obsidian"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        6
+      ],
+      "to": [
+        11,
+        12,
+        7
+      ],
+      "faces": {
+        "north": {
+          "texture": "#jindan_guard"
+        },
+        "south": {
+          "texture": "#jindan_guard"
+        },
+        "east": {
+          "texture": "#jindan_guard"
+        },
+        "west": {
+          "texture": "#jindan_guard"
+        },
+        "up": {
+          "texture": "#jindan_guard"
+        },
+        "down": {
+          "texture": "#jindan_guard"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

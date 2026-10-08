@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,playing=false": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 0
+    },
+    "facing=north,playing=true": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 0
+    },
+    "facing=east,playing=false": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 90
+    },
+    "facing=east,playing=true": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 90
+    },
+    "facing=south,playing=false": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 180
+    },
+    "facing=south,playing=true": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 180
+    },
+    "facing=west,playing=false": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 270
+    },
+    "facing=west,playing=true": {
+      "model": "xiuxian:block/sect_bamboo_flute",
+      "y": 270
+    }
+  }
+}

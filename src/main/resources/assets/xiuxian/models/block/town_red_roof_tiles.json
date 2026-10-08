@@ -1,0 +1,172 @@
+{
+  "textures": {
+    "roof_red": "xiuxian:block/oriental_roof_red",
+    "particle": "xiuxian:block/oriental_roof_red"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        5,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_red"
+        },
+        "south": {
+          "texture": "#roof_red"
+        },
+        "east": {
+          "texture": "#roof_red"
+        },
+        "west": {
+          "texture": "#roof_red"
+        },
+        "up": {
+          "texture": "#roof_red"
+        },
+        "down": {
+          "texture": "#roof_red"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        5,
+        0
+      ],
+      "to": [
+        3,
+        8,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_red"
+        },
+        "south": {
+          "texture": "#roof_red"
+        },
+        "east": {
+          "texture": "#roof_red"
+        },
+        "west": {
+          "texture": "#roof_red"
+        },
+        "up": {
+          "texture": "#roof_red"
+        },
+        "down": {
+          "texture": "#roof_red"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        0
+      ],
+      "to": [
+        7,
+        8,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_red"
+        },
+        "south": {
+          "texture": "#roof_red"
+        },
+        "east": {
+          "texture": "#roof_red"
+        },
+        "west": {
+          "texture": "#roof_red"
+        },
+        "up": {
+          "texture": "#roof_red"
+        },
+        "down": {
+          "texture": "#roof_red"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        5,
+        0
+      ],
+      "to": [
+        11,
+        8,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_red"
+        },
+        "south": {
+          "texture": "#roof_red"
+        },
+        "east": {
+          "texture": "#roof_red"
+        },
+        "west": {
+          "texture": "#roof_red"
+        },
+        "up": {
+          "texture": "#roof_red"
+        },
+        "down": {
+          "texture": "#roof_red"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        5,
+        0
+      ],
+      "to": [
+        15,
+        8,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#roof_red"
+        },
+        "south": {
+          "texture": "#roof_red"
+        },
+        "east": {
+          "texture": "#roof_red"
+        },
+        "west": {
+          "texture": "#roof_red"
+        },
+        "up": {
+          "texture": "#roof_red"
+        },
+        "down": {
+          "texture": "#roof_red"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}

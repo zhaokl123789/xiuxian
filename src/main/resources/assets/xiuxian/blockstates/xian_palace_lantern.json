@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/xian_palace_lantern",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "xiuxian:block/xian_palace_lantern",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/xian_palace_lantern",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/xian_palace_lantern",
+      "y": 270
+    }
+  }
+}

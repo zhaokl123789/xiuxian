@@ -1,0 +1,141 @@
+{
+  "textures": {
+    "pottery": "xiuxian:block/oriental_pottery",
+    "vermilion": "xiuxian:block/oriental_vermilion",
+    "particle": "xiuxian:block/oriental_pottery"
+  },
+  "ambientocclusion": true,
+  "gui_light": "side",
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        2
+      ],
+      "to": [
+        8,
+        9,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#pottery"
+        },
+        "south": {
+          "texture": "#pottery"
+        },
+        "east": {
+          "texture": "#pottery"
+        },
+        "west": {
+          "texture": "#pottery"
+        },
+        "up": {
+          "texture": "#pottery"
+        },
+        "down": {
+          "texture": "#pottery"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        9,
+        3
+      ],
+      "to": [
+        7,
+        11,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    },
+    {
+      "from": [
+        9,
+        0,
+        7
+      ],
+      "to": [
+        15,
+        7,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#pottery"
+        },
+        "south": {
+          "texture": "#pottery"
+        },
+        "east": {
+          "texture": "#pottery"
+        },
+        "west": {
+          "texture": "#pottery"
+        },
+        "up": {
+          "texture": "#pottery"
+        },
+        "down": {
+          "texture": "#pottery"
+        }
+      }
+    },
+    {
+      "from": [
+        10,
+        7,
+        8
+      ],
+      "to": [
+        14,
+        9,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#vermilion"
+        },
+        "south": {
+          "texture": "#vermilion"
+        },
+        "east": {
+          "texture": "#vermilion"
+        },
+        "west": {
+          "texture": "#vermilion"
+        },
+        "up": {
+          "texture": "#vermilion"
+        },
+        "down": {
+          "texture": "#vermilion"
+        }
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout"
+}
