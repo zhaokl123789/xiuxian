@@ -1,0 +1,16 @@
+{
+  "dimension": "xiuxian:luoxia_inner",
+  "waypoint_set": "Luoxia",
+  "chapter_id": "4C554F5849400001",
+  "chapter_title": "落霞洞天·山海行迹",
+  "landmarks": [
+    {"id": "arrival", "name": "凡人城镇·接引阵", "symbol": "城", "position": [390,66,300], "color": 14, "icon": "xiuxian:town_red_lantern", "quest_x": 0.0, "quest_y": 0.0, "description": "城镇南门内侧的接引阵，向北便是城内主街。"},
+    {"id": "sect", "name": "落霞宗门·山门", "symbol": "宗", "position": [390,73,-1560], "color": 6, "icon": "xiuxian:sect_cloud_paving", "quest_x": 0.0, "quest_y": -4.0, "description": "城镇北门之外，沿北向通路抵达宗门山门。"},
+    {"id": "daotai", "name": "道胎居所·云宫入口", "symbol": "道", "position": [-1900,82,-491], "color": 11, "icon": "xiuxian:town_white_jade", "quest_x": -5.0, "quest_y": -1.0, "description": "西方远处的云宫，从共享交通节点沿西向道路，再转向北。"},
+    {"id": "jindan", "name": "金丹居所·丹阙入口", "symbol": "丹", "position": [2077,120,210], "color": 4, "icon": "xiuxian:jindan_copper_lantern", "quest_x": 5.0, "quest_y": 0.0, "description": "东方远处的丹阙，南门外通路向东延伸，再绕至宫殿东侧。"},
+    {"id": "music", "name": "宗门·音律院", "symbol": "乐", "position": [514,99,-1694], "color": 13, "icon": "minecraft:note_block", "quest_x": 2.0, "quest_y": -3.0, "description": "宗门东侧的音律院，院内有可演奏的乐器。"},
+    {"id": "library", "name": "宗门·藏经阁", "symbol": "经", "position": [390,153,-2017], "color": 9, "icon": "minecraft:bookshelf", "quest_x": 0.0, "quest_y": -6.0, "description": "宗门北侧高处的藏经阁，沿山门中轴向上行。"},
+    {"id": "garden", "name": "宗门·药园", "symbol": "药", "position": [243,85,-1632], "color": 2, "icon": "minecraft:azalea", "quest_x": -2.0, "quest_y": -3.0, "description": "宗门西南侧的药园。"},
+    {"id": "vein", "name": "灵脉·地表入口", "symbol": "脉", "position": [0,73,154], "color": 3, "icon": "xiuxian:spirit_stone", "quest_x": -2.0, "quest_y": 2.0, "description": "城镇西侧道路通往共享节点，南侧阶梯通向地下灵脉。"}
+  ]
+}

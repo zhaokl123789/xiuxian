@@ -1,0 +1,64 @@
+{
+  "minecraft": "1.20.1",
+  "forge": "47.4.10",
+  "java": 17,
+  "mods": [
+    {
+      "id": "architectury",
+      "name": "Architectury API",
+      "version": "9.2.14",
+      "side": "both",
+      "filename": "architectury-9.2.14-forge.jar",
+      "url": "https://cdn.modrinth.com/data/lhGA9TYQ/versions/1MKTLiiG/architectury-9.2.14-forge.jar",
+      "sha256": "218b471d0b8a1f6cda14cfc1beb9eeb0df54304500acc6c5613d9b88ec65d9af",
+      "sha512": "cf67f2050cafa00f0bee42e6d7bef77fdb808ac4f71742f7b4d6d5c1e6ffb49561a5a252f332d2b78a9767bdb5faa284611790dba303fbdc736ae36d794f61c7"
+    },
+    {
+      "id": "ftblibrary",
+      "name": "FTB Library",
+      "version": "2001.2.13",
+      "side": "both",
+      "filename": "ftb-library-forge-2001.2.13.jar",
+      "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-library-forge/2001.2.13/ftb-library-forge-2001.2.13.jar",
+      "sha256": "41810281b65336265cae2c88412022d02f2f0a3f28c66a06173d86f98acf14a7"
+    },
+    {
+      "id": "ftbteams",
+      "name": "FTB Teams",
+      "version": "2001.3.2",
+      "side": "both",
+      "filename": "ftb-teams-forge-2001.3.2.jar",
+      "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-teams-forge/2001.3.2/ftb-teams-forge-2001.3.2.jar",
+      "sha256": "b1cb4d82ea9f137a87e12a7aaf3329619294b56f7d70337dfd557a76e10b6e07"
+    },
+    {
+      "id": "ftbquests",
+      "name": "FTB Quests",
+      "version": "2001.4.22",
+      "side": "both",
+      "filename": "ftb-quests-forge-2001.4.22.jar",
+      "url": "https://maven.ftb.dev/releases/dev/ftb/mods/ftb-quests-forge/2001.4.22/ftb-quests-forge-2001.4.22.jar",
+      "sha256": "9ea9d159a78a2724cfe0457b024680fdb52a2126eff9cfa5280a30578f647a68"
+    },
+    {
+      "id": "xaerominimap",
+      "name": "Xaero's Minimap",
+      "version": "26.6.0",
+      "side": "client",
+      "filename": "xaerominimap-forge-1.20.1-26.6.0.jar",
+      "url": "https://cdn.modrinth.com/data/1bokaNcj/versions/dB6E0CY9/xaerominimap-forge-1.20.1-26.6.0.jar",
+      "sha256": "9b39cd06094d7631c8614d172d0ba8399c71c981530af417f12a7909fcb855bd",
+      "sha512": "9c566a2b9537c37b438a38a060cc251187e6643e96522466c50c90c7fa747a4e4edc3a5fff0f31fb042e1eeefd047df2a57d1bbe6a3d741837cef8cdb6426a25"
+    },
+    {
+      "id": "xaeroworldmap",
+      "name": "Xaero's World Map",
+      "version": "1.47.0",
+      "side": "client",
+      "filename": "xaeroworldmap-forge-1.20.1-1.47.0.jar",
+      "url": "https://cdn.modrinth.com/data/NcUtCpym/versions/KtEupJvB/xaeroworldmap-forge-1.20.1-1.47.0.jar",
+      "sha256": "88c6d844163c95a94d92bc6d87d9011cc840bd6207c3099a81b113d4450a3f6b",
+      "sha512": "a8c775ad1645cd3dc922072955fff65f7874bd6a1c99e6a61d370e7a9a5880e450ba61dafa6c719ad8f719fcff3b17ec6124b7f47288009547b4b136d81e5657"
+    }
+  ]
+}

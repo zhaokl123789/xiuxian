@@ -56,6 +56,8 @@ dependencies {
 
 }
 
+apply from: 'pack/integration.gradle'
+
 tasks.register('luoxiaVerify') {
     // Actual mod blocks require the Forge registry lifecycle, not vanilla Bootstrap.
     dependsOn 'runGameTestServer'

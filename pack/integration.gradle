@@ -1,0 +1,45 @@
+import groovy.json.JsonSlurper
+
+def packInstalled = file('build/pack-maven/.installed').exists()
+def launchingClient = gradle.startParameter.taskNames.any { it.tokenize(':').last() == 'runClient' }
+def usePack = providers.gradleProperty('withPack').map { it.toBoolean() }
+        .getOrElse(packInstalled && launchingClient)
+
+if (usePack) {
+    if (!packInstalled) {
+        throw new GradleException('Run tools/install_pack.py before enabling withPack.')
+    }
+    def manifest = new JsonSlurper().parse(file('pack/mods.lock.json'))
+    def side = providers.gradleProperty('packSide').getOrElse('client')
+    repositories {
+        maven {
+            url = uri('build/pack-maven')
+            content { includeGroup 'local.xiuxian.pack' }
+            metadataSources { mavenPom(); artifact() }
+        }
+    }
+    manifest.mods.findAll { side != 'server' || it.side == 'both' }.each { mod ->
+        dependencies.add('runtimeOnly', fg.deobf("local.xiuxian.pack:${mod.id}:${mod.version}")) {
+            transitive = false
+        }
+    }
+    // The shared library is embedded in Xaero's release jars. A separate
+    // development dependency lets ForgeGradle remap it into the dev namespace.
+    if (side != 'server') {
+        dependencies.add('runtimeOnly', fg.deobf('local.xiuxian.pack:xaerolib:1.7.3')) {
+            transitive = false
+        }
+    }
+    minecraft.runs.configureEach {
+        property 'mixin.env.remapRefMap', 'true'
+        property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+    }
+    minecraft.runs.client {
+        if (providers.gradleProperty('packGameDir').isPresent()) {
+            workingDirectory project.file(providers.gradleProperty('packGameDir').get())
+        }
+        if (providers.gradleProperty('packQuickPlay').isPresent()) {
+            args '--quickPlaySingleplayer', providers.gradleProperty('packQuickPlay').get()
+        }
+    }
+}
