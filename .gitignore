@@ -8,6 +8,8 @@ crash-reports/
 .idea/
 *.iml
 *.class
+__pycache__/
+*.py[cod]
 *.log
 hs_err_pid*.log
 .DS_Store
