@@ -89,9 +89,16 @@ final class JindanResidenceConstruction {
         Job job = JOBS.computeIfAbsent(level, ignored -> new Job(d.origin,
                 level.dimension() == LuoxiaInnerDimension.LEVEL
                         ? LuoxiaJindanResidence.createPlan() : JindanResidenceGenerator.createPlan()));
+        if(d.phase==Phase.BUILD&&level.dimension()==LuoxiaInnerDimension.LEVEL&&!LuoxiaInnerRealmLayout.canBuild(level))return;
         if (!job.origin.equals(d.origin) || (d.phase == Phase.BUILD && d.section >= job.plan.sections.size())) {
             pause(level, d, "施工游标超出当前金丹蓝图");
             return;
+        }
+        if(d.phase==Phase.BUILD) {
+            int before=d.chunk;
+            var touched=job.sectionChunks.get(d.section);
+            while(d.chunk<job.chunks.size()&&!touched.contains(job.chunks.get(d.chunk)))nextChunk(d);
+            if(d.chunk!=before)d.setDirty();
         }
         // A section may contain no placements in several outer chunks. Those
         // chunks still advance the shared site cursor; normalize both the
@@ -110,7 +117,10 @@ final class JindanResidenceConstruction {
             } else {
                 announce(level, "金丹居所：【" + job.plan.sections.get(d.section).label() + "】完成。");
                 d.origins.add(d.origin.asLong());
+                if(level.dimension()==LuoxiaInnerDimension.LEVEL)
+                    d.origins.remove(Long.valueOf(LuoxiaJindanResidence.LEGACY_ORIGIN.asLong()));
                 d.origin = null;
+                if(level.dimension()==LuoxiaInnerDimension.LEVEL)LuoxiaInnerRealmLayout.finishMigration(level);
                 JOBS.remove(level);
                 announce(level, "金丹居所施工完成。使用 /xiuxian jindan "
                         + (level.dimension() == LuoxiaInnerDimension.LEVEL ? "inner " : "") + "status 查看。");
@@ -123,14 +133,17 @@ final class JindanResidenceConstruction {
         LevelChunk loaded = job.load(level, chunk, d.phase, d.section);
         if (loaded == null) return;
         if (d.phase != Phase.BUILD) {
+            if(d.operation>job.clearances.size()){pause(level,d,"Invalid clearance region cursor");return;}
+            if(d.operation==job.clearances.size()){nextChunk(d);d.setDirty();return;}
+            var region=job.clearances.get(d.operation);
             var result = SiteClearance.clear(level, loaded,
-                    d.origin.getX() + JindanResidenceGenerator.MIN_X, d.origin.getY() + 1,
-                    d.origin.getZ() + JindanResidenceGenerator.MIN_Z,
-                    d.origin.getX() + JindanResidenceGenerator.MAX_X, level.getMaxBuildHeight() - 1,
-                    d.origin.getZ() + JindanResidenceGenerator.MAX_Z, d.cell, CELLS_PER_TICK, WRITES_PER_TICK, BUDGET_NS);
+                    d.origin.getX() + region.minX(), d.origin.getY() + region.minY(),
+                    d.origin.getZ() + region.minZ(),
+                    d.origin.getX() + region.maxX(), region.top(level,d.origin),
+                    d.origin.getZ() + region.maxZ(), d.cell, CELLS_PER_TICK, WRITES_PER_TICK, BUDGET_NS);
             d.cell = result.cell(); d.writes += result.writes();
             if (!result.problem().isEmpty()) { pause(level, d, result.problem()); return; }
-            if (result.done()) nextChunk(d);
+            if(result.done()){d.operation++;d.cell=0;}
             d.setDirty();
             return;
         }
@@ -290,18 +303,24 @@ final class JindanResidenceConstruction {
         final BlockPos origin;
         final JindanResidenceGenerator.Plan plan;
         final List<ChunkPos> chunks = new ArrayList<>();
+        final List<HashSet<ChunkPos>> sectionChunks = new ArrayList<>();
         List<JindanResidenceGenerator.Placement> operations = List.of();
+        List<SiteClearance.Region> clearances = List.of();
         ChunkPos workChunk;
+        int workSection=-1;
 
         Job(BlockPos origin, JindanResidenceGenerator.Plan plan) {
             this.origin = origin;
             this.plan = plan;
             var touched = new HashSet<ChunkPos>();
-            add(touched, new JindanResidenceGenerator.Placement(JindanResidenceGenerator.MIN_X, 1,
-                    JindanResidenceGenerator.MIN_Z, JindanResidenceGenerator.MAX_X,
-                    JindanResidenceGenerator.MAX_Y, JindanResidenceGenerator.MAX_Z,
-                    net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()));
+            for(var region:plan.clearances)add(touched,new JindanResidenceGenerator.Placement(region.minX(),region.minY(),region.minZ(),
+                    region.maxX(),region.minY(),region.maxZ(),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()));
             for (var op : plan.placements) add(touched, op);
+            for(var section:plan.sections) {
+                var part=new HashSet<ChunkPos>();
+                for(var op:plan.placements.subList(section.firstPlacement(),section.lastPlacement()))add(part,op);
+                sectionChunks.add(part);
+            }
             chunks.addAll(touched);
             chunks.sort(Comparator.comparingInt((ChunkPos c) -> c.z).thenComparingInt(c -> c.x));
         }
@@ -315,16 +334,21 @@ final class JindanResidenceConstruction {
         }
 
         LevelChunk load(ServerLevel level, ChunkPos chunk, Phase phase, int section) {
-            if (!chunk.equals(workChunk)) {
+            boolean moved=!chunk.equals(workChunk);
+            if (moved) {
                 release(level);
                 workChunk = chunk;
                 level.getChunkSource().addRegionTicket(TICKET, chunk, 0, chunk);
+                clearances=plan.clearances.stream().filter(r->r.minX()+origin.getX()<=chunk.getMaxBlockX()
+                        &&r.maxX()+origin.getX()>=chunk.getMinBlockX()&&r.minZ()+origin.getZ()<=chunk.getMaxBlockZ()
+                        &&r.maxZ()+origin.getZ()>=chunk.getMinBlockZ()).toList();
             }
-            if (phase == Phase.BUILD) {
+            if (phase == Phase.BUILD&&(moved||workSection!=section)) {
+                workSection=section;
                 var part = plan.sections.get(section);
                 operations = plan.placements.subList(part.firstPlacement(), part.lastPlacement()).stream()
                         .filter(op -> intersects(op, chunk)).toList();
-            } else {
+            } else if(phase!=Phase.BUILD) {
                 operations = List.of();
             }
             return level.getChunkSource().getChunkNow(chunk.x, chunk.z);

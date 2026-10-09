@@ -44,8 +44,8 @@ public final class LuoxiaInnerDimension {
     public static final ResourceKey<Level> LEVEL = ResourceKey.create(Registries.DIMENSION,
             new ResourceLocation("xiuxian", "luoxia_inner"));
 
-    /** Floating arrival gate reserved for the first generation pass. */
-    public static final BlockPos ENTRY = new BlockPos(0, 72, 0);
+    /** Reception gate inside the mortal town's southern avenue. */
+    public static final BlockPos ENTRY = LuoxiaInnerRealmLayout.ENTRY;
     /** Summit point on the exterior structure that opens the gate. */
     public static final int SUMMIT_Y = 134;
     public static final int SUMMIT_Z = -160;
@@ -135,7 +135,7 @@ public final class LuoxiaInnerDimension {
             public PortalInfo getPortalInfo(Entity entity, ServerLevel level,
                     Function<ServerLevel, PortalInfo> defaultPortalInfo) {
                 return new PortalInfo(new Vec3(ENTRY.getX() + 0.5D, ENTRY.getY(), ENTRY.getZ() + 0.5D),
-                        Vec3.ZERO, player.getYRot(), player.getXRot());
+                        Vec3.ZERO, 180.0F, 0.0F);
             }
         });
         if (!(transferred instanceof ServerPlayer traveler)) {

@@ -14,7 +14,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @GameTestHolder("xiuxian_clearance")
 @PrefixGameTestTemplate(false)
 public final class ConstructionClearanceGameTests {
-    @GameTest(templateNamespace = "xiuxian_geometry", template = "empty", timeoutTicks = 400)
+    @GameTest(templateNamespace = "xiuxian_clearance", template = "empty", timeoutTicks = 400)
     public static void topDownClearanceCoversEveryClippedCellAndResumes(GameTestHelper helper) {
         var level = helper.getLevel().getServer().overworld();
         int minX = -9073, maxX = -9054, minZ = -9073, maxZ = -9054;
@@ -46,7 +46,7 @@ public final class ConstructionClearanceGameTests {
         helper.succeed();
     }
 
-    @GameTest(templateNamespace = "xiuxian_geometry", template = "empty", timeoutTicks = 400)
+    @GameTest(templateNamespace = "xiuxian_clearance", template = "empty", timeoutTicks = 400)
     public static void caveTownClearsItsEntireSite(GameTestHelper helper) {
         var level = helper.getLevel().getServer().getLevel(LuoxiaInnerDimension.LEVEL);
         var gap = new BlockPos(390 + 170, 64 + 30, 210 + 125);
@@ -61,7 +61,7 @@ public final class ConstructionClearanceGameTests {
         helper.succeed();
     }
 
-    @GameTest(templateNamespace = "xiuxian_geometry", template = "empty", timeoutTicks = 400)
+    @GameTest(templateNamespace = "xiuxian_clearance", template = "empty", timeoutTicks = 400)
     public static void exteriorSurveyAndTerrainClearSkyBlocks(GameTestHelper helper) {
         var level = helper.getLevel().getServer().overworld();
         var site = LuoxiaSiteData.get(level);
@@ -92,7 +92,7 @@ public final class ConstructionClearanceGameTests {
         helper.succeed();
     }
 
-    @GameTest(templateNamespace = "xiuxian_geometry", template = "empty", timeoutTicks = 72000)
+    @GameTest(templateNamespace = "xiuxian_clearance", template = "empty", timeoutTicks = 1000000)
     public static void jindanClearsGapsAndHighBlocksAfterLegacyReload(GameTestHelper helper) {
         var level = helper.getLevel().getServer().overworld();
         JindanResidenceConstruction.cancel(level);

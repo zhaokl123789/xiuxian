@@ -52,15 +52,25 @@ final class SectComplexConstruction {
             pause(level,d,"施工存档或场地边界不合法，请检查后重试。");return;
         }
         var job=JOBS.computeIfAbsent(level,ignored->new Job(d.origin,plan(level)));
+        if(d.phase==Phase.BUILD&&level.dimension()==LuoxiaInnerDimension.LEVEL&&!LuoxiaInnerRealmLayout.canBuild(level))return;
         if(!job.validated) {
             if(!validPlan(level,d.origin,job.plan)){pause(level,d,"Construction extends beyond world bounds");return;}
             job.validated=true;
         }
         if(d.chunk>job.chunks.size()||!job.origin.equals(d.origin)){pause(level,d,"施工区块游标不合法。");return;}
+        if(d.phase==Phase.BUILD) {
+            int before=d.chunk;
+            while(d.chunk<job.chunks.size()&&!job.placementChunks.contains(job.chunks.get(d.chunk)))next(d);
+            if(d.chunk!=before)d.setDirty();
+        }
         if(d.chunk==job.chunks.size()) {
             job.release(level);
             if(d.phase==Phase.BUILD) {
                 d.origins.add(d.origin.asLong());d.origin=null;JOBS.remove(level);
+                if(level.dimension()==LuoxiaInnerDimension.LEVEL) {
+                    d.origins.remove(Long.valueOf(LuoxiaSectComplexResidence.LEGACY_ORIGIN.asLong()));
+                    LuoxiaInnerRealmLayout.finishMigration(level);
+                }
                 if(level.dimension()==LuoxiaInnerDimension.LEVEL)
                     announce(level,"洞天宗门建筑群已完工，可用 /xiuxian sect inner visit entrance 或 visit view 验收。");
                 else
@@ -77,7 +87,7 @@ final class SectComplexConstruction {
             var region=job.clearances.get(d.operation);
             var result=SiteClearance.clear(level,loaded,d.origin.getX()+region.minX(),
                     d.origin.getY()+region.minY(),d.origin.getZ()+region.minZ(),
-                    d.origin.getX()+region.maxX(),level.getMaxBuildHeight()-1,
+                    d.origin.getX()+region.maxX(),region.top(level,d.origin),
                     d.origin.getZ()+region.maxZ(),d.cell,CELLS_PER_TICK,WRITES_PER_TICK,BUDGET_NS);
             d.cell=result.cell();d.writes+=result.writes();
             if(!result.problem().isEmpty()){pause(level,d,result.problem());return;}
@@ -183,15 +193,17 @@ final class SectComplexConstruction {
         final BlockPos origin;
         final SectComplexGenerator.Plan plan;
         final List<ChunkPos> chunks=new ArrayList<>();
+        final java.util.Set<ChunkPos> placementChunks=new HashSet<>();
         List<SectComplexGenerator.Placement> operations=List.of();
-        List<SectComplexGenerator.Clearance> clearances=List.of();
+        List<SiteClearance.Region> clearances=List.of();
         ChunkPos workChunk;
         boolean validated;
         Job(BlockPos origin,SectComplexGenerator.Plan plan) {
             this.origin=origin;this.plan=plan;
             var touched=new HashSet<ChunkPos>();
             for(var region:plan.clearances)addChunks(touched,origin,region.minX(),region.minZ(),region.maxX(),region.maxZ());
-            for(var op:plan.placements)addChunks(touched,origin,op.minX(),op.minZ(),op.maxX(),op.maxZ());
+            for(var op:plan.placements)addChunks(placementChunks,origin,op.minX(),op.minZ(),op.maxX(),op.maxZ());
+            touched.addAll(placementChunks);
             chunks.addAll(touched);
             chunks.sort(Comparator.comparingInt((ChunkPos c)->c.z).thenComparingInt(c->c.x));
         }

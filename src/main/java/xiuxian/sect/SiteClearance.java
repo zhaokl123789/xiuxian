@@ -9,6 +9,14 @@ import net.minecraft.world.level.chunk.LevelChunk;
 
 /** A clipped, top-down clearing cursor. The caller must refresh the chunk after done. */
 final class SiteClearance {
+    record Region(int minX,int minY,int minZ,int maxX,int maxY,int maxZ) {
+        Region(int minX,int minY,int minZ,int maxX,int maxZ) {
+            this(minX,minY,minZ,maxX,Integer.MAX_VALUE,maxZ);
+        }
+        int top(ServerLevel level,BlockPos origin) {
+            return maxY==Integer.MAX_VALUE?level.getMaxBuildHeight()-1:origin.getY()+maxY;
+        }
+    }
     record Result(long cell, int writes, boolean done, String problem) {}
 
     static Result clear(ServerLevel level, LevelChunk chunk, int minX, int minY, int minZ,

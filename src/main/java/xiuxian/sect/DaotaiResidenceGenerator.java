@@ -37,6 +37,8 @@ public final class DaotaiResidenceGenerator {
 
     public static final class Plan {
         final List<Placement> placements = new ArrayList<>();
+        final List<SiteClearance.Region> clearances = new ArrayList<>(List.of(
+                new SiteClearance.Region(MIN_X,1,MIN_Z,MAX_X,MAX_Z)));
         int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
         int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
 

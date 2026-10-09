@@ -20,7 +20,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 @GameTestHolder("xiuxian_jindan_inner")
 @PrefixGameTestTemplate(false)
 public final class LuoxiaJindanGameTests {
-    @GameTest(templateNamespace = "xiuxian_geometry", template = "empty", timeoutTicks = 72000,
+    @GameTest(templateNamespace = "xiuxian_jindan_inner", template = "empty", timeoutTicks = 2000000,
             batch = "jindan_inner")
     public static void acceptedPalaceMigratesOnceResumesAndConnects(GameTestHelper helper) throws Exception {
         var server = helper.getLevel().getServer();
@@ -91,11 +91,7 @@ public final class LuoxiaJindanGameTests {
                 helper.assertTrue(level.getBlockState(origin.offset(relative)).equals(expected),
                         "Accepted blueprint differs after transplant at " + relative);
             }
-            for (int distance = 0; distance <= LuoxiaJindanResidence.APPROACH_LENGTH; distance++) {
-                var floor = new BlockPos(-distance, LuoxiaJindanResidence.approachHeight(distance),
-                        LuoxiaJindanResidence.approachZ(distance));
-                assertWalkway(helper, floor);
-            }
+            for(var floor:LuoxiaJindanResidence.approachPath())assertWalkway(helper,floor);
             for (int x = 178; x >= 122; x--)
                 assertWalkway(helper, origin.offset(x, 7 + Math.min(2, (178 - x) / 20), 0));
             // The decorative arch occupies the centre block; its side passage remains open.

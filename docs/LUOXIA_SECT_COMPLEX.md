@@ -74,17 +74,23 @@ NPC、宗门任务、执事交易、护山阵战斗和随机站点生成不属�
 # Cave-heaven transplant
 
 The accepted 449 x 513 complex now builds once in Luoxia's inner dimension at
-origin `(480, 68, -520)`. The existing realm version stays at 3: old saves keep
-their seed, city, Dao-Tai residence, Jin-Dan residence, vein and boss arena.
-Loading the dimension schedules the independent transplant and saved jobs resume.
+origin `(390, 68, -1800)`. The existing realm version stays at 3: old saves keep
+their seed, city, vein and boss arena. The palaces relocate to distant sites.
+New realms generate the complete complex during world loading, before entry.
+Existing interrupted initial builds at the current coordinates are completed on
+load. Older layouts schedule the independent transplant and saved jobs resume.
 
 The new site clears from origin Y-24 to world ceiling. The retired central sect
 clears its entire reserved site (X -58..58, Z 47..153, Y 65..world ceiling),
-including gaps and containers, before restoring the avenue. The two sites clear
-separately. The connecting causeway runs east from `(0,70,32)` to `(480,72,32)`,
-then north to the accepted entrance; its walking volume is cleared, lit and railed.
+including gaps and containers, before restoring the avenue. The former mountain
+site at `(480,68,-520)` clears independently and returns to natural ground.
+The connecting causeway runs north from the town gate at `(390,64,101)`
+to the accepted entrance; its walking volume is cleared, lit and railed.
 The accepted interiors, usable seats and instruments remain in the blueprint.
 Completed sites retain player edits on subsequent entries.
+
+See [the current realm layout](LUOXIA_LAYOUT_V2.md) for all landmark coordinates
+and the one-time migration coverage.
 
 ```mcfunction
 /xiuxian sect inner status

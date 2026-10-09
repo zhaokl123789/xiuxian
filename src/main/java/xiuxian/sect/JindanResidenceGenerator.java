@@ -40,6 +40,8 @@ public final class JindanResidenceGenerator {
 
     public static final class Plan {
         final List<Placement> placements = new ArrayList<>();
+        final List<SiteClearance.Region> clearances = new ArrayList<>(List.of(
+                new SiteClearance.Region(MIN_X,1,MIN_Z,MAX_X,MAX_Z)));
         final List<Placement> interiorClearances = new ArrayList<>();
         final List<Section> sections = new ArrayList<>();
         private String activeSectionId;

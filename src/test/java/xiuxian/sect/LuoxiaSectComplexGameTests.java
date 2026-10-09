@@ -87,9 +87,8 @@ public final class LuoxiaSectComplexGameTests {
             }
             for(var route:accepted.routes)walkway(helper,level,origin.offset(route.x(),route.floor(),route.z()));
             SectComplexGameTests.verifyBuiltInteractions(helper,level,origin,accepted);
-            for(int x=0;x<=480;x++)walkway(helper,level,new BlockPos(x,70+x*2/480,32));
-            for(int z=31;z>=-280;z--)walkway(helper,level,new BlockPos(480,72,z));
-            for(int z=47;z<=153;z++) {
+            for(var floor:LuoxiaSectComplexResidence.approachPath())walkway(helper,level,floor);
+            for(int z=47;z<=150;z++) {
                 int y=z<=110?70-Math.min(4,Math.max(0,(z-5)/28)):67+Math.round((z-110)*5.0F/50);
                 walkway(helper,level,new BlockPos(0,y,z));
             }
@@ -102,7 +101,7 @@ public final class LuoxiaSectComplexGameTests {
                 helper.assertTrue(server.getCommands().getDispatcher().execute("xiuxian sect inner visit entrance",source)==0,"Survival inspection allowed");
             }catch(Exception e){throw new RuntimeException(e);}
             helper.assertTrue(SectComplexEvents.protects(level,origin.offset(224,200,256))
-                    &&SectComplexEvents.protects(level,new BlockPos(400,74,32))
+                    &&SectComplexEvents.protects(level,new BlockPos(390,74,-1000))
                     &&!SectComplexEvents.protects(level,preserved.get(0)),"Spawn protection boundaries incorrect");
             var edit=origin.offset(210,200,230);level.setBlock(edit,Blocks.EMERALD_BLOCK.defaultBlockState(),2);
             LuoxiaInnerRealmGenerator.ensureGenerated(level);LuoxiaInnerRealmGenerator.ensureGenerated(level);

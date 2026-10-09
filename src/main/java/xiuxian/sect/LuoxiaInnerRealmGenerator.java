@@ -58,6 +58,8 @@ public final class LuoxiaInnerRealmGenerator {
         if (level == null || level.dimension() != LuoxiaInnerDimension.LEVEL) return;
         LuoxiaInnerRealmData data = LuoxiaInnerRealmData.get(level);
         if (data.generated && data.version == VERSION) {
+            LuoxiaInnerBuildings.ensureGenerated(level);
+            LuoxiaInnerRealmLayout.ensureArrival(level);
             LuoxiaDaotaiResidence.ensureGenerated(level);
             LuoxiaJindanResidence.ensureGenerated(level);
             LuoxiaSectComplexResidence.ensureGenerated(level);
@@ -70,8 +72,10 @@ public final class LuoxiaInnerRealmGenerator {
         data.version = VERSION;
         data.markers.clear();
         generate(level, data, seed);
+        LuoxiaInnerBuildings.ensureGenerated(level);
         data.generated = true;
         data.setDirty();
+        LuoxiaInnerRealmLayout.ensureArrival(level);
         LuoxiaDaotaiResidence.ensureGenerated(level);
         LuoxiaJindanResidence.ensureGenerated(level);
         LuoxiaSectComplexResidence.ensureGenerated(level);
@@ -107,9 +111,7 @@ public final class LuoxiaInnerRealmGenerator {
         // Turn it into a cave-heaven landscape before placing landmarks so the
         // realm reads as terrain rather than a grass plane around structures.
         buildNaturalRealm(level, seed);
-        buildEntry(level, data);
         buildMainAxis(level, data);
-        buildSect(level, data, random);
         buildCity(level, data, random);
         buildVein(level, data);
         buildBossArena(level, data);
@@ -314,7 +316,7 @@ public final class LuoxiaInnerRealmGenerator {
     }
 
     private static void buildEntry(ServerLevel level, LuoxiaInnerRealmData data) {
-        BlockPos center = LuoxiaInnerDimension.ENTRY;
+        BlockPos center = LuoxiaInnerRealmLayout.LEGACY_ENTRY;
         data.marker("entry_gate", center);
         circle(level, center.getX(), center.getY() - 1, center.getZ(), 8, CALCITE);
         ring(level, center.getX(), center.getY() - 1, center.getZ(), 8, 1, POLISHED_DEEPSLATE);
@@ -592,6 +594,9 @@ public final class LuoxiaInnerRealmGenerator {
             clearBox(level, cx - 3, floorY + 1, z - 1,
                     cx + 3, floorY + 2, z + 1);
         }
+        // Clear the chamber landing before laying treads that pass through it.
+        clearBox(level, cx - 4, entranceY + 1, cz + 7,
+                cx + 4, entranceY + 3, cz + 12);
         for (int step = 0; step <= 10; step++) {
             int floorY = topY - step;
             int z = cz + step;
@@ -604,10 +609,14 @@ public final class LuoxiaInnerRealmGenerator {
                 set(level, cx + 4, floorY + 2, z, LANTERN);
             }
         }
-        // Preserve a clear landing over the first platform so the stair does
-        // not terminate against the chamber's original stone ceiling.
-        clearBox(level, cx - 4, entranceY + 1, cz + 7,
-                cx + 4, entranceY + 3, cz + 12);
+    }
+
+    static void restoreSurfaceHub(ServerLevel level) {
+        for(int z=151;z<=160;z++) {
+            fill(level,-3,72,z,3,72,z,QUARTZ);
+            clearBox(level,-3,73,z,3,76,z);
+        }
+        buildVeinEntryStair(level,0,62,160);
     }
 
     private static void buildBossArena(ServerLevel level, LuoxiaInnerRealmData data) {

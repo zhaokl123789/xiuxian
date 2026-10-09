@@ -30,13 +30,12 @@ public final class SectComplexGenerator {
     public record Placement(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, BlockState state) {}
     public record Building(String id, int x, int floor, int z, int halfX, int halfZ, int levels) {}
     public record RoutePoint(int x, int floor, int z, boolean north, int halfWidth) {}
-    record Clearance(int minX, int minY, int minZ, int maxX, int maxZ) {}
     public static final class Plan {
         final List<Placement> placements = new ArrayList<>();
         final List<Building> buildings = new ArrayList<>();
         final List<RoutePoint> routes = new ArrayList<>();
         final Map<String, BlockPos> visits = new LinkedHashMap<>();
-        final List<Clearance> clearances = new ArrayList<>(List.of(new Clearance(MIN_X,MIN_Y,MIN_Z,MAX_X,MAX_Z)));
+        final List<SiteClearance.Region> clearances = new ArrayList<>(List.of(new SiteClearance.Region(MIN_X,MIN_Y,MIN_Z,MAX_X,MAX_Z)));
 
         void add(int x1, int y1, int z1, int x2, int y2, int z2, BlockState state) {
             var op = new Placement(Math.min(x1,x2), Math.min(y1,y2), Math.min(z1,z2),

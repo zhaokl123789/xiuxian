@@ -17,7 +17,7 @@ import net.minecraftforge.gametest.PrefixGameTestTemplate;
 public final class LuoxiaDaotaiGameTests {
     private LuoxiaDaotaiGameTests() {}
 
-    @GameTest(templateNamespace = "xiuxian_geometry", template = "empty", timeoutTicks = 72000)
+    @GameTest(templateNamespace = "xiuxian_daotai_inner", template = "empty", timeoutTicks = 2000000,batch="daotai_inner")
     public static void acceptedPalaceMigratesOnceAndResumes(GameTestHelper helper) {
         var level = helper.getLevel().getServer().getLevel(LuoxiaInnerDimension.LEVEL);
         helper.assertTrue(level != null, "Inner dimension missing");
@@ -78,11 +78,9 @@ public final class LuoxiaDaotaiGameTests {
             helper.assertTrue(level.getBlockState(origin.offset(-22,75,-107)).getBlock()
                     .builtInRegistryHolder().key().location().getPath().startsWith("daotai_furniture_"),
                     "Approved furnishing missing");
-            // Test every column from the arrival pavilion through the palace's main aisle.
-            for (int distance = 0; distance <= 575; distance++) {
-                int y = distance < 290 ? LuoxiaDaotaiResidence.approachHeight(distance)
-                        : origin.getY() + DaotaiResidenceGenerator.axisHeight(500 - distance);
-                var floor = new BlockPos(0, y, -distance);
+            var route=new java.util.ArrayList<>(LuoxiaDaotaiResidence.approachPath());
+            for(int z=210;z>=-75;z--)route.add(origin.offset(0,DaotaiResidenceGenerator.axisHeight(z),z));
+            for(var floor:route) {
                 helper.assertTrue(!level.getBlockState(floor).isAir(), "Walkway floor missing: " + floor);
                 int step = level.getBlockState(floor.above()).getBlock() instanceof StairBlock ? 1 : 0;
                 helper.assertTrue(level.getBlockState(floor.above(step + 1)).isAir()

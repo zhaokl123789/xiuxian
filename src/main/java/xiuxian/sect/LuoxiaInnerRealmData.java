@@ -20,6 +20,9 @@ final class LuoxiaInnerRealmData extends SavedData {
     static final String DATA_ID = "xiuxian_luoxia_inner_realm";
 
     int version;
+    int arrivalVersion;
+    int routesVersion;
+    int initialBuildingsVersion;
     long seed;
     boolean generated;
     final Map<String, BlockPos> markers = new LinkedHashMap<>();
@@ -32,6 +35,9 @@ final class LuoxiaInnerRealmData extends SavedData {
     static LuoxiaInnerRealmData load(CompoundTag tag) {
         LuoxiaInnerRealmData data = new LuoxiaInnerRealmData();
         data.version = tag.getInt("Version");
+        data.arrivalVersion = tag.getInt("ArrivalVersion");
+        data.routesVersion = tag.getInt("RoutesVersion");
+        data.initialBuildingsVersion = tag.getInt("InitialBuildingsVersion");
         data.seed = tag.getLong("Seed");
         data.generated = tag.getBoolean("Generated");
         CompoundTag markerTag = tag.getCompound("Markers");
@@ -44,6 +50,9 @@ final class LuoxiaInnerRealmData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag) {
         tag.putInt("Version", version);
+        tag.putInt("ArrivalVersion", arrivalVersion);
+        tag.putInt("RoutesVersion", routesVersion);
+        tag.putInt("InitialBuildingsVersion", initialBuildingsVersion);
         tag.putLong("Seed", seed);
         tag.putBoolean("Generated", generated);
         CompoundTag markerTag = new CompoundTag();

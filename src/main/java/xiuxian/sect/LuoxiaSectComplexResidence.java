@@ -10,13 +10,15 @@ import xiuxian.block.SectBlocks;
 
 /** Once-per-realm transplant with separate clearance for the retired central sect. */
 public final class LuoxiaSectComplexResidence {
-    static final int VERSION = 1;
-    public static final BlockPos ORIGIN = new BlockPos(480,68,-520);
+    static final int VERSION = 2;
+    public static final BlockPos ORIGIN = LuoxiaInnerRealmLayout.SECT_ORIGIN;
+    static final BlockPos LEGACY_ORIGIN = new BlockPos(480,68,-520);
     private LuoxiaSectComplexResidence() {}
 
     static void ensureGenerated(ServerLevel level) {
         if(level.dimension()!=LuoxiaInnerDimension.LEVEL)return;
         var d=SectComplexConstruction.data(level);
+        if(LEGACY_ORIGIN.equals(d.origin))SectComplexConstruction.cancel(level);
         if(!d.contains(ORIGIN)&&d.origin==null)SectComplexConstruction.start(level,ORIGIN,createPlan());
         var realm=LuoxiaInnerRealmData.get(level);
         boolean changed=realm.markers.keySet().removeIf(id->id.matches("sect_module_\\d+"));
@@ -41,12 +43,21 @@ public final class LuoxiaSectComplexResidence {
 
     static SectComplexGenerator.Plan createPlan() {
         var plan=SectComplexGenerator.createPlan();
-        // The old 116m court and new mountain are independent sites; never clear their bounding rectangle.
-        plan.clearances.add(new SectComplexGenerator.Clearance(-58-ORIGIN.getX(),65-ORIGIN.getY(),
-                47-ORIGIN.getZ(),58-ORIGIN.getX(),153-ORIGIN.getZ()));
+        clear(plan,-58,65,47,58,Integer.MAX_VALUE,153);
+        clear(plan,256,44,-776,704,Integer.MAX_VALUE,-264);
+        for(int x=0;x<=480;x++) {
+            int y=70+x*2/480;
+            clear(plan,x,y-1,28,x,y+8,36);
+        }
+        for(int z=31;z>=-277;z--)clear(plan,476,71,z,484,80,z);
+        // Restore the retired mountain's natural ground; the town and underground mine stay outside this box.
+        plan.placements.add(0,new SectComplexGenerator.Placement(256-ORIGIN.getX(),44-ORIGIN.getY(),-776-ORIGIN.getZ(),
+                704-ORIGIN.getX(),63-ORIGIN.getY(),-264-ORIGIN.getZ(),Blocks.STONE.defaultBlockState()));
+        plan.placements.add(1,new SectComplexGenerator.Placement(256-ORIGIN.getX(),64-ORIGIN.getY(),-776-ORIGIN.getZ(),
+                704-ORIGIN.getX(),64-ORIGIN.getY(),-264-ORIGIN.getZ(),Blocks.GRASS_BLOCK.defaultBlockState()));
         var paving=SectBlocks.state("sect_cloud_paving");
         // Restore the established avenue after retiring the old halls and gate.
-        for(int z=47;z<=153;z++) {
+        for(int z=47;z<=150;z++) {
             int y=z<=110?70-Math.min(4,Math.max(0,(z-5)/28)):67+Math.round((z-110)*5.0F/50);
             append(plan,-3,y,z,3,y,z,paving);
             append(plan,-3,y+1,z,3,y+3,z,Blocks.AIR.defaultBlockState());
@@ -55,31 +66,34 @@ public final class LuoxiaSectComplexResidence {
                 append(plan,x,y+1,z,x,y+1,z,SectBlocks.state("sect_bridge_lamp"));
             }
         }
-        // Branch east from the existing avenue, then north into the accepted mountain entrance.
-        for(int x=0;x<=480;x++) road(plan,x,70+x*2/480,32,false,x<480&&70+(x+1)*2/480>70+x*2/480);
-        for(int z=31;z>=-277;z--)road(plan,480,72,z,true,false);
+        addApproach(plan);
         return plan;
     }
 
-    private static void road(SectComplexGenerator.Plan plan,int x,int y,int z,boolean north,boolean stair) {
-        int dx=north?3:0,dz=north?0:3;
-        append(plan,x-dx,y-1,z-dz,x+dx,y,z+dz,SectBlocks.state("sect_cloud_paving"));
-        append(plan,x-dx,y+1,z-dz,x+dx,y+5,z+dz,Blocks.AIR.defaultBlockState());
-        if(stair)append(plan,x-dx,y+1,z-dz,x+dx,y+1,z+dz,
-                Blocks.QUARTZ_STAIRS.defaultBlockState().setValue(StairBlock.FACING,Direction.EAST));
-        if(north?z<20:x>12&&x<470) {
-            int lx=north?4:0,lz=north?0:4;
-            for(int side:new int[]{-1,1}) {
-                append(plan,x+side*lx,y,z+side*lz,x+side*lx,y,z+side*lz,SectBlocks.state("sect_cloud_paving"));
-                append(plan,x+side*lx,y+1,z+side*lz,x+side*lx,y+1,z+side*lz,SectBlocks.state("sect_jade_railing"));
-                if((north?z:x)%12==0)append(plan,x+side*lx,y+2,z+side*lz,x+side*lx,y+2,z+side*lz,SectBlocks.state("sect_bridge_lamp"));
-            }
-        }
+    static SectComplexGenerator.Plan createInitialPlan() {
+        var plan=SectComplexGenerator.createPlan();
+        addApproach(plan);
+        return plan;
+    }
+
+    private static void addApproach(SectComplexGenerator.Plan plan) {
+        for(var op:LuoxiaInnerRoads.build(approachPath(),SectBlocks.state("sect_cloud_paving"),
+                SectBlocks.state("sect_jade_railing"),SectBlocks.state("sect_bridge_lamp")))
+            append(plan,op.minX(),op.minY(),op.minZ(),op.maxX(),op.maxY(),op.maxZ(),op.state());
+    }
+
+    static java.util.List<BlockPos> approachPath() {
+        return LuoxiaInnerRoads.path(new BlockPos(390,64,101),ORIGIN.offset(0,4,243));
+    }
+
+    private static void clear(SectComplexGenerator.Plan plan,int x1,int y1,int z1,int x2,int y2,int z2) {
+        plan.clearances.add(new SiteClearance.Region(x1-ORIGIN.getX(),y1-ORIGIN.getY(),z1-ORIGIN.getZ(),
+                x2-ORIGIN.getX(),y2==Integer.MAX_VALUE?y2:y2-ORIGIN.getY(),z2-ORIGIN.getZ()));
     }
 
     static boolean onApproach(BlockPos pos) {
-        return pos.getY()>=70&&pos.getY()<=78&&((pos.getX()>=0&&pos.getX()<=484&&pos.getZ()>=28&&pos.getZ()<=36)
-                ||(pos.getX()>=476&&pos.getX()<=484&&pos.getZ()>=-277&&pos.getZ()<=32));
+        return pos.getY()>=64&&pos.getY()<=80&&pos.getX()>=386&&pos.getX()<=394
+                &&pos.getZ()>=ORIGIN.getZ()+243&&pos.getZ()<=101;
     }
 
     private static void append(SectComplexGenerator.Plan plan,int x1,int y1,int z1,int x2,int y2,int z2,BlockState state) {

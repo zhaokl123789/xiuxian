@@ -84,9 +84,15 @@ final class DaotaiResidenceConstruction {
         Job job = JOBS.computeIfAbsent(level, ignored -> new Job(data.origin,
                 level.dimension() == LuoxiaInnerDimension.LEVEL
                         ? LuoxiaDaotaiResidence.createPlan() : DaotaiResidenceGenerator.createPlan()));
+        if(data.phase==Phase.BUILD&&level.dimension()==LuoxiaInnerDimension.LEVEL&&!LuoxiaInnerRealmLayout.canBuild(level))return;
         if (!job.origin.equals(data.origin) || data.chunk > job.chunks.size()) {
             pause(level, data, "construction cursor exceeds the reserved site");
             return;
+        }
+        if(data.phase==Phase.BUILD) {
+            int before=data.chunk;
+            while(data.chunk<job.chunks.size()&&!job.placementChunks.contains(job.chunks.get(data.chunk)))nextChunk(data);
+            if(data.chunk!=before)data.setDirty();
         }
         if (data.chunk == job.chunks.size()) {
             job.release(level);
@@ -97,7 +103,10 @@ final class DaotaiResidenceConstruction {
                 return;
             }
             data.origins.add(data.origin.asLong());
+            if(level.dimension()==LuoxiaInnerDimension.LEVEL)
+                data.origins.remove(Long.valueOf(LuoxiaDaotaiResidence.LEGACY_ORIGIN.asLong()));
             data.origin = null;
+            if(level.dimension()==LuoxiaInnerDimension.LEVEL)LuoxiaInnerRealmLayout.finishMigration(level);
             JOBS.remove(level);
             data.setDirty();
             announce(level, "Dao-Tai residence construction complete. Use /xiuxian daotai "
@@ -108,15 +117,18 @@ final class DaotaiResidenceConstruction {
         LevelChunk loaded = job.load(level, chunk);
         if (loaded == null) return;
         if (data.phase != Phase.BUILD) {
+            if(data.operation>job.clearances.size()){pause(level,data,"Invalid clearance region cursor");return;}
+            if(data.operation==job.clearances.size()){nextChunk(data);data.setDirty();return;}
+            var region=job.clearances.get(data.operation);
             var result = SiteClearance.clear(level, loaded,
-                    data.origin.getX() + DaotaiResidenceGenerator.MIN_X, data.origin.getY() + 1,
-                    data.origin.getZ() + DaotaiResidenceGenerator.MIN_Z,
-                    data.origin.getX() + DaotaiResidenceGenerator.MAX_X, level.getMaxBuildHeight() - 1,
-                    data.origin.getZ() + DaotaiResidenceGenerator.MAX_Z,
+                    data.origin.getX() + region.minX(), data.origin.getY() + region.minY(),
+                    data.origin.getZ() + region.minZ(),
+                    data.origin.getX() + region.maxX(), region.top(level,data.origin),
+                    data.origin.getZ() + region.maxZ(),
                     data.cell, CELLS_PER_TICK, WRITES_PER_TICK, BUDGET_NS);
             data.cell = result.cell(); data.writes += result.writes();
             if (!result.problem().isEmpty()) { pause(level, data, result.problem()); return; }
-            if (result.done()) nextChunk(data);
+            if (result.done()){data.operation++;data.cell=0;}
             data.setDirty();
             return;
         }
@@ -264,17 +276,19 @@ final class DaotaiResidenceConstruction {
         final BlockPos origin;
         final Plan plan;
         final List<ChunkPos> chunks = new ArrayList<>();
+        final HashSet<ChunkPos> placementChunks = new HashSet<>();
         List<Placement> operations = List.of();
+        List<SiteClearance.Region> clearances = List.of();
         ChunkPos workChunk;
 
         Job(BlockPos origin, Plan plan) {
             this.origin = origin;
             this.plan = plan;
             var touched = new HashSet<ChunkPos>();
-            addChunks(touched, new Placement(DaotaiResidenceGenerator.MIN_X, 1, DaotaiResidenceGenerator.MIN_Z,
-                    DaotaiResidenceGenerator.MAX_X, DaotaiResidenceGenerator.MAX_Y,
-                    DaotaiResidenceGenerator.MAX_Z, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()));
-            for (Placement op : plan.placements) addChunks(touched, op);
+            for(var region:plan.clearances)addChunks(touched,new Placement(region.minX(),region.minY(),region.minZ(),
+                    region.maxX(),region.minY(),region.maxZ(),net.minecraft.world.level.block.Blocks.AIR.defaultBlockState()));
+            for (Placement op : plan.placements) addChunks(placementChunks, op);
+            touched.addAll(placementChunks);
             chunks.addAll(touched);
             chunks.sort(Comparator.comparingInt((ChunkPos pos) -> pos.z).thenComparingInt(pos -> pos.x));
         }
@@ -295,6 +309,9 @@ final class DaotaiResidenceConstruction {
                                 && op.maxX() + origin.getX() >= chunk.getMinBlockX()
                                 && op.minZ() + origin.getZ() <= chunk.getMaxBlockZ()
                                 && op.maxZ() + origin.getZ() >= chunk.getMinBlockZ()).toList();
+                clearances=plan.clearances.stream().filter(r->r.minX()+origin.getX()<=chunk.getMaxBlockX()
+                        &&r.maxX()+origin.getX()>=chunk.getMinBlockX()&&r.minZ()+origin.getZ()<=chunk.getMaxBlockZ()
+                        &&r.maxZ()+origin.getZ()>=chunk.getMinBlockZ()).toList();
             }
             return level.getChunkSource().getChunkNow(chunk.x, chunk.z);
         }
