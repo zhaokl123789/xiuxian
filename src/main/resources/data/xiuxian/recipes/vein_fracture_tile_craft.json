@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:deepslate"
+  },
+  "result": "xiuxian:vein_fracture_tile",
+  "count": 1
+}

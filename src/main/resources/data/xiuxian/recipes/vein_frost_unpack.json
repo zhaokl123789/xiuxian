@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "xiuxian:vein_frost_block"
+    }
+  ],
+  "result": {
+    "item": "xiuxian:vein_frost_concentrate",
+    "count": 9
+  }
+}

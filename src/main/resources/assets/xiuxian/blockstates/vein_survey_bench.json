@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/vein_survey_bench"
+    },
+    "facing=east": {
+      "model": "xiuxian:block/vein_survey_bench",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/vein_survey_bench",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/vein_survey_bench",
+      "y": 270
+    }
+  }
+}

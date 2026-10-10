@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "distiller",
+  "ingredient": {
+    "item": "xiuxian:vein_rootstone"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:slime_ball"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_binding_resin",
+    "count": 4
+  },
+  "ticks": 140
+}

@@ -113,9 +113,32 @@ public final class LuoxiaInnerRealmGenerator {
         buildNaturalRealm(level, seed);
         buildMainAxis(level, data);
         buildCity(level, data, random);
-        buildVein(level, data);
-        buildBossArena(level, data);
+        if (level.getChunkSource().getGenerator() instanceof xiuxian.vein.VeinChunkGenerator) {
+            buildVeinAccess(level,data);
+        } else {
+            buildVein(level, data);
+            buildBossArena(level, data);
+        }
         addLighting(level);
+    }
+
+    private static void buildVeinAccess(ServerLevel level, LuoxiaInnerRealmData data) {
+        restoreVeinLadder(level);
+        for(int layer=1;layer<=9;layer++) data.marker("vein_l"+layer,new BlockPos(0,xiuxian.vein.VeinTerrain.floorY(layer)+1,163));
+        data.marker("vein_entrance",new BlockPos(0,73,160));
+        data.marker("vein_core",new BlockPos(0,-56,163));
+        var boss=xiuxian.vein.VeinTerrain.room(0,160,9);
+        data.marker("boss_center",boss.offset(0,0,3));data.marker("boss_gate",boss.offset(0,0,-26));
+        data.marker("boss_reward_vault",xiuxian.vein.VeinTerrain.cache(boss));
+    }
+
+    private static void restoreVeinLadder(ServerLevel level) {
+        int x=0,z=160;
+        for(int y=56;y<=73;y++) {
+            set(level,x,y,z,AIR());
+            set(level,x+2,y,z,xiuxian.block.VeinBlocks.state("vein_reinforced_floor"));
+            set(level,x+1,y,z,Blocks.LADDER.defaultBlockState().setValue(net.minecraft.world.level.block.LadderBlock.FACING,net.minecraft.core.Direction.WEST));
+        }
     }
 
     /**
@@ -617,6 +640,7 @@ public final class LuoxiaInnerRealmGenerator {
             clearBox(level,-3,73,z,3,76,z);
         }
         buildVeinEntryStair(level,0,62,160);
+        if (level.getChunkSource().getGenerator() instanceof xiuxian.vein.VeinChunkGenerator) restoreVeinLadder(level);
     }
 
     private static void buildBossArena(ServerLevel level, LuoxiaInnerRealmData data) {

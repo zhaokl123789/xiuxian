@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "xiuxian:vein_crusher",
+    "xiuxian:vein_washer",
+    "xiuxian:vein_condenser",
+    "xiuxian:vein_forge",
+    "xiuxian:vein_distiller",
+    "xiuxian:vein_charger"
+  ]
+}

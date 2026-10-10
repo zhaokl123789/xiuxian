@@ -2,6 +2,9 @@
   "replace": false,
   "values": [
     "xiuxian:high_spirit_stone_ore",
-    "xiuxian:supreme_spirit_stone_ore"
+    "xiuxian:supreme_spirit_stone_ore",
+    "xiuxian:vein_gold_ore",
+    "xiuxian:vein_violet_ore",
+    "xiuxian:vein_origin_ore"
   ]
 }

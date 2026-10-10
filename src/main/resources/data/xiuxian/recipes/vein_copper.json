@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "forge",
+  "ingredient": {
+    "item": "xiuxian:vein_mineral_dust"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:raw_copper"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "minecraft:copper_ingot",
+    "count": 3
+  },
+  "ticks": 180
+}

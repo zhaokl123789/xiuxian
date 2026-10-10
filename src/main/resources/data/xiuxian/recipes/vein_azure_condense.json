@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "condenser",
+  "ingredient": {
+    "item": "xiuxian:vein_azure_concentrate"
+  },
+  "input_count": 2,
+  "reagent": {
+    "item": "xiuxian:vein_binding_resin"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:mid_spirit_stone",
+    "count": 1
+  },
+  "ticks": 220
+}

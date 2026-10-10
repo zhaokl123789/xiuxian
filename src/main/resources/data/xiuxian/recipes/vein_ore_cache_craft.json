@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IRI",
+    "CSC",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:chest"
+    },
+    "C": {
+      "item": "minecraft:cobblestone"
+    },
+    "S": {
+      "item": "xiuxian:vein_binding_resin"
+    }
+  },
+  "result": {
+    "item": "xiuxian:vein_ore_cache",
+    "count": 1
+  }
+}

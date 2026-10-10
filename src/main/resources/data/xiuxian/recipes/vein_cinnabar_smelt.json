@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "xiuxian:vein_cinnabar_shard"
+  },
+  "result": "xiuxian:vein_cinnabar_concentrate",
+  "experience": 0.2,
+  "cookingtime": 200
+}

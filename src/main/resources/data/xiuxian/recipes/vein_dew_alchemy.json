@@ -1,0 +1,16 @@
+{
+  "type": "xiuxian:alchemy",
+  "ingredients": [
+    {
+      "item": "xiuxian:rejuvenation_pill_base"
+    },
+    {
+      "item": "xiuxian:vein_dew_concentrate"
+    }
+  ],
+  "result": {
+    "item": "xiuxian:rejuvenation_pill"
+  },
+  "experience": 0.3,
+  "cookingtime": 400
+}

@@ -7,6 +7,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import xiuxian.block.XiuxianBlocks;
 import xiuxian.block.OrientalBlocks;
 import xiuxian.block.SectBlocks;
+import xiuxian.block.VeinBlocks;
+import xiuxian.vein.VeinWorldgen;
 import xiuxian.block.XiuxianBlockEntities;
 import xiuxian.cultivation.CultivationCapability;
 import xiuxian.cultivation.CultivationEvents;
@@ -26,6 +28,8 @@ public class xiuxian {
         XiuxianBlocks.register(modEventBus);
         OrientalBlocks.register(modEventBus);
         SectBlocks.register(modEventBus);
+        VeinBlocks.register(modEventBus);
+        VeinWorldgen.register(modEventBus);
         XiuxianBlockEntities.register(modEventBus);
         XiuxianMenus.register(modEventBus);
         XiuxianRecipes.register(modEventBus);

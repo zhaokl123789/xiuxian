@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/vein_anchor_chain"
+    },
+    "facing=east": {
+      "model": "xiuxian:block/vein_anchor_chain",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/vein_anchor_chain",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/vein_anchor_chain",
+      "y": 270
+    }
+  }
+}

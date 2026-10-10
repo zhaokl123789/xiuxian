@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "xiuxian:vein_origin_shard"
+  },
+  "result": "xiuxian:vein_origin_concentrate",
+  "experience": 0.2,
+  "cookingtime": 200
+}

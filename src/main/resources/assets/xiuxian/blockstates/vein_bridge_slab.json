@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "xiuxian:block/vein_bridge_slab_bottom"
+    },
+    "type=top": {
+      "model": "xiuxian:block/vein_bridge_slab_top"
+    },
+    "type=double": {
+      "model": "xiuxian:block/vein_bridge_slab_double"
+    }
+  }
+}

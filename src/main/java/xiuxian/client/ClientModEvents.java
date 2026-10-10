@@ -16,6 +16,7 @@ public final class ClientModEvents {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(XiuxianMenus.MORTAL_FURNACE.get(), AlchemyFurnaceScreen::new);
+            MenuScreens.register(XiuxianMenus.VEIN_STATION.get(), xiuxian.client.screen.VeinStationScreen::new);
             MenuScreens.register(XiuxianMenus.SPIRIT_FURNACE.get(), AlchemyFurnaceScreen::new);
             MenuScreens.register(XiuxianMenus.EARTH_FURNACE.get(), AlchemyFurnaceScreen::new);
             MenuScreens.register(XiuxianMenus.HEAVEN_FURNACE.get(), AlchemyFurnaceScreen::new);

@@ -1,0 +1,1232 @@
+{
+  "blocks": {
+    "vein_dew_rock": {
+      "zh": "露泉围岩",
+      "kind": "ROCK",
+      "color": [
+        71,
+        153,
+        156
+      ],
+      "category": "layer",
+      "layer": 1
+    },
+    "vein_dew_ore": {
+      "zh": "露泉富矿",
+      "kind": "ORE",
+      "color": [
+        71,
+        153,
+        156
+      ],
+      "category": "layer",
+      "layer": 1
+    },
+    "vein_dew_cluster": {
+      "zh": "露泉晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        71,
+        153,
+        156
+      ],
+      "category": "layer",
+      "layer": 1
+    },
+    "vein_dew_block": {
+      "zh": "露泉浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        71,
+        153,
+        156
+      ],
+      "category": "layer",
+      "layer": 1
+    },
+    "vein_frost_rock": {
+      "zh": "霜晶围岩",
+      "kind": "ROCK",
+      "color": [
+        151,
+        201,
+        221
+      ],
+      "category": "layer",
+      "layer": 2
+    },
+    "vein_frost_ore": {
+      "zh": "霜晶富矿",
+      "kind": "ORE",
+      "color": [
+        151,
+        201,
+        221
+      ],
+      "category": "layer",
+      "layer": 2
+    },
+    "vein_frost_cluster": {
+      "zh": "霜晶晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        151,
+        201,
+        221
+      ],
+      "category": "layer",
+      "layer": 2
+    },
+    "vein_frost_block": {
+      "zh": "霜晶浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        151,
+        201,
+        221
+      ],
+      "category": "layer",
+      "layer": 2
+    },
+    "vein_azure_rock": {
+      "zh": "苍蓝围岩",
+      "kind": "ROCK",
+      "color": [
+        49,
+        103,
+        194
+      ],
+      "category": "layer",
+      "layer": 3
+    },
+    "vein_azure_ore": {
+      "zh": "苍蓝富矿",
+      "kind": "ORE",
+      "color": [
+        49,
+        103,
+        194
+      ],
+      "category": "layer",
+      "layer": 3
+    },
+    "vein_azure_cluster": {
+      "zh": "苍蓝晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        49,
+        103,
+        194
+      ],
+      "category": "layer",
+      "layer": 3
+    },
+    "vein_azure_block": {
+      "zh": "苍蓝浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        49,
+        103,
+        194
+      ],
+      "category": "layer",
+      "layer": 3
+    },
+    "vein_jade_rock": {
+      "zh": "青髓围岩",
+      "kind": "ROCK",
+      "color": [
+        50,
+        153,
+        103
+      ],
+      "category": "layer",
+      "layer": 4
+    },
+    "vein_jade_ore": {
+      "zh": "青髓富矿",
+      "kind": "ORE",
+      "color": [
+        50,
+        153,
+        103
+      ],
+      "category": "layer",
+      "layer": 4
+    },
+    "vein_jade_cluster": {
+      "zh": "青髓晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        50,
+        153,
+        103
+      ],
+      "category": "layer",
+      "layer": 4
+    },
+    "vein_jade_block": {
+      "zh": "青髓浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        50,
+        153,
+        103
+      ],
+      "category": "layer",
+      "layer": 4
+    },
+    "vein_ember_rock": {
+      "zh": "地火围岩",
+      "kind": "ROCK",
+      "color": [
+        225,
+        97,
+        59
+      ],
+      "category": "layer",
+      "layer": 5
+    },
+    "vein_ember_ore": {
+      "zh": "地火富矿",
+      "kind": "ORE",
+      "color": [
+        225,
+        97,
+        59
+      ],
+      "category": "layer",
+      "layer": 5
+    },
+    "vein_ember_cluster": {
+      "zh": "地火晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        225,
+        97,
+        59
+      ],
+      "category": "layer",
+      "layer": 5
+    },
+    "vein_ember_block": {
+      "zh": "地火浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        225,
+        97,
+        59
+      ],
+      "category": "layer",
+      "layer": 5
+    },
+    "vein_cinnabar_rock": {
+      "zh": "赤汞围岩",
+      "kind": "ROCK",
+      "color": [
+        172,
+        44,
+        75
+      ],
+      "category": "layer",
+      "layer": 6
+    },
+    "vein_cinnabar_ore": {
+      "zh": "赤汞富矿",
+      "kind": "ORE",
+      "color": [
+        172,
+        44,
+        75
+      ],
+      "category": "layer",
+      "layer": 6
+    },
+    "vein_cinnabar_cluster": {
+      "zh": "赤汞晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        172,
+        44,
+        75
+      ],
+      "category": "layer",
+      "layer": 6
+    },
+    "vein_cinnabar_block": {
+      "zh": "赤汞浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        172,
+        44,
+        75
+      ],
+      "category": "layer",
+      "layer": 6
+    },
+    "vein_gold_rock": {
+      "zh": "金曜围岩",
+      "kind": "ROCK",
+      "color": [
+        216,
+        176,
+        51
+      ],
+      "category": "layer",
+      "layer": 7
+    },
+    "vein_gold_ore": {
+      "zh": "金曜富矿",
+      "kind": "ORE",
+      "color": [
+        216,
+        176,
+        51
+      ],
+      "category": "layer",
+      "layer": 7
+    },
+    "vein_gold_cluster": {
+      "zh": "金曜晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        216,
+        176,
+        51
+      ],
+      "category": "layer",
+      "layer": 7
+    },
+    "vein_gold_block": {
+      "zh": "金曜浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        216,
+        176,
+        51
+      ],
+      "category": "layer",
+      "layer": 7
+    },
+    "vein_violet_rock": {
+      "zh": "紫霄围岩",
+      "kind": "ROCK",
+      "color": [
+        154,
+        107,
+        193
+      ],
+      "category": "layer",
+      "layer": 8
+    },
+    "vein_violet_ore": {
+      "zh": "紫霄富矿",
+      "kind": "ORE",
+      "color": [
+        154,
+        107,
+        193
+      ],
+      "category": "layer",
+      "layer": 8
+    },
+    "vein_violet_cluster": {
+      "zh": "紫霄晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        154,
+        107,
+        193
+      ],
+      "category": "layer",
+      "layer": 8
+    },
+    "vein_violet_block": {
+      "zh": "紫霄浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        154,
+        107,
+        193
+      ],
+      "category": "layer",
+      "layer": 8
+    },
+    "vein_origin_rock": {
+      "zh": "地心围岩",
+      "kind": "ROCK",
+      "color": [
+        230,
+        223,
+        167
+      ],
+      "category": "layer",
+      "layer": 9
+    },
+    "vein_origin_ore": {
+      "zh": "地心富矿",
+      "kind": "ORE",
+      "color": [
+        230,
+        223,
+        167
+      ],
+      "category": "layer",
+      "layer": 9
+    },
+    "vein_origin_cluster": {
+      "zh": "地心晶簇",
+      "kind": "CLUSTER",
+      "color": [
+        230,
+        223,
+        167
+      ],
+      "category": "layer",
+      "layer": 9
+    },
+    "vein_origin_block": {
+      "zh": "地心浓缩晶块",
+      "kind": "CUBE",
+      "color": [
+        230,
+        223,
+        167
+      ],
+      "category": "layer",
+      "layer": 9
+    },
+    "vein_strata_slate": {
+      "zh": "层理页岩",
+      "kind": "ROCK",
+      "color": [
+        76,
+        88,
+        97
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_porous_limestone": {
+      "zh": "孔隙灰岩",
+      "kind": "ROCK",
+      "color": [
+        168,
+        172,
+        154
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_mica_schist": {
+      "zh": "云母片岩",
+      "kind": "ROCK",
+      "color": [
+        112,
+        137,
+        150
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_magnetite": {
+      "zh": "磁铁岩",
+      "kind": "ROCK",
+      "color": [
+        39,
+        48,
+        58
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_sulfur_rock": {
+      "zh": "硫晶围岩",
+      "kind": "ROCK",
+      "color": [
+        184,
+        168,
+        53
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_salt_rock": {
+      "zh": "盐晶沉积岩",
+      "kind": "ROCK",
+      "color": [
+        177,
+        183,
+        194
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_red_ironstone": {
+      "zh": "赤铁层岩",
+      "kind": "ROCK",
+      "color": [
+        132,
+        74,
+        67
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_obsidian_breccia": {
+      "zh": "黑曜角砾",
+      "kind": "ROCK",
+      "color": [
+        53,
+        44,
+        70
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_calcite_ribs": {
+      "zh": "方解晶肋",
+      "kind": "ROCK",
+      "color": [
+        212,
+        220,
+        213
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_fossil_shale": {
+      "zh": "化石页岩",
+      "kind": "ROCK",
+      "color": [
+        124,
+        134,
+        114
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_aquifer_rock": {
+      "zh": "含水层岩",
+      "kind": "ROCK",
+      "color": [
+        52,
+        116,
+        132
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_rootstone": {
+      "zh": "盘根岩",
+      "kind": "ROCK",
+      "color": [
+        69,
+        100,
+        75
+      ],
+      "category": "geology",
+      "layer": 0
+    },
+    "vein_reinforced_floor": {
+      "zh": "采掘承重板",
+      "kind": "CUBE",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_survey_tile": {
+      "zh": "勘测刻度砖",
+      "kind": "CUBE",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_support_brace": {
+      "zh": "矿巷支撑架",
+      "kind": "BRACE",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_safety_rail": {
+      "zh": "矿道护栏",
+      "kind": "RAIL",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_bridge_slab": {
+      "zh": "采掘栈桥板",
+      "kind": "SLAB",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_anchor_chain": {
+      "zh": "矿井锚链",
+      "kind": "CHAIN",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_drain_grate": {
+      "zh": "矿道排水格栅",
+      "kind": "GRATE",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_pressure_pillar": {
+      "zh": "耐压矿柱",
+      "kind": "PILLAR",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_survey_bench": {
+      "zh": "矿物装配台",
+      "kind": "CRAFT",
+      "color": [
+        96,
+        128,
+        133
+      ],
+      "category": "support",
+      "layer": 0
+    },
+    "vein_arena_basalt": {
+      "zh": "禁区耐震岩",
+      "kind": "ROCK",
+      "color": [
+        50,
+        59,
+        65
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_arena_floor": {
+      "zh": "禁区战场板",
+      "kind": "CUBE",
+      "color": [
+        111,
+        98,
+        122
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_fracture_tile": {
+      "zh": "裂隙阵纹砖",
+      "kind": "CUBE",
+      "color": [
+        99,
+        57,
+        108
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_shield_pillar": {
+      "zh": "封域承压柱",
+      "kind": "PILLAR",
+      "color": [
+        145,
+        148,
+        169
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_seal_cage": {
+      "zh": "封印晶笼",
+      "kind": "CAGE",
+      "color": [
+        138,
+        120,
+        165
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_resonance_pedestal": {
+      "zh": "共鸣触发台",
+      "kind": "SWITCH",
+      "color": [
+        102,
+        155,
+        175
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_pulse_beacon": {
+      "zh": "禁区脉冲灯",
+      "kind": "LAMP",
+      "color": [
+        182,
+        95,
+        145
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_reward_cache": {
+      "zh": "禁区战利储箱",
+      "kind": "CACHE",
+      "color": [
+        186,
+        165,
+        99
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_azure_seal_gate": {
+      "zh": "苍蓝封印门",
+      "kind": "GATE",
+      "color": [
+        61,
+        126,
+        200
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_ember_seal_gate": {
+      "zh": "地火封印门",
+      "kind": "GATE",
+      "color": [
+        203,
+        87,
+        61
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_origin_seal_gate": {
+      "zh": "地心封印门",
+      "kind": "GATE",
+      "color": [
+        222,
+        196,
+        122
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_arena_sensor": {
+      "zh": "禁区共鸣检测台",
+      "kind": "SENSOR",
+      "color": [
+        120,
+        152,
+        157
+      ],
+      "category": "boss",
+      "layer": 0
+    },
+    "vein_crusher": {
+      "zh": "原晶破碎机",
+      "kind": "STATION",
+      "color": [
+        118,
+        128,
+        139
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_washer": {
+      "zh": "矿晶洗选槽",
+      "kind": "STATION",
+      "color": [
+        69,
+        146,
+        157
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_condenser": {
+      "zh": "灵石凝炼器",
+      "kind": "STATION",
+      "color": [
+        100,
+        165,
+        122
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_forge": {
+      "zh": "矿髓熔炼炉",
+      "kind": "STATION",
+      "color": [
+        185,
+        91,
+        65
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_distiller": {
+      "zh": "灵泉蒸馏器",
+      "kind": "STATION",
+      "color": [
+        130,
+        186,
+        197
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_charger": {
+      "zh": "封印充能台",
+      "kind": "STATION",
+      "color": [
+        165,
+        135,
+        187
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_ore_cache": {
+      "zh": "矿石储箱",
+      "kind": "CACHE",
+      "color": [
+        90,
+        109,
+        126
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_reagent_cache": {
+      "zh": "炼制材料储箱",
+      "kind": "CACHE",
+      "color": [
+        121,
+        143,
+        113
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_mining_lamp": {
+      "zh": "矿道巡检灯",
+      "kind": "LAMP",
+      "color": [
+        217,
+        198,
+        111
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_crystal_beacon": {
+      "zh": "晶脉定位灯",
+      "kind": "LAMP",
+      "color": [
+        87,
+        171,
+        189
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_rest_seat": {
+      "zh": "矿巷休息座",
+      "kind": "SEAT",
+      "color": [
+        101,
+        115,
+        106
+      ],
+      "category": "equipment",
+      "layer": 0
+    },
+    "vein_assay_table": {
+      "zh": "矿层分析台",
+      "kind": "SENSOR",
+      "color": [
+        88,
+        142,
+        166
+      ],
+      "category": "equipment",
+      "layer": 0
+    }
+  },
+  "items": {
+    "vein_dew_shard": {
+      "zh": "露泉原晶",
+      "color": [
+        71,
+        153,
+        156
+      ],
+      "kind": "shard"
+    },
+    "vein_dew_concentrate": {
+      "zh": "露泉精晶",
+      "color": [
+        71,
+        153,
+        156
+      ],
+      "kind": "concentrate"
+    },
+    "vein_frost_shard": {
+      "zh": "霜晶原晶",
+      "color": [
+        151,
+        201,
+        221
+      ],
+      "kind": "shard"
+    },
+    "vein_frost_concentrate": {
+      "zh": "霜晶精晶",
+      "color": [
+        151,
+        201,
+        221
+      ],
+      "kind": "concentrate"
+    },
+    "vein_azure_shard": {
+      "zh": "苍蓝原晶",
+      "color": [
+        49,
+        103,
+        194
+      ],
+      "kind": "shard"
+    },
+    "vein_azure_concentrate": {
+      "zh": "苍蓝精晶",
+      "color": [
+        49,
+        103,
+        194
+      ],
+      "kind": "concentrate"
+    },
+    "vein_jade_shard": {
+      "zh": "青髓原晶",
+      "color": [
+        50,
+        153,
+        103
+      ],
+      "kind": "shard"
+    },
+    "vein_jade_concentrate": {
+      "zh": "青髓精晶",
+      "color": [
+        50,
+        153,
+        103
+      ],
+      "kind": "concentrate"
+    },
+    "vein_ember_shard": {
+      "zh": "地火原晶",
+      "color": [
+        225,
+        97,
+        59
+      ],
+      "kind": "shard"
+    },
+    "vein_ember_concentrate": {
+      "zh": "地火精晶",
+      "color": [
+        225,
+        97,
+        59
+      ],
+      "kind": "concentrate"
+    },
+    "vein_cinnabar_shard": {
+      "zh": "赤汞原晶",
+      "color": [
+        172,
+        44,
+        75
+      ],
+      "kind": "shard"
+    },
+    "vein_cinnabar_concentrate": {
+      "zh": "赤汞精晶",
+      "color": [
+        172,
+        44,
+        75
+      ],
+      "kind": "concentrate"
+    },
+    "vein_gold_shard": {
+      "zh": "金曜原晶",
+      "color": [
+        216,
+        176,
+        51
+      ],
+      "kind": "shard"
+    },
+    "vein_gold_concentrate": {
+      "zh": "金曜精晶",
+      "color": [
+        216,
+        176,
+        51
+      ],
+      "kind": "concentrate"
+    },
+    "vein_violet_shard": {
+      "zh": "紫霄原晶",
+      "color": [
+        154,
+        107,
+        193
+      ],
+      "kind": "shard"
+    },
+    "vein_violet_concentrate": {
+      "zh": "紫霄精晶",
+      "color": [
+        154,
+        107,
+        193
+      ],
+      "kind": "concentrate"
+    },
+    "vein_origin_shard": {
+      "zh": "地心原晶",
+      "color": [
+        230,
+        223,
+        167
+      ],
+      "kind": "shard"
+    },
+    "vein_origin_concentrate": {
+      "zh": "地心精晶",
+      "color": [
+        230,
+        223,
+        167
+      ],
+      "kind": "concentrate"
+    },
+    "vein_mineral_dust": {
+      "zh": "混合矿粉",
+      "color": [
+        143,
+        162,
+        159
+      ],
+      "kind": "dust"
+    },
+    "vein_filter_salt": {
+      "zh": "洗选盐",
+      "color": [
+        215,
+        225,
+        230
+      ],
+      "kind": "dust"
+    },
+    "vein_binding_resin": {
+      "zh": "晶脉黏结剂",
+      "color": [
+        163,
+        172,
+        86
+      ],
+      "kind": "dust"
+    },
+    "vein_spirit_coke": {
+      "zh": "地火晶炭",
+      "color": [
+        209,
+        96,
+        59
+      ],
+      "kind": "fuel"
+    },
+    "vein_blank_key": {
+      "zh": "空白共鸣钥",
+      "color": [
+        129,
+        142,
+        153
+      ],
+      "kind": "key"
+    },
+    "vein_azure_key": {
+      "zh": "苍蓝共鸣钥",
+      "color": [
+        64,
+        130,
+        218
+      ],
+      "kind": "key"
+    },
+    "vein_ember_key": {
+      "zh": "地火共鸣钥",
+      "color": [
+        235,
+        109,
+        53
+      ],
+      "kind": "key"
+    },
+    "vein_origin_key": {
+      "zh": "地心共鸣钥",
+      "color": [
+        238,
+        206,
+        111
+      ],
+      "kind": "key"
+    },
+    "vein_spring_tonic": {
+      "zh": "灵泉净液",
+      "color": [
+        82,
+        178,
+        183
+      ],
+      "kind": "drink"
+    },
+    "vein_ember_tonic": {
+      "zh": "地火御息液",
+      "color": [
+        224,
+        128,
+        74
+      ],
+      "kind": "drink"
+    },
+    "vein_azure_tonic": {
+      "zh": "苍蓝明目液",
+      "color": [
+        81,
+        135,
+        223
+      ],
+      "kind": "drink"
+    }
+  },
+  "layers": [
+    {
+      "index": 1,
+      "id": "dew",
+      "name": "露泉",
+      "min_y": 50,
+      "max_y": 63,
+      "spirit_drop": "spirit_stone"
+    },
+    {
+      "index": 2,
+      "id": "frost",
+      "name": "霜晶",
+      "min_y": 36,
+      "max_y": 49,
+      "spirit_drop": "spirit_stone"
+    },
+    {
+      "index": 3,
+      "id": "azure",
+      "name": "苍蓝",
+      "min_y": 22,
+      "max_y": 35,
+      "spirit_drop": "mid_spirit_stone"
+    },
+    {
+      "index": 4,
+      "id": "jade",
+      "name": "青髓",
+      "min_y": 8,
+      "max_y": 21,
+      "spirit_drop": "mid_spirit_stone"
+    },
+    {
+      "index": 5,
+      "id": "ember",
+      "name": "地火",
+      "min_y": -6,
+      "max_y": 7,
+      "spirit_drop": "high_spirit_stone"
+    },
+    {
+      "index": 6,
+      "id": "cinnabar",
+      "name": "赤汞",
+      "min_y": -20,
+      "max_y": -7,
+      "spirit_drop": "high_spirit_stone"
+    },
+    {
+      "index": 7,
+      "id": "gold",
+      "name": "金曜",
+      "min_y": -34,
+      "max_y": -21,
+      "spirit_drop": "high_spirit_stone"
+    },
+    {
+      "index": 8,
+      "id": "violet",
+      "name": "紫霄",
+      "min_y": -48,
+      "max_y": -35,
+      "spirit_drop": "supreme_spirit_stone"
+    },
+    {
+      "index": 9,
+      "id": "origin",
+      "name": "地心",
+      "min_y": -64,
+      "max_y": -49,
+      "spirit_drop": "supreme_spirit_stone"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "charger",
+  "ingredient": {
+    "item": "xiuxian:vein_blank_key"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "xiuxian:vein_ember_concentrate"
+  },
+  "reagent_count": 2,
+  "result": {
+    "item": "xiuxian:vein_ember_key",
+    "count": 1
+  },
+  "ticks": 200
+}

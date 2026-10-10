@@ -9,6 +9,8 @@ import net.minecraftforge.registries.RegistryObject;
 
 public final class XiuxianMenus {
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, "xiuxian");
+    public static final RegistryObject<MenuType<xiuxian.vein.VeinStationMenu>> VEIN_STATION = MENUS.register("vein_station",
+            () -> new MenuType<>(xiuxian.vein.VeinStationMenu::new, net.minecraft.world.flag.FeatureFlags.DEFAULT_FLAGS));
 
     public static final RegistryObject<MenuType<AlchemyFurnaceMenu>> MORTAL_FURNACE = register("alchemy_furnace", 1);
     public static final RegistryObject<MenuType<AlchemyFurnaceMenu>> SPIRIT_FURNACE = register("alchemy_furnace_spirit", 2);

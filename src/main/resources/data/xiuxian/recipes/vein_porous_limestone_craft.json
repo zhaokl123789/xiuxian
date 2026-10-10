@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "minecraft:deepslate"
+  },
+  "result": "xiuxian:vein_porous_limestone",
+  "count": 1
+}

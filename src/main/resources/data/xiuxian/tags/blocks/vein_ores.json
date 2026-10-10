@@ -1,0 +1,14 @@
+{
+  "replace": false,
+  "values": [
+    "xiuxian:vein_dew_ore",
+    "xiuxian:vein_frost_ore",
+    "xiuxian:vein_azure_ore",
+    "xiuxian:vein_jade_ore",
+    "xiuxian:vein_ember_ore",
+    "xiuxian:vein_cinnabar_ore",
+    "xiuxian:vein_gold_ore",
+    "xiuxian:vein_violet_ore",
+    "xiuxian:vein_origin_ore"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "distiller",
+  "ingredient": {
+    "item": "minecraft:glass_bottle"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "xiuxian:vein_azure_concentrate"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_azure_tonic",
+    "count": 1
+  },
+  "ticks": 160
+}

@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "crusher",
+  "ingredient": {
+    "item": "xiuxian:vein_salt_rock"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:flint"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_filter_salt",
+    "count": 2
+  },
+  "ticks": 100
+}

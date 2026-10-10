@@ -1,0 +1,27 @@
+{
+  "replace": false,
+  "values": [
+    "xiuxian:vein_dew_rock",
+    "xiuxian:vein_frost_rock",
+    "xiuxian:vein_azure_rock",
+    "xiuxian:vein_jade_rock",
+    "xiuxian:vein_ember_rock",
+    "xiuxian:vein_cinnabar_rock",
+    "xiuxian:vein_gold_rock",
+    "xiuxian:vein_violet_rock",
+    "xiuxian:vein_origin_rock",
+    "xiuxian:vein_strata_slate",
+    "xiuxian:vein_porous_limestone",
+    "xiuxian:vein_mica_schist",
+    "xiuxian:vein_magnetite",
+    "xiuxian:vein_sulfur_rock",
+    "xiuxian:vein_salt_rock",
+    "xiuxian:vein_red_ironstone",
+    "xiuxian:vein_obsidian_breccia",
+    "xiuxian:vein_calcite_ribs",
+    "xiuxian:vein_fossil_shale",
+    "xiuxian:vein_aquifer_rock",
+    "xiuxian:vein_rootstone",
+    "xiuxian:vein_arena_basalt"
+  ]
+}

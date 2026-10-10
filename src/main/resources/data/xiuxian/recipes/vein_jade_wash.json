@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "washer",
+  "ingredient": {
+    "item": "xiuxian:vein_jade_shard"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "xiuxian:vein_filter_salt"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_jade_concentrate",
+    "count": 2
+  },
+  "ticks": 120
+}

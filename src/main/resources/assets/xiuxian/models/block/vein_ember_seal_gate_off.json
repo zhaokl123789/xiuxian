@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "all": "xiuxian:block/vein_ember_seal_gate_off",
+    "particle": "xiuxian:block/vein_ember_seal_gate_off"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        5
+      ],
+      "to": [
+        16,
+        16,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#all"
+        },
+        "east": {
+          "texture": "#all",
+          "cullface": "east"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#all",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#all",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

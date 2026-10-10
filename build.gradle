@@ -35,11 +35,16 @@ minecraft {
         }
         client {
             workingDirectory project.file('run')
+            if (providers.gradleProperty('veinPreview').isPresent()) {
+                property 'xiuxian.veinPreview', 'true'
+            }
+            if (providers.gradleProperty('veinWorldPreview').isPresent()) property 'xiuxian.veinWorldPreview', 'true'
             property 'forge.logging.markers', 'registe_events'
             property 'forge.logging.console.level', 'debug'
             mods {
                 "xiuxian" {
                     source sourceSets.main
+                    if (providers.gradleProperty('veinPreview').isPresent() || providers.gradleProperty('veinWorldPreview').isPresent()) source sourceSets.test
                 }
             }
         }

@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "washer",
+  "ingredient": {
+    "item": "xiuxian:vein_dew_shard"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:water_bucket"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_dew_concentrate",
+    "count": 1
+  },
+  "ticks": 120
+}

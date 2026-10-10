@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "xiuxian:vein_jade_shard"
+  },
+  "result": "xiuxian:vein_jade_concentrate",
+  "experience": 0.2,
+  "cookingtime": 200
+}

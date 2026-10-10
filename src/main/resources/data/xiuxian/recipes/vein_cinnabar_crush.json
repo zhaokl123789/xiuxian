@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "crusher",
+  "ingredient": {
+    "item": "xiuxian:vein_cinnabar_shard"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:flint"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_mineral_dust",
+    "count": 2
+  },
+  "ticks": 80
+}

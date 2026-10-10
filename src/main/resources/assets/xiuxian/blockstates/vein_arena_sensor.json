@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/vein_arena_sensor"
+    },
+    "facing=east": {
+      "model": "xiuxian:block/vein_arena_sensor",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/vein_arena_sensor",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/vein_arena_sensor",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,lit=true": {
+      "model": "xiuxian:block/vein_reward_cache"
+    },
+    "facing=east,lit=true": {
+      "model": "xiuxian:block/vein_reward_cache",
+      "y": 90
+    },
+    "facing=south,lit=true": {
+      "model": "xiuxian:block/vein_reward_cache",
+      "y": 180
+    },
+    "facing=west,lit=true": {
+      "model": "xiuxian:block/vein_reward_cache",
+      "y": 270
+    },
+    "facing=north,lit=false": {
+      "model": "xiuxian:block/vein_reward_cache_off"
+    },
+    "facing=east,lit=false": {
+      "model": "xiuxian:block/vein_reward_cache_off",
+      "y": 90
+    },
+    "facing=south,lit=false": {
+      "model": "xiuxian:block/vein_reward_cache_off",
+      "y": 180
+    },
+    "facing=west,lit=false": {
+      "model": "xiuxian:block/vein_reward_cache_off",
+      "y": 270
+    }
+  }
+}

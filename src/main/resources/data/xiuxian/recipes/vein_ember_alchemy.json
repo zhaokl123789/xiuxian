@@ -1,0 +1,16 @@
+{
+  "type": "xiuxian:alchemy",
+  "ingredients": [
+    {
+      "item": "xiuxian:fire_warding_pill_base"
+    },
+    {
+      "item": "xiuxian:vein_ember_concentrate"
+    }
+  ],
+  "result": {
+    "item": "xiuxian:fire_warding_pill"
+  },
+  "experience": 0.3,
+  "cookingtime": 400
+}

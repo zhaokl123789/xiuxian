@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "forge",
+  "ingredient": {
+    "item": "xiuxian:vein_gold_concentrate"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:raw_gold"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "minecraft:gold_ingot",
+    "count": 2
+  },
+  "ticks": 240
+}

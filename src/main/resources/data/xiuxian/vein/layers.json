@@ -1,0 +1,74 @@
+[
+  {
+    "index": 1,
+    "id": "dew",
+    "name": "露泉",
+    "min_y": 50,
+    "max_y": 63,
+    "spirit_drop": "spirit_stone"
+  },
+  {
+    "index": 2,
+    "id": "frost",
+    "name": "霜晶",
+    "min_y": 36,
+    "max_y": 49,
+    "spirit_drop": "spirit_stone"
+  },
+  {
+    "index": 3,
+    "id": "azure",
+    "name": "苍蓝",
+    "min_y": 22,
+    "max_y": 35,
+    "spirit_drop": "mid_spirit_stone"
+  },
+  {
+    "index": 4,
+    "id": "jade",
+    "name": "青髓",
+    "min_y": 8,
+    "max_y": 21,
+    "spirit_drop": "mid_spirit_stone"
+  },
+  {
+    "index": 5,
+    "id": "ember",
+    "name": "地火",
+    "min_y": -6,
+    "max_y": 7,
+    "spirit_drop": "high_spirit_stone"
+  },
+  {
+    "index": 6,
+    "id": "cinnabar",
+    "name": "赤汞",
+    "min_y": -20,
+    "max_y": -7,
+    "spirit_drop": "high_spirit_stone"
+  },
+  {
+    "index": 7,
+    "id": "gold",
+    "name": "金曜",
+    "min_y": -34,
+    "max_y": -21,
+    "spirit_drop": "high_spirit_stone"
+  },
+  {
+    "index": 8,
+    "id": "violet",
+    "name": "紫霄",
+    "min_y": -48,
+    "max_y": -35,
+    "spirit_drop": "supreme_spirit_stone"
+  },
+  {
+    "index": 9,
+    "id": "origin",
+    "name": "地心",
+    "min_y": -64,
+    "max_y": -49,
+    "spirit_drop": "supreme_spirit_stone"
+  }
+]

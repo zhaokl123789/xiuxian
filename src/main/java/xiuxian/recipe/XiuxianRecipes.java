@@ -9,6 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public final class XiuxianRecipes {
+    public static final RecipeType<VeinProcessingRecipe> VEIN_TYPE = RecipeType.simple(new ResourceLocation("xiuxian", "vein_processing"));
     public static final RecipeType<AlchemyRecipe> ALCHEMY_TYPE =
             RecipeType.simple(new ResourceLocation("xiuxian", "alchemy_mortal"));
     public static final RecipeType<AlchemyRecipe> SPIRIT_ALCHEMY_TYPE =
@@ -20,6 +21,7 @@ public final class XiuxianRecipes {
 
     private static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS =
             DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, "xiuxian");
+    public static final RegistryObject<RecipeSerializer<?>> VEIN_SERIALIZER = SERIALIZERS.register("vein_processing", VeinProcessingRecipe.Serializer::new);
 
     public static final RegistryObject<RecipeSerializer<?>> ALCHEMY_SERIALIZER = SERIALIZERS.register("alchemy",
             () -> new AlchemyRecipe.Serializer(ALCHEMY_TYPE));

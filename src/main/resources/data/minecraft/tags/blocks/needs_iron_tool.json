@@ -1,6 +1,12 @@
 {
   "replace": false,
   "values": [
-    "xiuxian:mid_spirit_stone_ore"
+    "xiuxian:mid_spirit_stone_ore",
+    "xiuxian:vein_dew_ore",
+    "xiuxian:vein_frost_ore",
+    "xiuxian:vein_azure_ore",
+    "xiuxian:vein_jade_ore",
+    "xiuxian:vein_ember_ore",
+    "xiuxian:vein_cinnabar_ore"
   ]
 }

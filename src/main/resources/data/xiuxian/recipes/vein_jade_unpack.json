@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "xiuxian:vein_jade_block"
+    }
+  ],
+  "result": {
+    "item": "xiuxian:vein_jade_concentrate",
+    "count": 9
+  }
+}

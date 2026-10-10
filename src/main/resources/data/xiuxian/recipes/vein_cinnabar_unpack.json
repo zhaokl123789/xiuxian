@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "xiuxian:vein_cinnabar_block"
+    }
+  ],
+  "result": {
+    "item": "xiuxian:vein_cinnabar_concentrate",
+    "count": 9
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/vein_shield_pillar"
+    },
+    "facing=east": {
+      "model": "xiuxian:block/vein_shield_pillar",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/vein_shield_pillar",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/vein_shield_pillar",
+      "y": 270
+    }
+  }
+}

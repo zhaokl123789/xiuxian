@@ -181,6 +181,7 @@ public class AlchemyFurnaceBlockEntity extends BlockEntity implements Container,
     }
 
     private static int fuelDuration(ItemStack stack) {
+        if (stack.is(VeinBlocks.material("vein_spirit_coke"))) return 3200;
         if (!AbstractFurnaceBlockEntity.isFuel(stack)) return 0;
         if (stack.is(Items.LAVA_BUCKET)) return 20000;
         if (stack.is(Items.COAL_BLOCK)) return 16000;

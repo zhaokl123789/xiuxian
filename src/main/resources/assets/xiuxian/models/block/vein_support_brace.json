@@ -1,0 +1,117 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "all": "xiuxian:block/vein_support_brace",
+    "particle": "xiuxian:block/vein_support_brace"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        3,
+        16,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#all"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#all",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#all",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        3
+      ],
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#all",
+          "cullface": "east"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all"
+        },
+        "up": {
+          "texture": "#all",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#all",
+          "cullface": "down"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        13,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "cullface": "north"
+        },
+        "east": {
+          "texture": "#all",
+          "cullface": "east"
+        },
+        "south": {
+          "texture": "#all"
+        },
+        "west": {
+          "texture": "#all",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#all",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#all"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "xiuxian:block/vein_assay_table"
+    },
+    "facing=east": {
+      "model": "xiuxian:block/vein_assay_table",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "xiuxian:block/vein_assay_table",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "xiuxian:block/vein_assay_table",
+      "y": 270
+    }
+  }
+}

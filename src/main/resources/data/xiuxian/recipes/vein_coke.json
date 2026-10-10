@@ -1,0 +1,17 @@
+{
+  "type": "xiuxian:vein_processing",
+  "station": "forge",
+  "ingredient": {
+    "item": "xiuxian:vein_ember_shard"
+  },
+  "input_count": 1,
+  "reagent": {
+    "item": "minecraft:coal"
+  },
+  "reagent_count": 1,
+  "result": {
+    "item": "xiuxian:vein_spirit_coke",
+    "count": 4
+  },
+  "ticks": 120
+}

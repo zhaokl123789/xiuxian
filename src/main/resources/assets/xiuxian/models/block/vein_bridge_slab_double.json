@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "xiuxian:block/vein_bridge_slab",
+    "bottom": "xiuxian:block/vein_bridge_slab",
+    "top": "xiuxian:block/vein_bridge_slab",
+    "side": "xiuxian:block/vein_bridge_slab"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "type": "xiuxian:luoxia_inner",
   "generator": {
-    "type": "minecraft:flat",
+    "type": "xiuxian:nine_layer_vein",
     "settings": {
       "biome": "minecraft:plains",
       "features": false,

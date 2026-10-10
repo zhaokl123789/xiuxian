@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "xiuxian:vein_violet_shard"
+  },
+  "result": "xiuxian:vein_violet_concentrate",
+  "experience": 0.2,
+  "cookingtime": 200
+}

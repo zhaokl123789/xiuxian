@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:slime_ball"
+    },
+    {
+      "item": "xiuxian:vein_mineral_dust"
+    }
+  ],
+  "result": {
+    "item": "xiuxian:vein_binding_resin",
+    "count": 4
+  }
+}

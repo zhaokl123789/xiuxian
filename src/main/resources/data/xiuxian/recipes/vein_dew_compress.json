@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "XXX",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "xiuxian:vein_dew_concentrate"
+    }
+  },
+  "result": {
+    "item": "xiuxian:vein_dew_block",
+    "count": 1
+  }
+}
